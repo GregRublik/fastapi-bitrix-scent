@@ -1,16 +1,22 @@
 from fastapi import FastAPI, Body
 from urllib.parse import parse_qs
 from fastapi.responses import RedirectResponse
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
 from os import getenv
 import aiohttp
 import datetime
+import uvicorn
+import asyncio
 
 
 load_dotenv()
 app = FastAPI()
 session = aiohttp.ClientSession()
 portal_url = getenv('PORTAL_URL')
+hosting_url = getenv('HOSTING_URL')
+# client_secret = getenv('CLIENT_SECRET')
+scheduler = AsyncIOScheduler()
 
 
 @app.post("/activity_update/")  # исходящий вебхук 387
@@ -18,10 +24,9 @@ async def activity_update(
     data: str = Body()
 ):
     """
-    Обработчик для дела. При изменении дела он проверяет принадлежит ли оно
+    Обработчик для дела. При изменении дела он проверяет, принадлежит ли оно
     воронке "закуп ВЭД" и если да то записывает "дату прихода на наш склад"
-    в историю. Надо еще добавить проверку что дело соответствует определенному
-    шаблону
+    в историю. Также он проверяет, что дело начинается на "подтвердите дату"
     """
     data_parsed = parse_qs(data)
     activity_id = data_parsed['data[FIELDS][ID]'][0]
@@ -33,17 +38,19 @@ async def activity_update(
         activity = await activity.json()
         if (activity['result']['OWNER_TYPE_ID'] == '1058' and activity['result']['COMPLETED'] == 'Y'
                 and 'Подтвердите дату' in activity['result']['DESCRIPTION']):
-
+            print('da')
             async with session.get(
                 url=f"""{portal_url}rest/crm.item.get?auth={access_token}&entityTypeId=1058
                 &id={activity['result']['OWNER_ID']}""") as element:
                 element = await element.json()
 
                 field_history = element['result']['item']['ufCrm41_1724744699216']
+            print(element['result']['item']['stageId'])
             if element['result']['item']['stageId'] in ['DT1058_69:UC_1CO49M',
                                                         'DT1058_69:UC_D22INS',
                                                         'DT1058_69:UC_74Q414']:
                 fields_to_url = ''
+
                 if field_history:
                     pass
                 else:
@@ -51,8 +58,8 @@ async def activity_update(
                     field_history.append('')
                 for i, v in enumerate(field_history):
                     fields_to_url += f"fields[ufCrm41_1724744699216][{i}]=" + str(v) + "&"
-                    new_recording = f"Дата мониторинга: {datetime.date.today().isoformat()} |\
-                     Дата прихода на наш склад: {element['result']['item']['ufCrm41_1724228599427'][:10]}"
+                    new_recording = f"Дата мониторинга: {datetime.date.today().isoformat()} | \
+                    Дата прихода на наш склад: {element['result']['item']['ufCrm41_1724228599427'][:10]}"
                 fields_to_url += f"fields[ufCrm41_1724744699216][{i+1}]={new_recording}"
                 url = f"{portal_url}rest/crm.item.update?auth={access_token}&entityTypeId=1058&\
                 id={activity['result']['OWNER_ID']}&{fields_to_url}"
@@ -78,21 +85,22 @@ async def auth(
 
 @app.post("/reboot_tokens/")
 async def reboot_tokens(
-    client_secret: str
+    client_secret_app: str
 ):
     with open('auth/refresh_token.txt', 'r') as file:
         refresh_token = file.read()
     with open('auth/client_id.txt', 'r') as file:
         client_id = file.read()
     with open('auth/client_secret.txt', 'r') as file:
-        client_secret_file = file.read()
-    if f"{client_secret}\n" == client_secret_file:
+        client_secret = file.read()
+    if f"{client_secret_app}\n" == client_secret:
         async with session.get(
             url=f"https://oauth.bitrix.info/oauth/token/?grant_type=refresh_token&\
             client_id={client_id}&\
-            client_secret={client_secret}&\
+            client_secret={client_secret_app}&\
             refresh_token={refresh_token}"
         ) as update_tokens:
+
             result_update_tokens = await update_tokens.json()
             with open('auth/refresh_token.txt', 'w') as file:
                 file.write(result_update_tokens["refresh_token"])
@@ -114,22 +122,12 @@ async def handler(
     with open('auth/access_token.txt', 'r') as file:
         access_token = file.read()
 
-#     url=f"""{portal_url}rest/imbot.message.add?auth={access_token}
-# &MESSAGE=Подтвердите получение информации о смене даты прихода
-# c {date_old} на новую {date_new}
-# &KEYBOARD[0][TEXT]=Подтвердить
-# &KEYBOARD[0][COMMAND]=confirm_date_coming
-# &KEYBOARD[0][BG_COLOR_TOKEN]=alert
-# &KEYBOARD[0][COMMAND_PARAMS]={id_element}
-# &DIALOG_ID=77297
-# &KEYBOARD[0][BLOCK]=Y
-# """
     url = f"""
     {portal_url}rest/im.message.add?auth={access_token}
 &MESSAGE=Подтвердите получение информации о смене даты прихода 
 c {date_old} на новую {date_new} по сделке: [URL={link_element}]{name_element}[/URL]
 &KEYBOARD[0][TEXT]=Подтвердить
-&KEYBOARD[0][LINK]=https://85a9-81-195-149-162.ngrok-free.app/test/?ID={id_element}
+&KEYBOARD[0][LINK]={hosting_url}handler_button/?ID={id_element}
 &KEYBOARD[0][BG_COLOR_TOKEN]=alert
 &DIALOG_ID=77297
 &KEYBOARD[0][BLOCK]=Y
@@ -138,13 +136,19 @@ c {date_old} на новую {date_new} по сделке: [URL={link_element}]{
     async with session.get(url=url) as result:
         message = await result.json()
         id_message = message['result']
-        async with session.get(url=f"{portal_url}rest/crm.item.update?auth={access_token}&entityTypeId=1058&id={id_element}&fields[ufCrm41_1725274475524]={id_message}") as element:
+        async with session.get(url=f"{portal_url}rest/crm.item.get?auth={access_token}&entityTypeId=1058\
+        &id={id_element}") as element:
+            update_element = await element.json()
+            url_new_id_message = ''
+
+            if update_element['result']['item']['ufCrm41_1725436565']:
+                for i, v in enumerate(update_element['result']['item']['ufCrm41_1725436565']):
+                    url_new_id_message += f'fields[ufCrm41_1725436565][{i+1}]={v}&'
+            url_new_id_message += f'fields[ufCrm41_1725436565][0]={id_message}&'
+        async with session.get(url=f"{portal_url}rest/crm.item.update?auth={access_token}&entityTypeId=1058\
+        &id={id_element}&{url_new_id_message}") as element:
             el = await element.json()
         return {"status_code": 200, 'result': await result.json()}
-# im.message.add   MESSAGE=Подтвердите получение&KEYBOARD[0][TEXT]=Подтвердить&KEYBOARD[0][COMMAND]=confirm_date_coming&KEYBOARD[0][BG_COLOR_TOKEN]=alert&KEYBOARD[0][COMMAND_PARAMS]=107&DIALOG_ID=77297
-# &FROM_USER_ID=55810
-# &TO_USER_ID=77297
-# &BOT_ID=77853
 
 
 @app.post('/main_handler/')
@@ -166,34 +170,30 @@ async def main_handler(
     return {'status_code': 400, 'Bad Request': 'Invalid client_secret'}
 
 
-@app.post('/handler_command/')
-async def handler_command(
-    data: str = Body()
-):
-    data_parsed = parse_qs(data)
-    with open('auth/access_token.txt', 'r') as file:
-        access_token = file.read()
-    url = f"""{portal_url}rest/crm.timeline.comment.add?auth={access_token}&fields[AUTHOR_ID]=77297&fields[ENTITY_TYPE]=DYNAMIC_1058&fields[ENTITY_ID]={data_parsed['data[COMMAND][113][COMMAND_PARAMS]'][0]}&fields[COMMENT]=Инициатор ознакомлен с новой датой прихода! Дата ознакомления: {datetime.date.today().isoformat()}"""
-    async with session.get(url=url) as res:
-        result = await res.json()
-    async with session.get(url=f"""{portal_url}rest/imbot.message.update?BOT_ID=78051&MESSAGE_ID={data_parsed['data[PARAMS][MESSAGE_ID]'][0]}&auth={access_token}&KEYBOARD=0""") as res:
-        update_message = await res.json()
-    return RedirectResponse(url=f"https://sporbita.bitrix24.ru/crm/type/1058/details/{data_parsed['data[COMMAND][113][COMMAND_PARAMS]'][0]}/")
-
-
-@app.get('/test/')
-async def handler_command(
+@app.get('/handler_button/')
+async def handler_button(
     ID: int
 ):
     with open('auth/access_token.txt', 'r') as file:
         access_token = file.read()
-    async with session.get(url=f"{portal_url}rest/crm.item.get?auth={access_token}&entityTypeId=1058&id={ID}") as element:
+    async with session.get(
+            url=f"{portal_url}rest/crm.item.get?auth={access_token}&entityTypeId=1058&id={ID}"
+    ) as element:
         el = await element.json()
-        print(el)
-    url = f"""{portal_url}rest/crm.timeline.comment.add?auth={access_token}&fields[AUTHOR_ID]=77297&fields[ENTITY_TYPE]=DYNAMIC_1058&fields[ENTITY_ID]={ID}&fields[COMMENT]=Инициатор ознакомлен с новой датой прихода! Дата ознакомления: {datetime.date.today().isoformat()}"""
+    url = f"""{portal_url}rest/crm.timeline.comment.add?auth={access_token}
+&fields[AUTHOR_ID]=77297&fields[ENTITY_TYPE]=DYNAMIC_1058&fields[ENTITY_ID]={ID}
+&fields[COMMENT]=Инициатор ознакомлен с новой датой прихода! Дата ознакомления: {datetime.date.today().isoformat()}"""
     async with session.get(url=url) as res:
         result = await res.json()
-    async with session.get(url=f"""{portal_url}rest/im.message.update?BOT_ID=78051&MESSAGE_ID={el['result']['item']['ufCrm41_1725274475524']}&auth={access_token}&KEYBOARD=0""") as res:
-        update_message = await res.json()
+    for i in el['result']['item']['ufCrm41_1725436565']:
+        if i != 0:
+            async with session.get(url=f"""{portal_url}rest/im.message.update?BOT_ID=78051
+&MESSAGE_ID={i}&auth={access_token}&KEYBOARD=0&MESSAGE=Подтверждено получение информации о смене даты прихода на новую \
+{el['result']['item']['ufCrm41_1724228599427'][:10]} по сделке: \
+[URL={portal_url}crm/type/1058/details/{ID}/]{el['result']['item']['title']}[/URL]""") as res:
+                update_message = await res.json()
+    async with session.get(url=f"{portal_url}rest/crm.item.update?auth={access_token}&entityTypeId=1058&id={ID}\
+    &fields[ufCrm41_1725436565]=''") as update_item:
+        update_item = await update_item.json()
 
-    return RedirectResponse(url=f"https://sporbita.bitrix24.ru/crm/type/1058/details/{ID}/")
+    return RedirectResponse(url=f"{portal_url}crm/type/1058/details/{ID}/")
