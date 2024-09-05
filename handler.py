@@ -93,7 +93,7 @@ async def reboot_tokens(
         client_id = file.read()
     with open('auth/client_secret.txt', 'r') as file:
         client_secret = file.read()
-    if f"{client_secret_app}\n" == client_secret:
+    if client_secret_app == client_secret:
         async with session.get(
             url=f"https://oauth.bitrix.info/oauth/token/?grant_type=refresh_token&\
             client_id={client_id}&\
@@ -124,8 +124,8 @@ async def handler(
 
     url = f"""
     {portal_url}rest/im.message.add?auth={access_token}
-&MESSAGE=Подтвердите получение информации о смене даты прихода 
-c {date_old} на новую {date_new} по сделке: [URL={link_element}]{name_element}[/URL]
+&MESSAGE=[SIZE=16][B]⚠️Подтвердите получение информации о смене даты прихода 
+c {date_old} на новую {date_new} по сделке: [URL={link_element}]{name_element}[/URL][/B][/SIZE]
 &KEYBOARD[0][TEXT]=Подтвердить
 &KEYBOARD[0][LINK]={hosting_url}handler_button/?ID={id_element}
 &KEYBOARD[0][BG_COLOR_TOKEN]=alert
@@ -162,7 +162,7 @@ async def main_handler(
     with open('auth/client_secret.txt', 'r') as file:
         secret = file.read()
 
-    if f"{client_secret}\n" == secret:
+    if client_secret == secret:
         url = f"{portal_url}rest/{method}?auth={access_token}&{params}"
         async with session.get(url=url) as result:
             result = await result.json()
@@ -188,12 +188,13 @@ async def handler_button(
     for i in el['result']['item']['ufCrm41_1725436565']:
         if i != 0:
             async with session.get(url=f"""{portal_url}rest/im.message.update?BOT_ID=78051
-&MESSAGE_ID={i}&auth={access_token}&KEYBOARD=0&MESSAGE=Подтверждено получение информации о смене даты прихода на новую \
+&MESSAGE_ID={i}&auth={access_token}&KEYBOARD=0&MESSAGE=[SIZE=16][B]✔️Подтверждено получение информации о смене даты прихода на новую \
 {el['result']['item']['ufCrm41_1724228599427'][:10]} по сделке: \
-[URL={portal_url}crm/type/1058/details/{ID}/]{el['result']['item']['title']}[/URL]""") as res:
+[URL={portal_url}crm/type/1058/details/{ID}/]{el['result']['item']['title']}[/URL][/B][/SIZE]""") as res:
                 update_message = await res.json()
     async with session.get(url=f"{portal_url}rest/crm.item.update?auth={access_token}&entityTypeId=1058&id={ID}\
     &fields[ufCrm41_1725436565]=''") as update_item:
         update_item = await update_item.json()
 
     return RedirectResponse(url=f"{portal_url}crm/type/1058/details/{ID}/")
+
