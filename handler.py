@@ -1,13 +1,14 @@
 from fastapi import FastAPI, Body
-from urllib.parse import parse_qs
+from typing import Dict, Union
+from models import MainHandler
+from urllib.parse import parse_qs, urlencode
+from auxiliary_functions import check_token
 from fastapi.responses import RedirectResponse
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
 from os import getenv
 import aiohttp
 import datetime
-import uvicorn
-import asyncio
 
 
 load_dotenv()
@@ -15,11 +16,34 @@ app = FastAPI()
 session = aiohttp.ClientSession()
 portal_url = getenv('PORTAL_URL')
 hosting_url = getenv('HOSTING_URL')
-# client_secret = getenv('CLIENT_SECRET')
 scheduler = AsyncIOScheduler()
 
 
-@app.post("/activity_update/")  # исходящий вебхук 387
+@app.post('/main_handler/', tags=["Universal"])
+async def main_handler(
+    method: str,
+    client_secret: str,
+    params: str,
+):
+    """
+    Главный обработчик. Предназначен для отправки любых запросов согласно установленных прав приложения.
+    """
+    check_token(client_secret)
+
+    with open('auth/access_token.txt', 'r') as file:
+        access_token = file.read()
+    with open('auth/client_secret.txt', 'r') as file:
+        secret = file.read()
+
+    if client_secret == secret:
+        url = f"{portal_url}rest/{method}?auth={access_token}&{params}"
+        async with session.get(url=url) as result:
+            result = await result.json()
+        return {'status_code': 200, 'result': result}
+    return {'status_code': 400, 'Bad Request': 'Invalid client_secret'}
+
+
+@app.post("/activity_update/",  tags=['Purchase VED'])  # исходящий вебхук 387
 async def activity_update(
     data: str = Body()
 ):
@@ -38,14 +62,12 @@ async def activity_update(
         activity = await activity.json()
         if (activity['result']['OWNER_TYPE_ID'] == '1058' and activity['result']['COMPLETED'] == 'Y'
                 and 'Подтвердите дату' in activity['result']['DESCRIPTION']):
-            print('da')
             async with session.get(
                 url=f"""{portal_url}rest/crm.item.get?auth={access_token}&entityTypeId=1058
                 &id={activity['result']['OWNER_ID']}""") as element:
                 element = await element.json()
 
                 field_history = element['result']['item']['ufCrm41_1724744699216']
-            print(element['result']['item']['stageId'])
             if element['result']['item']['stageId'] in ['DT1058_69:UC_1CO49M',
                                                         'DT1058_69:UC_D22INS',
                                                         'DT1058_69:UC_74Q414']:
@@ -71,8 +93,8 @@ async def activity_update(
         return {'status_code': 400, 'result': 'you invalid'}
 
 
-@app.post("/authorization/")
-async def auth(
+@app.post("/app_install/",  tags=['Authentication'])
+async def app_install(
     data: str = Body()
 ):
     data_parsed = parse_qs(data)
@@ -83,41 +105,73 @@ async def auth(
     return {"status_code": 200}
 
 
-@app.post("/reboot_tokens/")
-async def reboot_tokens(
-    client_secret_app: str
+@app.post("/task_delegate/")
+async def task_delegate(
+        ID: int,
+        client_secret: str
 ):
+    """
+    Метод для делегирования всех задач сотрудника на руководителя при его увольнении
+    """
+    check_token(client_secret)
+    with open('auth/access_token.txt', 'r') as file:
+        access_token = file.read()
+
+    list_task = await session.get(url=(f"{portal_url}rest/tasks.task.list"
+                                       f"?auth={access_token}&filter[<REAL_STATUS]=5&filter[RESPONSIBLE_ID]={ID}"
+                                       f"&select[0]=ID"))
+    list_task = await list_task.json()
+    user = await session.get(url=(f"{portal_url}rest/user.get"
+                                  f"?auth={access_token}&ID={ID}"))
+    user = await user.json()
+
+    department = await session.get(url=(f"{portal_url}rest/department.get"
+                                        f"?auth={access_token}&ID={user['result'][0]['UF_DEPARTMENT'][0]}"))
+    department = await department.json()
+    for task in list_task['result']['tasks']:
+        await session.get(url=(f"{portal_url}rest/tasks.task.update?auth={access_token}"
+                               f"&taskId={task['id']}&fields[RESPONSIBLE_ID]={department['result'][0]['UF_HEAD']}"))
+    return {"status_code": 200, "list id task": list_task}
+
+
+@app.post("/reboot_tokens/",  tags=['Authentication'])
+async def reboot_tokens(
+    client_secret: str
+):
+    check_token(client_secret)
     with open('auth/refresh_token.txt', 'r') as file:
         refresh_token = file.read()
     with open('auth/client_id.txt', 'r') as file:
         client_id = file.read()
     with open('auth/client_secret.txt', 'r') as file:
         client_secret = file.read()
-    if client_secret_app == client_secret:
-        async with session.get(
-            url=f"https://oauth.bitrix.info/oauth/token/?grant_type=refresh_token&\
-            client_id={client_id}&\
-            client_secret={client_secret_app}&\
-            refresh_token={refresh_token}"
-        ) as update_tokens:
-
-            result_update_tokens = await update_tokens.json()
-            with open('auth/refresh_token.txt', 'w') as file:
-                file.write(result_update_tokens["refresh_token"])
-            with open('auth/access_token.txt', 'w') as file:
-                file.write(result_update_tokens["access_token"])
-            return {'status_code': 200, 'result': result_update_tokens}
-    return {'status_code': 400, 'Bad Request': 'Invalid client_secret'}
+    update_tokens = await session.get(
+        url=f"https://oauth.bitrix.info/oauth/token/?grant_type=refresh_token&\
+        client_id={client_id}&\
+        client_secret={client_secret}&\
+        refresh_token={refresh_token}"
+    )
+    result_update_tokens = await update_tokens.json()
+    with open('auth/refresh_token.txt', 'w') as file:
+        file.write(result_update_tokens["refresh_token"])
+    with open('auth/access_token.txt', 'w') as file:
+        file.write(result_update_tokens["access_token"])
+    return {'status_code': 200, 'result': result_update_tokens}
 
 
-@app.post("/handler/")
+@app.post("/handler/", tags=['Purchase VED'])
 async def handler(
     id_element: str,
     date_old: str,
     date_new: str,
     link_element: str,
-    name_element: str
+    name_element: str,
+    client_secret: str
 ):
+    check_token(client_secret)
+    """
+    Создание сообщения с кнопкой, для подтверждения об ознакомлении.
+    """
 
     with open('auth/access_token.txt', 'r') as file:
         access_token = file.read()
@@ -151,29 +205,25 @@ c {date_old} на новую {date_new} по сделке: [URL={link_element}]{
         return {"status_code": 200, 'result': await result.json()}
 
 
-@app.post('/main_handler/')
-async def main_handler(
-    method: str,
-    client_secret: str,
-    params: str | None = None,
-):
-    with open('auth/access_token.txt', 'r') as file:
-        access_token = file.read()
-    with open('auth/client_secret.txt', 'r') as file:
-        secret = file.read()
-
-    if client_secret == secret:
-        url = f"{portal_url}rest/{method}?auth={access_token}&{params}"
-        async with session.get(url=url) as result:
-            result = await result.json()
-        return {'status_code': 200, 'result': result}
-    return {'status_code': 400, 'Bad Request': 'Invalid client_secret'}
+# @app.post("/main_handler_test/")
+# async def main_handler_test(
+#     data: MainHandler
+# ):
+#     url_str = urlencode(data.params)
+#     data_parsed = parse_qs(url_str)
+#     # print(data.params)
+#     # print(type(data.params['additionalProp2']))
+#     print(url_str)
+#     print(data_parsed)
 
 
-@app.get('/handler_button/')
+@app.get('/handler_button/', tags=['Purchase VED'])
 async def handler_button(
     ID: int
 ):
+    """
+    Срабатывает при нажатии на кнопку "Подтвердить в сообщении."
+    """
     with open('auth/access_token.txt', 'r') as file:
         access_token = file.read()
     async with session.get(
@@ -197,4 +247,3 @@ async def handler_button(
         update_item = await update_item.json()
 
     return RedirectResponse(url=f"{portal_url}crm/type/1058/details/{ID}/")
-

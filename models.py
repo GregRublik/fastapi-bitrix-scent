@@ -1,20 +1,12 @@
-# class Fields(BaseModel):
-#     ID: str
-#
-#
-# class Data(BaseModel):
-#     FIELDS: Fields
-#
-#
-# class Auth(BaseModel):
-#     domain: str
-#     client_endpoint: str
-#     server_endpoint: str
-#     member_id: str
-#     application_token: str
-#
-#
-# # class Data(BaseModel):#     event: str | None = None
-# #     event_handler_id: int | None = None
-# #     data: Data | None = None#     ts: int | None = None
-# #     auth: Auth | None = None
+from pydantic import BaseModel
+from typing import Dict, Any, List
+
+
+class InvalidToken(Exception):
+    pass
+
+
+class MainHandler(BaseModel):
+    client_secret: str
+    method: str
+    params: Dict[str, Dict[str, Dict[str, str | Dict] | str | int] | int | str]
