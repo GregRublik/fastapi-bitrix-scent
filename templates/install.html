@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
+{% extends "base.html" %}
+{% block head %}
     <script src="//api.bitrix24.com/api/v1/"></script>
-</head>
-<body>
+{% endblock %}
+{% block body %}
     <h1>
         Приложение установлено
     </h1>
@@ -12,5 +11,4 @@
             print("Приложение установлено");
         });
     </script>
-</body>
-</html>
+{% endblock %}

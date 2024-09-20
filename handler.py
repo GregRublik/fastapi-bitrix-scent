@@ -1,15 +1,12 @@
 import os
 import ast
 from os import getenv
-from typing import Annotated, Text
-
-from fastapi import FastAPI, Body, Request, Query
+from fastapi import FastAPI, Body, Request
 from urllib.parse import parse_qs
 from functions import check_token
 from fastapi.responses import RedirectResponse
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from config import portal_url, hosting_url, client_id, secret
-from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import aiohttp
@@ -94,7 +91,6 @@ async def activity_update(
     url = f"{portal_url}rest/crm.activity.get?auth={getenv('ACCESS_TOKEN')}&ID={activity_id}"
     activity = await session.get(url=url)
     activity = await activity.json()
-    # print(activity)
     if (activity['result']['OWNER_TYPE_ID'] == '1058' and activity['result']['COMPLETED'] == 'Y'
             and 'Подтвердите дату' in activity['result']['DESCRIPTION']):
 
@@ -102,7 +98,6 @@ async def activity_update(
             url=f"""{portal_url}rest/crm.item.get?auth={getenv('ACCESS_TOKEN')}&entityTypeId=1058
             &id={activity['result']['OWNER_ID']}""") as element:
             element = await element.json()
-            # print(element)
             field_history = element['result']['item']['ufCrm41_1724744699216']
         if element['result']['item']['stageId'] in ['DT1058_69:UC_1CO49M',
                                                     'DT1058_69:UC_D22INS',
@@ -170,7 +165,7 @@ async def handler(
     """
 
     url = f"""
-    {portal_url}rest/im.message.add?auth={getenv('ACCESS_TOKEN')}
+{portal_url}rest/im.message.add?auth={getenv('ACCESS_TOKEN')}
 &MESSAGE=[SIZE=16][B]⚠️Подтвердите получение информации о смене даты прихода 
 c {date_old} на новую {date_new} по сделке: [URL={link_element}]{name_element}[/URL][/B][/SIZE]
 &KEYBOARD[0][TEXT]=Подтвердить
@@ -210,14 +205,16 @@ async def handler_button(
     ) as element:
         el = await element.json()
 
-    await session.get(url=f"{portal_url}rest/crm.timeline.comment.add?auth={getenv('ACCESS_TOKEN')}&fields[AUTHOR_ID]=77297"
+    await session.get(url=f"{portal_url}rest/crm.timeline.comment.add?auth={getenv('ACCESS_TOKEN')}"
+                          f"&fields[AUTHOR_ID]=77297"
                           f"&fields[ENTITY_TYPE]=DYNAMIC_1058&fields[ENTITY_ID]={ID}"
                           f"&fields[COMMENT]=Инициатор ознакомлен с новой датой прихода! "
                           f"Дата ознакомления: {datetime.date.today().isoformat()}")
     for i in el['result']['item']['ufCrm41_1725436565']:
         if i != 0:
             await session.get(url=f"""{portal_url}rest/im.message.update?BOT_ID=78051
-&MESSAGE_ID={i}&auth={getenv('ACCESS_TOKEN')}&KEYBOARD=0&MESSAGE=[SIZE=16][B]✔️Подтверждено получение информации о смене даты прихода на новую \
+&MESSAGE_ID={i}&auth={getenv('ACCESS_TOKEN')}&KEYBOARD=0
+&MESSAGE=[SIZE=16][B]✔️Подтверждено получение информации о смене даты прихода на новую \
 {el['result']['item']['ufCrm41_1724228599427'][:10]} по сделке: \
 [URL={portal_url}crm/type/1058/details/{ID}/]{el['result']['item']['title']}[/URL][/B][/SIZE]""")
 
@@ -242,12 +239,9 @@ async def invite_an_employee(
                                       f"&LAST_NAME={LAST_NAME}&WORK_POSITION={WORK_POSITION}"
                                       f"&PERSONAL_PHONE={PERSONAL_PHONE}&EMAIL={EMAIL}&UF_DEPARTMENT={UF_DEPARTMENT}")
     new_user = await new_user.json()
-    url = (f"{portal_url}rest/crm.item.update?auth={getenv('ACCESS_TOKEN')}&entityTypeId=191&id={ADAPTATION_ID}"
-           f"&fields[ufCrm19_1713532729]={new_user['result']}")
-
-    res = await session.post(
-        url=url
-    )
+    await session.post(url=(f"{portal_url}rest/crm.item.update?auth={getenv('ACCESS_TOKEN')}"
+                            f"&entityTypeId=191&id={ADAPTATION_ID}"
+                            f"&fields[ufCrm19_1713532729]={new_user['result']}"))
 
 
 @app.post("/test/")
@@ -261,16 +255,32 @@ async def task_panel(
     request: Request,
 
 ):
-
-    """Обработчик для установки приложения"""
+    """Приложение встроенное в интерфейс задачи"""
     data = await request.body()
-
-    # print(request.)
     data_parsed = parse_qs(data.decode())
+    user = await session.post(url=f"{portal_url}rest/user.current?auth={data_parsed['AUTH_ID'][0]}")
+    user_admin = await session.post(url=f"{portal_url}rest/user.admin?auth={data_parsed['AUTH_ID'][0]}")
+    user = await user.json()
+    user_admin = await user_admin.json()
     task_id = ast.literal_eval(data_parsed['PLACEMENT_OPTIONS'][0])["taskId"]
-    print(task_id)
-    return templates.TemplateResponse(request, name="task_panel.html", context={'task_id': task_id})
-
+    user_id = user['result']['ID']
+    element = await session.post(url=(f"{portal_url}rest/crm.item.list?auth={getenv('ACCESS_TOKEN')}&entityTypeId=131"
+                                      f"&filter[0][ufCrm12_1726745944152]={task_id}&select[0]=id&select[1]=title"
+                                      f"&select[2]=ufCrm12_1709192259979&select[3]=ufCrm12_1709191865371"))
+    element = await element.json()
+    list_access = {'114': 'accountant', '94': 'lawyer'}  # бухгалтера, юристы, отдел разработки
+    for i in user['result']['UF_DEPARTMENT']:  # перебираем все подразделения сотрудника
+        if element['total'] == 0:
+            return "Нет привязки к элементу согласования договора!"
+        elif i in list_access:  # Если есть разрешение
+            return templates.TemplateResponse(request, name="task_panel.html", context={'task_id': task_id,
+                                                                                        'user_id': user_id,
+                                                                                        'access': list_access['i']})
+        elif user_admin['result']:
+            return templates.TemplateResponse(request, name="task_panel.html", context={'task_id': task_id,
+                                                                                        'user_id': user_id,
+                                                                                        'access': 'admin'})
+    return "Доступ запрещен"
 
 if __name__ == "__main__":
     with open('auth/access.txt', 'r') as file:
