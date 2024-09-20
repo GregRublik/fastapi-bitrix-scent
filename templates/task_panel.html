@@ -4,28 +4,60 @@
 {% endblock %}
 {% block body %}
 {% if access == "accountant" or access == "admin" %}
-    <div class="select-container" id="select-container-accountant">
-        <label for="accountant">Бухгалтера</label>
-        <select id="accountant" class="form-select form-select-lg mb-1">
-            <option value="Согласован">Согласован</option>
-            <option value="Согласован с замечаниями">Согласован с замечаниями</option>
-            <option value="Несогласован">Несогласован</option>
-        </select>
-        <button type="button" class="btn" id="button-accountant">ПОДТВЕРДИТЬ</button>
-    </div>
+    {% if approval_status.accountant in [0, 1035] %}
+
+        <div class="select-container" id="select-container-accountant">
+            <label for="accountant">Бухгалтера</label>
+            <select id="accountant" class="form-select form-select-lg mb-1">
+                <option value="Согласован">Согласован</option>
+                <option value="Согласован с замечаниями">Согласован с замечаниями</option>
+                <option value="Несогласован">Несогласован</option>
+            </select>
+            <button type="button" class="btn" id="button-accountant">ПОДТВЕРДИТЬ</button>
+        </div>
+    {% else %}
+        {{ approval_status.accountant }}
+        Договор согласован бухгалтером
+    {% endif %}
 {% endif %}
 {% if access == "lawyer" or access == "admin" %}
-    <div class="select-container" id="select-container-lawyer">
-        <label for="lawyer">Юристы</label>
-        <select id="lawyer" class="form-select form-select-lg mb-1">
-            <option value="Согласован">Согласован</option>
-            <option value="Согласован с замечаниями">Согласован с замечаниями</option>
-            <option value="Несогласован">Несогласован</option>
-        </select>
-        <button type="button" class="btn">ПОДТВЕРДИТЬ</button>
-    </div>
+    {% if approval_status.lawyer in [0, 1041] %}
+
+        <div class="select-container" id="select-container-lawyer">
+            <label for="lawyer">Юристы</label>
+            <select id="lawyer" class="form-select form-select-lg mb-1">
+                <option value="Согласован">Согласован</option>
+                <option value="Согласован с замечаниями">Согласован с замечаниями</option>
+                <option value="Несогласован">Несогласован</option>
+            </select>
+            <button type="button" class="btn" id="button-lawyer">ПОДТВЕРДИТЬ</button>
+        </div>
+    {% else %}
+        {{ approval_status.lawyer }}
+        Договор согласован юристом
+    {% endif %}
 {% endif %}
 {% endblock %}
 {% block footer %}
+    <script>
+    var task_id = "{{ task_id }}"
+        const button_accountant = document.querySelector('#button-accountant');
+        button_accountant.addEventListener('click', function() {
+            BX24.init(function(){
+                BX24.callMethod('crm.item.update', {'entityTypeId': 131, 'id': task_id}, function(res){
+
+                });
+            });
+        });
+
+        const button_lawyer = document.querySelector('#button-lawyer');
+        button_lawyer.addEventListener('click', function() {
+            BX24.init(function(){
+                BX24.callMethod('crm.item.update', {'entityTypeId': 131, 'id': task_id }, function(res){
+
+                });
+            });
+        });
+    </script>
     <script src="/static/task_panel.js"></script>
 {% endblock %}

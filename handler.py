@@ -264,22 +264,31 @@ async def task_panel(
     user_admin = await user_admin.json()
     task_id = ast.literal_eval(data_parsed['PLACEMENT_OPTIONS'][0])["taskId"]
     user_id = user['result']['ID']
-    element = await session.post(url=(f"{portal_url}rest/crm.item.list?auth={getenv('ACCESS_TOKEN')}&entityTypeId=131"
+    element = await session.post(url=(f"{portal_url}rest/crm.item.list?auth={getenv('ACCESS_TOKEN')}&entityTypeId=131" ## получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
                                       f"&filter[0][ufCrm12_1726745944152]={task_id}&select[0]=id&select[1]=title"
                                       f"&select[2]=ufCrm12_1709192259979&select[3]=ufCrm12_1709191865371"))
     element = await element.json()
-    list_access = {'114': 'accountant', '94': 'lawyer'}  # бухгалтера, юристы, отдел разработки
+    list_access = {'114': 'accountant', '94': 'lawyer'}  # бухгалтера, юристы
     for i in user['result']['UF_DEPARTMENT']:  # перебираем все подразделения сотрудника
         if element['total'] == 0:
             return "Нет привязки к элементу согласования договора!"
-        elif i in list_access:  # Если есть разрешение
-            return templates.TemplateResponse(request, name="task_panel.html", context={'task_id': task_id,
-                                                                                        'user_id': user_id,
-                                                                                        'access': list_access['i']})
+        else:
+            approval_status = {"accountant": element['result']["items"][0]['ufCrm12_1709191865371'],
+                               "lawyer": element['result']["items"][0]['ufCrm12_1709192259979']}
+        if i in list_access:  # Если есть разрешение
+            return templates.TemplateResponse(request,
+                                              name="task_panel.html",
+                                              context={'task_id': task_id,
+                                                       'user_id': user_id,
+                                                       'access': list_access[i],
+                                                       'approval_status': approval_status})
         elif user_admin['result']:
-            return templates.TemplateResponse(request, name="task_panel.html", context={'task_id': task_id,
-                                                                                        'user_id': user_id,
-                                                                                        'access': 'admin'})
+            return templates.TemplateResponse(request,
+                                              name="task_panel.html",
+                                              context={'task_id': task_id,
+                                                       'user_id': user_id,
+                                                       'access': 'admin',
+                                                       'approval_status': approval_status})
     return "Доступ запрещен"
 
 if __name__ == "__main__":
