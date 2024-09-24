@@ -22,3 +22,7 @@ select {
 .select-container {
     padding: 10px;
 }
+
+textarea.form-control {
+    width: 300px;
+}

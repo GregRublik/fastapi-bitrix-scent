@@ -75,7 +75,7 @@
                 });
                 BX24.callMethod('im.message.add', {
                     'DIALOG_ID': "{{ responsible }}",
-                    'MESSAGE': "Договор согласован Бухгалтером по задаче: {{ task_id }}"
+                    'MESSAGE': "[SIZE=18][B]✔️Договор согласован Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ task_id }}[/URL][/B][/SIZE]"
                 });
             });
             select_container_accountant.style.display = 'none';
@@ -97,15 +97,17 @@
                 });
                 BX24.callMethod('im.message.add', {
                     'DIALOG_ID': "{{ accomplices }}",
-                    'MESSAGE': "Договор согласован Юристом по задаче: {{ task_id }}",
+                    'MESSAGE': "[SIZE=18][B]✔️Договор согласован Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ task_id }}[/URL][/B][/SIZE]",
                 });
             });
             select_container_lawyer.style.display = 'none';
         });
     }
+
     if (button_lawyer_file) {
         button_lawyer_file.addEventListener('click', function () {
             const file = document.getElementById('formFileMultiple').files[0];
+            const list_file = [];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (event) => BX24.init(function () {
@@ -116,19 +118,15 @@
                             'ufCrm12_1712146917716': [
                                 [file.name, String(event.target.result.split(',')[1])],
                             ],
-
                         }
                     });
                     BX24.callMethod('im.message.add', {
-                        'DIALOG_ID': "{{ responsible }}",
-                        'MESSAGE': "Договор согласован и прикреплен к элементу: {{ task_id }}"
+                        'DIALOG_ID': "{{ accomplices }}",
+                        'MESSAGE': "[SIZE=18][B]✔️Договор согласован и прикреплен к элементу: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ task_id }}[/URL][/B][/SIZE]"
                     });
                 });
                 reader.readAsDataURL(file);
-                file_lawyer.style.display = 'none';
-            } else {
-                alert('Прикрепите договор!');
-            }
+                file_lawyer.style.display = 'none';} else {alert('Прикрепите договор!');}
         });
     }
     </script>
