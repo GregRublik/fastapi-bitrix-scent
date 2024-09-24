@@ -15,4 +15,10 @@ select {
 .btn {
     background: #bbed21;
     font-size: 12px;
+    padding: 10px;
+    margin: 5px;
+}
+
+.select-container {
+    padding: 10px;
 }

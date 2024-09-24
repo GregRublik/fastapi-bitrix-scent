@@ -258,38 +258,52 @@ async def task_panel(
     """Приложение встроенное в интерфейс задачи"""
     data = await request.body()
     data_parsed = parse_qs(data.decode())
+
     user = await session.post(url=f"{portal_url}rest/user.current?auth={data_parsed['AUTH_ID'][0]}")
     user_admin = await session.post(url=f"{portal_url}rest/user.admin?auth={data_parsed['AUTH_ID'][0]}")
-    user = await user.json()
-    user_admin = await user_admin.json()
     task_id = ast.literal_eval(data_parsed['PLACEMENT_OPTIONS'][0])["taskId"]
-    user_id = user['result']['ID']
-    element = await session.post(url=(f"{portal_url}rest/crm.item.list?auth={getenv('ACCESS_TOKEN')}&entityTypeId=131" ## получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
+    task = await session.get(url=(f"{portal_url}rest/tasks.task.get/?auth={getenv('ACCESS_TOKEN')}" # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
+                                  f"&taskId={task_id}&select[0]=ACCOMPLICES"
+                                  f"&select[1]=RESPONSIBLE_ID"
+                                  f"&select[2]=UF_CRM_TASK"))
+
+    element = await session.post(url=(f"{portal_url}rest/crm.item.list?auth={getenv('ACCESS_TOKEN')}&entityTypeId=131"  
                                       f"&filter[0][ufCrm12_1726745944152]={task_id}&select[0]=id&select[1]=title"
                                       f"&select[2]=ufCrm12_1709192259979&select[3]=ufCrm12_1709191865371"))
     element = await element.json()
-    list_access = {'114': 'accountant', '94': 'lawyer'}  # бухгалтера, юристы
+    user = await user.json()
+    user_admin = await user_admin.json()
+    task = await task.json()
+
+    # type_element_crm = task['result']['task']['ufCrmTask'][0][:4]
+    # if task['result']['task']['ufCrmTask'][0][:4] != 'T83_':
+    #     return "Нет привязки к процессу согласования договора"
+    list_access = {'114': 'accountant', '94': 'lawyer', '0': 'admin'}  # бухгалтера, юристы
     for i in user['result']['UF_DEPARTMENT']:  # перебираем все подразделения сотрудника
         if element['total'] == 0:
             return "Нет привязки к элементу согласования договора!"
         else:
+            element_id = element['result']['items'][0]['id']
             approval_status = {"accountant": element['result']["items"][0]['ufCrm12_1709191865371'],
                                "lawyer": element['result']["items"][0]['ufCrm12_1709192259979']}
-        if i in list_access:  # Если есть разрешение
+        if i in list_access or user_admin['result']:  # Если есть разрешение
+            if user_admin['result']:
+                i = '0'
             return templates.TemplateResponse(request,
                                               name="task_panel.html",
-                                              context={'task_id': task_id,
-                                                       'user_id': user_id,
-                                                       'access': list_access[i],
-                                                       'approval_status': approval_status})
-        elif user_admin['result']:
-            return templates.TemplateResponse(request,
-                                              name="task_panel.html",
-                                              context={'task_id': task_id,
-                                                       'user_id': user_id,
-                                                       'access': 'admin',
-                                                       'approval_status': approval_status})
+                                              context={
+                                                  'element_id': element_id,
+                                                  'task_id': task_id,
+                                                  'user_id': user['result']['ID'],
+                                                  'access': list_access[i],
+                                                  'approval_status': approval_status,
+                                                  'accomplices': task['result']['task']['accomplices'],
+                                                  'responsible': task['result']['task']['responsibleId'],
+                                                  'auth': getenv('ACCESS_TOKEN')
+                                              })
+
     return "Доступ запрещен"
+
 
 if __name__ == "__main__":
     with open('auth/access.txt', 'r') as file:

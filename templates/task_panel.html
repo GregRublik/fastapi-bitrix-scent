@@ -9,55 +9,128 @@
         <div class="select-container" id="select-container-accountant">
             <label for="accountant">Бухгалтера</label>
             <select id="accountant" class="form-select form-select-lg mb-1">
-                <option value="Согласован">Согласован</option>
-                <option value="Согласован с замечаниями">Согласован с замечаниями</option>
-                <option value="Несогласован">Несогласован</option>
+                <option value="1031">Согласован без замечаний</option>
+                <option value="1033">Согласован с замечаниями</option>
+                <option value="1045">Несогласован</option>
             </select>
+            <div class="form-group">
+                <label for="exampleFormControlTextarea1">Комментарий</label>
+                <textarea class="form-control" id="comment-accountant" rows="3"></textarea>
+            </div>
             <button type="button" class="btn" id="button-accountant">ПОДТВЕРДИТЬ</button>
         </div>
-    {% else %}
-        {{ approval_status.accountant }}
-        Договор согласован бухгалтером
+    {% elif approval_status.accountant not in [0, 1035] and approval_status.lawyer in [0, 1041] %}
+        <h1>Договор согласован бухгалтером</h1>
     {% endif %}
 {% endif %}
 {% if access == "lawyer" or access == "admin" %}
+
     {% if approval_status.lawyer in [0, 1041] %}
 
         <div class="select-container" id="select-container-lawyer">
             <label for="lawyer">Юристы</label>
             <select id="lawyer" class="form-select form-select-lg mb-1">
-                <option value="Согласован">Согласован</option>
-                <option value="Согласован с замечаниями">Согласован с замечаниями</option>
-                <option value="Несогласован">Несогласован</option>
+                <option value="1037">Согласован без замечаний</option>
+                <option value="1039">Согласован с замечаниями</option>
+                <option value="1041">Несогласован</option>
             </select>
+            <div class="form-group">
+                <label for="exampleFormControlTextarea1">Комментарий</label>
+                <textarea class="form-control" id="comment-lawyer" rows="3"></textarea>
+            </div>
             <button type="button" class="btn" id="button-lawyer">ПОДТВЕРДИТЬ</button>
         </div>
+    {% elif approval_status.lawyer not in [0, 1041] and approval_status.accountant not in [0, 1035] %}
+        <div id="file-lawyer" class="mb-3">
+            <label for="formFileMultiple" class="form-label">Прикрепите согласованный договор</label>
+            <input class="form-control" type="file" id="formFileMultiple" multiple>
+            <button type="button" class="btn" id="button-lawyer-send-file">ОТПРАВИТЬ</button>
+        </div>
     {% else %}
-        {{ approval_status.lawyer }}
-        Договор согласован юристом
+        <h1>Договор согласован юристом</h1>
     {% endif %}
 {% endif %}
 {% endblock %}
 {% block footer %}
     <script>
-    var task_id = "{{ task_id }}"
-        const button_accountant = document.querySelector('#button-accountant');
-        button_accountant.addEventListener('click', function() {
-            BX24.init(function(){
-                BX24.callMethod('crm.item.update', {'entityTypeId': 131, 'id': task_id}, function(res){
-
+    const select_container_accountant = document.getElementById('select-container-accountant');
+    const select_container_lawyer = document.getElementById('select-container-lawyer');
+    const button_accountant = document.querySelector('#button-accountant');
+    const button_lawyer = document.querySelector('#button-lawyer');
+    const button_lawyer_file = document.querySelector('#button-lawyer-send-file');
+    const file_lawyer = document.getElementById('file-lawyer');
+    if (button_accountant) {
+        button_accountant.addEventListener('click', function () {
+            var select_option_accountant = document.getElementById('accountant');
+            var comment_accountant = document.getElementById('comment-accountant');
+            BX24.init(function () {
+                BX24.callMethod('crm.item.update', {
+                    'entityTypeId': 131,
+                    'id': "{{ element_id }}",
+                    'fields': {
+                        'ufCrm12_1709191865371': select_option_accountant.value,
+                        'ufCrm12_1709702893': "{{ user_id }}",
+                        'ufCrm12_1708599567866': comment_accountant.value
+                    }
+                });
+                BX24.callMethod('im.message.add', {
+                    'DIALOG_ID': "{{ responsible }}",
+                    'MESSAGE': "Договор согласован Бухгалтером по задаче: {{ task_id }}"
                 });
             });
+            select_container_accountant.style.display = 'none';
         });
-
-        const button_lawyer = document.querySelector('#button-lawyer');
-        button_lawyer.addEventListener('click', function() {
-            BX24.init(function(){
-                BX24.callMethod('crm.item.update', {'entityTypeId': 131, 'id': task_id }, function(res){
-
+    }
+    if (button_lawyer) {
+        button_lawyer.addEventListener('click', function () {
+            var select_option_lawyer = document.getElementById('lawyer');
+            var comment_lawyer = document.getElementById('comment-lawyer');
+            BX24.init(function () {
+                BX24.callMethod('crm.item.update', {
+                    'entityTypeId': 131,
+                    'id': "{{ element_id }}",
+                    'fields': {
+                        'ufCrm12_1709192259979': select_option_lawyer.value,
+                        'ufCrm12_1709702831': "{{ user_id }}",
+                        'ufCrm12_1708093511140': comment_lawyer.value
+                    }
+                });
+                BX24.callMethod('im.message.add', {
+                    'DIALOG_ID': "{{ accomplices }}",
+                    'MESSAGE': "Договор согласован Юристом по задаче: {{ task_id }}",
                 });
             });
+            select_container_lawyer.style.display = 'none';
         });
+    }
+    if (button_lawyer_file) {
+        button_lawyer_file.addEventListener('click', function () {
+            const file = document.getElementById('formFileMultiple').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => BX24.init(function () {
+                    BX24.callMethod('crm.item.update', {
+                        'entityTypeId': 131,
+                        'id': "{{ element_id }}",
+                        'fields': {
+                            'ufCrm12_1712146917716': [
+                                [file.name, String(event.target.result.split(',')[1])],
+                            ],
+
+                        }
+                    });
+                    BX24.callMethod('im.message.add', {
+                        'DIALOG_ID': "{{ responsible }}",
+                        'MESSAGE': "Договор согласован и прикреплен к элементу: {{ task_id }}"
+                    });
+                });
+                reader.readAsDataURL(file);
+                file_lawyer.style.display = 'none';
+            } else {
+                alert('Прикрепите договор!');
+            }
+        });
+    }
     </script>
     <script src="/static/task_panel.js"></script>
 {% endblock %}
