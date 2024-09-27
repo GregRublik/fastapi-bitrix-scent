@@ -263,29 +263,35 @@ async def task_panel(
     user_admin = await session.post(url=f"{portal_url}rest/user.admin?auth={data_parsed['AUTH_ID'][0]}")
     task_id = ast.literal_eval(data_parsed['PLACEMENT_OPTIONS'][0])["taskId"]
     task = await session.get(url=(f"{portal_url}rest/tasks.task.get/?auth={getenv('ACCESS_TOKEN')}" # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
-                                  f"&taskId={task_id}&select[0]=ACCOMPLICES"
+                                  f"&taskId={task_id}"
+                                  f"&select[0]=ACCOMPLICES"
                                   f"&select[1]=RESPONSIBLE_ID"
-                                  f"&select[2]=UF_CRM_TASK"))
+                                  f"&select[2]=UF_CRM_TASK"
+                                  f"&select[3]=UF_CRM_TASK"))
+    task = await task.json()
+    if 'ufCrmTask' not in task['result']['task']:
+        return "Нет привязки элемента к CRM"
+    if not task['result']['task']['ufCrmTask']:
+        return "Нет привязки элемента к CRM"
+    if task['result']['task']['ufCrmTask'][0][:4] != 'T83_':
+        return "Нет привязки к процессу согласования договора"
+    element_id = task['result']['task']['ufCrmTask'][0][4:]
+    element = await session.post(url=(f"{portal_url}rest/crm.item.get?auth={getenv('ACCESS_TOKEN')}&entityTypeId=131"  
+                                      f"&id={element_id}"
+                                      f"&select[0]=ufCrm12_1709191865371"
+                                      f"&select[1]=ufCrm12_1709192259979"))
 
-    element = await session.post(url=(f"{portal_url}rest/crm.item.list?auth={getenv('ACCESS_TOKEN')}&entityTypeId=131"  
-                                      f"&filter[0][ufCrm12_1726745944152]={task_id}&select[0]=id&select[1]=title"
-                                      f"&select[2]=ufCrm12_1709192259979&select[3]=ufCrm12_1709191865371"))
     element = await element.json()
     user = await user.json()
     user_admin = await user_admin.json()
-    task = await task.json()
-
-    # type_element_crm = task['result']['task']['ufCrmTask'][0][:4]
-    # if task['result']['task']['ufCrmTask'][0][:4] != 'T83_':
-    #     return "Нет привязки к процессу согласования договора"
     list_access = {'114': 'accountant', '94': 'lawyer', '0': 'admin'}  # бухгалтера, юристы
+    if element['result']["item"]['ufCrm12_1712146917716']:
+        attached_file = True
+    else:
+        attached_file = False
+    approval_status = {"accountant": element['result']["item"]['ufCrm12_1709191865371'],
+                       "lawyer": element['result']["item"]['ufCrm12_1709192259979']}
     for i in user['result']['UF_DEPARTMENT']:  # перебираем все подразделения сотрудника
-        if element['total'] == 0:
-            return "Нет привязки к элементу согласования договора!"
-        else:
-            element_id = element['result']['items'][0]['id']
-            approval_status = {"accountant": element['result']["items"][0]['ufCrm12_1709191865371'],
-                               "lawyer": element['result']["items"][0]['ufCrm12_1709192259979']}
         if i in list_access or user_admin['result']:  # Если есть разрешение
             if user_admin['result']:
                 i = '0'
@@ -297,6 +303,7 @@ async def task_panel(
                                                   'user_id': user['result']['ID'],
                                                   'access': list_access[i],
                                                   'approval_status': approval_status,
+                                                  'attached_file': attached_file,
                                                   'accomplices': task['result']['task']['accomplices'],
                                                   'responsible': task['result']['task']['responsibleId'],
                                                   'auth': getenv('ACCESS_TOKEN')
