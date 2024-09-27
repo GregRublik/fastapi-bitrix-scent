@@ -304,7 +304,7 @@ async def task_panel(
                                                   'access': list_access[i],
                                                   'approval_status': approval_status,
                                                   'attached_file': attached_file,
-                                                  'accomplices': task['result']['task']['accomplices'],
+                                                  'accomplices': task['result']['task']['accomplices'][0],
                                                   'responsible': task['result']['task']['responsibleId'],
                                                   'auth': getenv('ACCESS_TOKEN')
                                               })
