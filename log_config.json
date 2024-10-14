@@ -1,0 +1,29 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "default": {
+            "()": "logging.Formatter",
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        }
+    },
+    "handlers": {
+        "file": {
+            "class": "logging.FileHandler",
+            "formatter": "default",
+            "filename": "app.log",
+            "level": "INFO"
+        },
+        "default": {
+            "class": "logging.StreamHandler",
+            "formatter": "default"
+        }
+    },
+    "loggers": {
+        "uvicorn": {
+            "handlers": ["default", "file"],
+            "level": "INFO",
+            "propagate": false
+        }
+    }
+}
