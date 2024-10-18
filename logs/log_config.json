@@ -11,7 +11,7 @@
         "file": {
             "class": "logging.FileHandler",
             "formatter": "default",
-            "filename": "app.log",
+            "filename": "logs/app.log",
             "level": "INFO"
         },
         "default": {

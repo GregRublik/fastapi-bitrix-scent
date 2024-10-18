@@ -1,0 +1,174 @@
+2024-10-15 15:26:25,531 - uvicorn.error - INFO - Started server process [28911]
+2024-10-15 15:26:25,531 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-15 15:26:25,531 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-15 15:26:25,531 - uvicorn.error - INFO - Application startup complete.
+2024-10-15 15:26:25,532 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-15 15:26:40,423 - uvicorn.error - ERROR - Exception in ASGI application
+Traceback (most recent call last):
+  File "/var/www/u2842936/data/venv/lib/python3.10/site-packages/uvicorn/protocols/http/h11_impl.py", line 406, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/var/www/u2842936/data/venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+  File "/var/www/u2842936/data/venv/lib/python3.10/site-packages/uvicorn/middleware/asgi2.py", line 14, in __call__
+    instance = self.app(scope)
+TypeError: ASGIMiddleware.__call__() missing 1 required positional argument: 'start_response'
+2024-10-15 15:26:40,425 - uvicorn.access - INFO - 205.210.31.30:58176 - "GET / HTTP/1.1" 500
+2024-10-15 15:26:40,781 - uvicorn.error - INFO - Shutting down
+2024-10-15 15:26:40,882 - uvicorn.error - INFO - Finished server process [28911]
+2024-10-15 15:28:05,532 - uvicorn.error - INFO - Started server process [30410]
+2024-10-15 15:28:05,532 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-15 15:28:05,532 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-15 15:28:05,532 - uvicorn.error - INFO - Application startup complete.
+2024-10-15 15:28:05,533 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-15 15:28:07,540 - uvicorn.error - INFO - Shutting down
+2024-10-15 15:28:07,641 - uvicorn.error - INFO - Finished server process [30410]
+2024-10-15 16:01:40,191 - uvicorn.error - INFO - Started server process [3172]
+2024-10-15 16:01:40,194 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-15 16:01:40,194 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-15 16:01:40,194 - uvicorn.error - INFO - Application startup complete.
+2024-10-15 16:01:40,195 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-15 16:01:43,005 - uvicorn.error - INFO - Shutting down
+2024-10-15 16:01:43,105 - uvicorn.error - INFO - Finished server process [3172]
+2024-10-15 16:08:34,641 - uvicorn.error - INFO - Started server process [30509]
+2024-10-15 16:08:34,641 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-15 16:08:34,642 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-15 16:08:34,642 - uvicorn.error - INFO - Application startup complete.
+2024-10-15 16:08:34,642 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-15 16:08:36,649 - uvicorn.error - INFO - Shutting down
+2024-10-15 16:08:36,750 - uvicorn.error - INFO - Finished server process [30509]
+2024-10-17 15:36:36,703 - uvicorn.error - INFO - Started server process [3717]
+2024-10-17 15:36:36,703 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-17 15:36:36,704 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-17 15:36:36,704 - uvicorn.error - INFO - Application startup complete.
+2024-10-17 15:36:36,704 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-17 15:36:44,023 - uvicorn.error - INFO - Shutting down
+2024-10-17 15:36:44,123 - uvicorn.error - INFO - Finished server process [3717]
+2024-10-17 16:21:48,376 - uvicorn.error - INFO - Started server process [1845]
+2024-10-17 16:21:48,376 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-17 16:21:48,377 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-17 16:21:48,377 - uvicorn.error - INFO - Application startup complete.
+2024-10-17 16:21:48,377 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-17 16:21:51,488 - uvicorn.error - INFO - Shutting down
+2024-10-17 16:21:51,589 - uvicorn.error - INFO - Finished server process [1845]
+2024-10-17 16:29:28,669 - uvicorn.error - INFO - Started server process [37666]
+2024-10-17 16:29:28,669 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-17 16:29:28,670 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-17 16:29:28,670 - uvicorn.error - INFO - Application startup complete.
+2024-10-17 16:29:28,670 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-17 16:29:29,773 - uvicorn.error - INFO - Shutting down
+2024-10-17 16:29:29,874 - uvicorn.error - INFO - Finished server process [37666]
+2024-10-18 09:54:02,598 - uvicorn.error - INFO - Started server process [30674]
+2024-10-18 09:54:02,599 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 09:54:02,599 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 09:54:02,599 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 09:54:02,599 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 09:54:04,105 - uvicorn.error - INFO - Shutting down
+2024-10-18 09:54:04,206 - uvicorn.error - INFO - Finished server process [30674]
+2024-10-18 10:11:21,219 - uvicorn.error - INFO - Started server process [21210]
+2024-10-18 10:11:21,220 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 10:11:21,220 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 10:11:21,220 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 10:11:21,221 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 10:11:23,626 - uvicorn.error - INFO - Shutting down
+2024-10-18 10:11:23,727 - uvicorn.error - INFO - Finished server process [21210]
+2024-10-18 10:13:33,784 - uvicorn.error - INFO - Started server process [15341]
+2024-10-18 10:13:33,784 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 10:13:33,785 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 10:13:33,785 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 10:13:33,785 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 10:13:35,492 - uvicorn.error - INFO - Shutting down
+2024-10-18 10:13:35,592 - uvicorn.error - INFO - Finished server process [15341]
+2024-10-18 10:26:27,017 - uvicorn.error - INFO - Started server process [5637]
+2024-10-18 10:26:27,017 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 10:26:27,017 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 10:26:27,017 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 10:26:27,018 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 10:26:28,122 - uvicorn.error - INFO - Shutting down
+2024-10-18 10:26:28,223 - uvicorn.error - INFO - Finished server process [5637]
+2024-10-18 10:34:02,742 - uvicorn.error - INFO - Started server process [27973]
+2024-10-18 10:34:02,742 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 10:34:02,743 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 10:34:02,743 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 10:34:02,743 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 10:34:04,750 - uvicorn.error - INFO - Shutting down
+2024-10-18 10:34:04,851 - uvicorn.error - INFO - Finished server process [27973]
+2024-10-18 10:39:38,820 - uvicorn.error - INFO - Started server process [32095]
+2024-10-18 10:39:38,821 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 10:39:38,821 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 10:39:38,821 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 10:39:38,822 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 10:39:41,531 - uvicorn.error - INFO - Shutting down
+2024-10-18 10:39:41,631 - uvicorn.error - INFO - Finished server process [32095]
+2024-10-18 10:40:04,502 - uvicorn.error - INFO - Started server process [37200]
+2024-10-18 10:40:04,502 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 10:40:04,502 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 10:40:04,502 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 10:40:04,503 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 10:40:06,315 - uvicorn.error - INFO - Shutting down
+2024-10-18 10:40:06,416 - uvicorn.error - INFO - Finished server process [37200]
+2024-10-18 10:40:50,075 - uvicorn.error - INFO - Started server process [7405]
+2024-10-18 10:40:50,075 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 10:40:50,075 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 10:40:50,075 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 10:40:50,076 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 10:40:53,184 - uvicorn.error - INFO - Shutting down
+2024-10-18 10:40:53,284 - uvicorn.error - INFO - Finished server process [7405]
+2024-10-18 10:41:33,405 - uvicorn.error - INFO - Started server process [40063]
+2024-10-18 10:41:33,405 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 10:41:33,405 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 10:41:33,405 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 10:41:33,406 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 10:41:52,439 - uvicorn.error - ERROR - Exception in ASGI application
+Traceback (most recent call last):
+  File "/var/www/u2842936/data/venv/lib/python3.10/site-packages/uvicorn/protocols/http/h11_impl.py", line 406, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/var/www/u2842936/data/venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+  File "/var/www/u2842936/data/venv/lib/python3.10/site-packages/uvicorn/middleware/asgi2.py", line 14, in __call__
+    instance = self.app(scope)
+TypeError: ASGIMiddleware.__call__() missing 1 required positional argument: 'start_response'
+2024-10-18 10:41:52,441 - uvicorn.access - INFO - 198.235.24.87:63166 - "GET / HTTP/1.1" 500
+2024-10-18 10:42:01,507 - uvicorn.error - INFO - Shutting down
+2024-10-18 10:42:01,608 - uvicorn.error - INFO - Finished server process [40063]
+2024-10-18 10:50:26,305 - uvicorn.error - INFO - Started server process [6301]
+2024-10-18 10:50:26,306 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 10:50:26,306 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 10:50:26,306 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 10:50:26,306 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 10:50:27,911 - uvicorn.error - INFO - Shutting down
+2024-10-18 10:50:28,012 - uvicorn.error - INFO - Finished server process [6301]
+2024-10-18 10:55:45,377 - uvicorn.error - INFO - Started server process [26489]
+2024-10-18 10:55:45,377 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 10:55:45,378 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 10:55:45,378 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 10:55:45,378 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 10:55:47,483 - uvicorn.error - INFO - Shutting down
+2024-10-18 10:55:47,584 - uvicorn.error - INFO - Finished server process [26489]
+2024-10-18 11:02:24,973 - uvicorn.error - INFO - Started server process [29428]
+2024-10-18 11:02:24,974 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 11:02:24,974 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 11:02:24,974 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 11:02:24,975 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 11:02:27,079 - uvicorn.error - INFO - Shutting down
+2024-10-18 11:02:27,180 - uvicorn.error - INFO - Finished server process [29428]
+2024-10-18 11:07:58,768 - uvicorn.error - INFO - Started server process [8645]
+2024-10-18 11:07:58,769 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 11:07:58,769 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 11:07:58,769 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 11:07:58,769 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 11:08:01,078 - uvicorn.error - INFO - Shutting down
+2024-10-18 11:08:01,179 - uvicorn.error - INFO - Finished server process [8645]
+2024-10-18 11:25:57,379 - uvicorn.error - INFO - Started server process [33668]
+2024-10-18 11:25:57,379 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 11:25:57,379 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 11:25:57,379 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 11:25:57,380 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 11:25:58,784 - uvicorn.error - INFO - Shutting down
+2024-10-18 11:25:58,884 - uvicorn.error - INFO - Finished server process [33668]
+2024-10-18 11:41:41,147 - uvicorn.error - INFO - Started server process [27738]
+2024-10-18 11:41:41,147 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 11:41:41,148 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 11:41:41,148 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 11:41:41,148 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 11:41:42,553 - uvicorn.error - INFO - Shutting down
+2024-10-18 11:41:42,654 - uvicorn.error - INFO - Finished server process [27738]
