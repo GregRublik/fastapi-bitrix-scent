@@ -407,3 +407,16 @@ TypeError: ASGIMiddleware.__call__() missing 1 required positional argument: 'st
 2024-10-18 14:31:44,194 - uvicorn.error - INFO - Waiting for application shutdown.
 2024-10-18 14:31:44,194 - uvicorn.error - INFO - Application shutdown complete.
 2024-10-18 14:31:44,194 - uvicorn.error - INFO - Finished server process [6880]
+2024-10-18 14:37:54,110 - uvicorn.error - INFO - Started server process [11444]
+2024-10-18 14:37:54,111 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 14:37:54,111 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 14:37:54,112 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 14:38:29,260 - uvicorn.access - INFO - 127.0.0.1:51840 - "POST /main_handler/?method=crm.deal.get&client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89&params=ID%3D324 HTTP/1.1" 200
+2024-10-18 14:38:34,321 - uvicorn.access - INFO - 127.0.0.1:51840 - "POST /main_handler/?method=crm.deal.get&client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89&params=ID%3D3233 HTTP/1.1" 200
+2024-10-18 14:38:37,796 - uvicorn.access - INFO - 127.0.0.1:51840 - "POST /main_handler/?method=crm.deal.get&client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89&params=ID%3D333 HTTP/1.1" 200
+2024-10-18 14:38:41,745 - uvicorn.access - INFO - 127.0.0.1:51840 - "POST /main_handler/?method=crm.deal.get&client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89&params=ID%3D354 HTTP/1.1" 200
+2024-10-18 14:38:45,957 - uvicorn.access - INFO - 127.0.0.1:51840 - "POST /main_handler/?method=crm.deal.get&client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89&params=ID%3D355 HTTP/1.1" 200
+2024-10-18 14:39:27,074 - uvicorn.error - INFO - Shutting down
+2024-10-18 14:39:27,188 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 14:39:27,188 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 14:39:27,188 - uvicorn.error - INFO - Finished server process [11444]
