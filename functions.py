@@ -1,5 +1,4 @@
 from os import getenv
-from models.models import InvalidToken
 
 
 def check_token(client_secret):

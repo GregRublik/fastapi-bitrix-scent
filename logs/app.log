@@ -172,3 +172,10 @@ TypeError: ASGIMiddleware.__call__() missing 1 required positional argument: 'st
 2024-10-18 11:41:41,148 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 2024-10-18 11:41:42,553 - uvicorn.error - INFO - Shutting down
 2024-10-18 11:41:42,654 - uvicorn.error - INFO - Finished server process [27738]
+2024-10-18 12:03:36,657 - uvicorn.error - INFO - Started server process [13708]
+2024-10-18 12:03:36,657 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 12:03:36,658 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 12:03:36,658 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 12:03:36,659 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 12:03:38,508 - uvicorn.error - INFO - Shutting down
+2024-10-18 12:03:38,616 - uvicorn.error - INFO - Finished server process [13708]
