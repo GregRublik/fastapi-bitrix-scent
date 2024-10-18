@@ -1,5 +1,6 @@
 import os
 import ast
+import platform
 import asyncio
 import uvicorn
 import aiohttp
@@ -343,5 +344,8 @@ async def task_panel(
 
 
 if __name__ == "__main__":
-    # print(asyncio.run(get_bitrix_auth()))
-    uvicorn.run(application, host='0.0.0.0', log_config="logs/log_config.json", use_colors=True, log_level="info")
+    if platform.system() == "Windows":
+        uvicorn.run(app, host="127.0.0.1", log_config="logs/log_config.json", use_colors=True, log_level="info")
+
+    else:
+        uvicorn.run(application, host="0.0.0.0", log_config="logs/log_config.json", use_colors=True, log_level="info")

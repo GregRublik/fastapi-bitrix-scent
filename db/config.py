@@ -6,12 +6,13 @@ class Settings(BaseSettings):
     DB_NAME: str
     DB_USER: str
     DB_PASS: str
+    DB_PORT: int
 
     @property
     def database_url_asyncmy(self):
-        return f"mysql+asyncmy://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}/{self.DB_NAME}"
+        return f"mysql+asyncmy://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
-    model_config = SettingsConfigDict(env_file="db.env")
+    model_config = SettingsConfigDict(env_file="db/db.env")
 
 
 settings = Settings()

@@ -179,3 +179,231 @@ TypeError: ASGIMiddleware.__call__() missing 1 required positional argument: 'st
 2024-10-18 12:03:36,659 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 2024-10-18 12:03:38,508 - uvicorn.error - INFO - Shutting down
 2024-10-18 12:03:38,616 - uvicorn.error - INFO - Finished server process [13708]
+2024-10-18 12:09:48,888 - uvicorn.error - INFO - Started server process [3428]
+2024-10-18 12:09:48,888 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 12:09:48,889 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 12:09:48,889 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 12:09:48,889 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2024-10-18 12:10:02,052 - uvicorn.error - INFO - Shutting down
+2024-10-18 12:10:02,159 - uvicorn.error - INFO - Finished server process [3428]
+2024-10-18 12:15:45,308 - uvicorn.error - INFO - Started server process [5696]
+2024-10-18 12:15:45,308 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 12:15:45,308 - uvicorn.error - INFO - ASGI 'lifespan' protocol appears unsupported.
+2024-10-18 12:15:45,309 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 12:15:45,309 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 12:15:47,361 - uvicorn.error - ERROR - Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 406, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\middleware\asgi2.py", line 14, in __call__
+    instance = self.app(scope)
+TypeError: ASGIMiddleware.__call__() missing 1 required positional argument: 'start_response'
+2024-10-18 12:15:47,446 - uvicorn.access - INFO - 127.0.0.1:63847 - "GET / HTTP/1.1" 500
+2024-10-18 12:15:48,163 - uvicorn.error - ERROR - Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 406, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\middleware\asgi2.py", line 14, in __call__
+    instance = self.app(scope)
+TypeError: ASGIMiddleware.__call__() missing 1 required positional argument: 'start_response'
+2024-10-18 12:15:48,168 - uvicorn.access - INFO - 127.0.0.1:63846 - "GET /favicon.ico HTTP/1.1" 500
+2024-10-18 12:15:59,917 - uvicorn.error - ERROR - Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 406, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\middleware\asgi2.py", line 14, in __call__
+    instance = self.app(scope)
+TypeError: ASGIMiddleware.__call__() missing 1 required positional argument: 'start_response'
+2024-10-18 12:15:59,918 - uvicorn.access - INFO - 127.0.0.1:63861 - "GET /docs HTTP/1.1" 500
+2024-10-18 12:16:00,858 - uvicorn.error - ERROR - Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 406, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\middleware\asgi2.py", line 14, in __call__
+    instance = self.app(scope)
+TypeError: ASGIMiddleware.__call__() missing 1 required positional argument: 'start_response'
+2024-10-18 12:16:00,859 - uvicorn.access - INFO - 127.0.0.1:63863 - "GET /docs HTTP/1.1" 500
+2024-10-18 12:16:00,943 - uvicorn.error - ERROR - Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 406, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\Админ\Desktop\handler\venv\lib\site-packages\uvicorn\middleware\asgi2.py", line 14, in __call__
+    instance = self.app(scope)
+TypeError: ASGIMiddleware.__call__() missing 1 required positional argument: 'start_response'
+2024-10-18 12:16:00,944 - uvicorn.access - INFO - 127.0.0.1:63864 - "GET /favicon.ico HTTP/1.1" 500
+2024-10-18 12:16:25,803 - uvicorn.error - INFO - Shutting down
+2024-10-18 12:16:25,910 - uvicorn.error - INFO - Finished server process [5696]
+2024-10-18 12:16:29,224 - uvicorn.error - INFO - Started server process [8312]
+2024-10-18 12:16:29,225 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 12:16:29,225 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 12:16:29,226 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 12:16:31,848 - uvicorn.access - INFO - 127.0.0.1:63888 - "GET /docs HTTP/1.1" 200
+2024-10-18 12:16:32,272 - uvicorn.access - INFO - 127.0.0.1:63888 - "GET /openapi.json HTTP/1.1" 200
+2024-10-18 12:17:45,591 - uvicorn.access - INFO - 127.0.0.1:63945 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 12:19:35,112 - uvicorn.error - INFO - Shutting down
+2024-10-18 12:19:35,220 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 12:19:35,220 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 12:19:35,220 - uvicorn.error - INFO - Finished server process [8312]
+2024-10-18 12:19:39,078 - uvicorn.error - INFO - Started server process [14332]
+2024-10-18 12:19:39,080 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 12:19:39,082 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 12:19:39,083 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 12:19:55,797 - uvicorn.access - INFO - 127.0.0.1:64075 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 12:21:40,740 - uvicorn.error - INFO - Shutting down
+2024-10-18 12:21:40,848 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 12:21:40,848 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 12:21:40,848 - uvicorn.error - INFO - Finished server process [14332]
+2024-10-18 12:21:47,695 - uvicorn.error - INFO - Started server process [13540]
+2024-10-18 12:21:47,696 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 12:21:47,696 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 12:21:47,697 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 12:21:58,708 - uvicorn.access - INFO - 127.0.0.1:64331 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 12:23:40,582 - uvicorn.error - INFO - Shutting down
+2024-10-18 12:23:40,691 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 12:23:40,691 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 12:23:40,691 - uvicorn.error - INFO - Finished server process [13540]
+2024-10-18 12:23:53,846 - uvicorn.error - INFO - Started server process [13400]
+2024-10-18 12:23:53,847 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 12:23:53,847 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 12:23:53,848 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 12:23:59,440 - uvicorn.access - INFO - 127.0.0.1:64521 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 12:24:30,142 - uvicorn.error - INFO - Shutting down
+2024-10-18 12:24:30,253 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 12:24:30,253 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 12:24:30,254 - uvicorn.error - INFO - Finished server process [13400]
+2024-10-18 12:24:38,607 - uvicorn.error - INFO - Started server process [12836]
+2024-10-18 12:24:38,608 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 12:24:38,608 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 12:24:38,609 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 12:24:46,635 - uvicorn.access - INFO - 127.0.0.1:64551 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 12:26:08,831 - uvicorn.error - INFO - Shutting down
+2024-10-18 12:26:08,939 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 12:26:08,939 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 12:26:08,939 - uvicorn.error - INFO - Finished server process [12836]
+2024-10-18 12:26:11,981 - uvicorn.error - INFO - Started server process [14288]
+2024-10-18 12:26:11,981 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 12:26:11,981 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 12:26:11,982 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 12:26:24,027 - uvicorn.access - INFO - 127.0.0.1:64647 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 12:29:25,310 - uvicorn.error - INFO - Shutting down
+2024-10-18 12:29:25,418 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 12:29:25,418 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 12:29:25,418 - uvicorn.error - INFO - Finished server process [14288]
+2024-10-18 12:29:28,550 - uvicorn.error - INFO - Started server process [4796]
+2024-10-18 12:29:28,550 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 12:29:28,551 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 12:29:28,551 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 12:29:34,546 - uvicorn.access - INFO - 127.0.0.1:64836 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 12:29:57,370 - uvicorn.error - INFO - Shutting down
+2024-10-18 12:29:57,477 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 12:29:57,477 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 12:29:57,478 - uvicorn.error - INFO - Finished server process [4796]
+2024-10-18 13:43:59,832 - uvicorn.error - INFO - Started server process [13404]
+2024-10-18 13:43:59,832 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 13:43:59,833 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 13:43:59,833 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 13:44:17,386 - uvicorn.access - INFO - 127.0.0.1:50959 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 13:45:57,500 - uvicorn.error - INFO - Shutting down
+2024-10-18 13:45:57,608 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 13:45:57,608 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 13:45:57,608 - uvicorn.error - INFO - Finished server process [13404]
+2024-10-18 13:46:00,329 - uvicorn.error - INFO - Started server process [2392]
+2024-10-18 13:46:00,329 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 13:46:00,330 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 13:46:00,330 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 13:46:13,493 - uvicorn.access - INFO - 127.0.0.1:51007 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 13:46:27,105 - uvicorn.error - INFO - Shutting down
+2024-10-18 13:46:27,213 - uvicorn.error - INFO - Waiting for connections to close. (CTRL+C to force quit)
+2024-10-18 13:46:28,674 - uvicorn.access - INFO - 127.0.0.1:51013 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 13:46:28,720 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 13:46:28,720 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 13:46:28,720 - uvicorn.error - INFO - Finished server process [2392]
+2024-10-18 13:46:31,981 - uvicorn.error - INFO - Started server process [10760]
+2024-10-18 13:46:31,981 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 13:46:31,982 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 13:46:31,982 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 13:46:37,882 - uvicorn.access - INFO - 127.0.0.1:51021 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 13:46:41,466 - uvicorn.error - INFO - Shutting down
+2024-10-18 13:46:41,576 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 13:46:41,576 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 13:46:41,577 - uvicorn.error - INFO - Finished server process [10760]
+2024-10-18 13:47:06,579 - uvicorn.error - INFO - Started server process [12512]
+2024-10-18 13:47:06,580 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 13:47:06,580 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 13:47:06,581 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 13:47:12,702 - uvicorn.access - INFO - 127.0.0.1:51034 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 13:47:16,266 - uvicorn.error - INFO - Shutting down
+2024-10-18 13:47:16,368 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 13:47:16,368 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 13:47:16,369 - uvicorn.error - INFO - Finished server process [12512]
+2024-10-18 14:02:07,767 - uvicorn.error - INFO - Started server process [3620]
+2024-10-18 14:02:07,768 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 14:02:07,769 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 14:02:07,769 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 14:02:17,562 - uvicorn.access - INFO - 127.0.0.1:51392 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 14:02:48,905 - uvicorn.access - INFO - 127.0.0.1:51404 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 14:13:26,569 - uvicorn.error - INFO - Shutting down
+2024-10-18 14:13:26,679 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 14:13:26,679 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 14:13:26,680 - uvicorn.error - INFO - Finished server process [3620]
+2024-10-18 14:17:38,676 - uvicorn.error - INFO - Started server process [8536]
+2024-10-18 14:17:38,677 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 14:17:38,677 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 14:17:38,678 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 14:17:52,225 - uvicorn.error - INFO - Shutting down
+2024-10-18 14:17:52,333 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 14:17:52,333 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 14:17:52,333 - uvicorn.error - INFO - Finished server process [8536]
+2024-10-18 14:17:54,711 - uvicorn.error - INFO - Started server process [8652]
+2024-10-18 14:17:54,711 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 14:17:54,711 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 14:17:54,712 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 14:18:31,497 - uvicorn.error - INFO - Shutting down
+2024-10-18 14:18:31,605 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 14:18:31,605 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 14:18:31,606 - uvicorn.error - INFO - Finished server process [8652]
+2024-10-18 14:18:34,054 - uvicorn.error - INFO - Started server process [10152]
+2024-10-18 14:18:34,054 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 14:18:34,054 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 14:18:34,055 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 14:18:35,997 - uvicorn.error - INFO - Shutting down
+2024-10-18 14:18:36,104 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 14:18:36,104 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 14:18:36,105 - uvicorn.error - INFO - Finished server process [10152]
+2024-10-18 14:19:10,502 - uvicorn.error - INFO - Started server process [1440]
+2024-10-18 14:19:10,503 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 14:19:10,503 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 14:19:10,504 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 14:19:22,781 - uvicorn.access - INFO - 127.0.0.1:51616 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 14:20:18,375 - uvicorn.error - INFO - Shutting down
+2024-10-18 14:20:18,483 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 14:20:18,483 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 14:20:18,483 - uvicorn.error - INFO - Finished server process [1440]
+2024-10-18 14:21:08,772 - uvicorn.error - INFO - Started server process [7924]
+2024-10-18 14:21:08,772 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 14:21:08,772 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 14:21:08,773 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 14:23:24,272 - uvicorn.error - INFO - Shutting down
+2024-10-18 14:23:24,379 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 14:23:24,379 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 14:23:24,380 - uvicorn.error - INFO - Finished server process [7924]
+2024-10-18 14:24:57,767 - uvicorn.error - INFO - Started server process [6880]
+2024-10-18 14:24:57,767 - uvicorn.error - INFO - Waiting for application startup.
+2024-10-18 14:24:57,767 - uvicorn.error - INFO - Application startup complete.
+2024-10-18 14:24:57,768 - uvicorn.error - INFO - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2024-10-18 14:25:11,824 - uvicorn.access - INFO - 127.0.0.1:51670 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 14:25:21,214 - uvicorn.access - INFO - 127.0.0.1:51674 - "POST /reboot_tokens/?client_secret=evsnQmXW25jFQFzowrg6XyLxjBLGLTqZ0CTtLZS5v9r4mo5c89 HTTP/1.1" 200
+2024-10-18 14:31:44,085 - uvicorn.error - INFO - Shutting down
+2024-10-18 14:31:44,194 - uvicorn.error - INFO - Waiting for application shutdown.
+2024-10-18 14:31:44,194 - uvicorn.error - INFO - Application shutdown complete.
+2024-10-18 14:31:44,194 - uvicorn.error - INFO - Finished server process [6880]
