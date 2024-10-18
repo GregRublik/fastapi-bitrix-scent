@@ -3,3 +3,4 @@
 db/db.env
 venv
 __pycache__
+doc/**/__pycache__
