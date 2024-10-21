@@ -4,3 +4,5 @@ db/db.env
 venv
 __pycache__
 doc/**/__pycache__
+logs/app.log
+logs/debug.log
