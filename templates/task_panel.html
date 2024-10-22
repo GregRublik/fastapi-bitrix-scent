@@ -4,11 +4,11 @@
 {% endblock %}
 {% block body %}
 {% if access == "accountant" or access == "admin" %}
-    {% if approval_status.accountant in [None, 0, 1035] and approval_status.lawyer not in [None, 0, 1041] %}
+    {% if approval_status.accountant in [None, 0, 1035] %}
 
         <div class="select-container" id="select-container-accountant">
             <div id="select-container-accountant-div">
-                <h2>Со стороны юристов договор согласован.<br> Согласуйте договор</h2>
+                <h2>Согласуйте договор</h2>
                 <div class="form-floating">
                     <select id="accountant" class="form-select">
                         <option value="1031">Согласован без замечаний</option>
@@ -24,18 +24,18 @@
                 <button type="button" class="btn" id="button-accountant">ПОДТВЕРДИТЬ</button>
             </div>
         </div>
-    {% elif approval_status.accountant not in [None, 0, 1035] and approval_status.lawyer in [None, 0, 1041] and attached_file == False %}
+    {% elif approval_status.accountant in [1033, 1031] and approval_status.lawyer not in [1037, 1039] %}
+        <h2>Договор пока не согласован юристом</h2>
+    {% elif approval_status.lawyer in [1037, 1039] and attached_file == False %}
         <h2>Договор согласован</h2>
-    {% elif approval_status.accountant not in [None, 0, 1035] and approval_status.lawyer in [None, 0, 1041] and attached_file == True %}
+    {% elif approval_status.lawyer in [1037, 1039] and attached_file == True %}
         <h2>Договор согласован и прикреплен к элементу</h2>
     {% endif %}
 {% endif %}
 {% if access == "lawyer" or access == "admin" %}
-
-    {% if approval_status.lawyer in [None, 0, 1041] %}
-
+    {% if approval_status.lawyer not in [1037, 1039] and approval_status.accountant not in [None, 0, 1035] %}
         <div class="select-container" id="select-container-lawyer">
-            <h2>Согласуйте договор</h2><br>
+            <h2>Договор согласован бухгалтером</h2>
             <div class="form-floating">
                 <select id="lawyer" class="form-select">
                     <option value="1037">Согласован без замечаний</option>
@@ -44,23 +44,22 @@
                 </select>
                 <label for="lawyer">Юристы</label>
             </div>
-            <div class="form-floating">
-                <textarea class="form-control" id="comment-lawyer" rows="3" style="height: 130px;"></textarea>
-                <label for="comment-lawyer">Комментарий</label>
+            <div id="file-lawyer" class="mb-3">
+
+                <input class="form-control" type="file" id="formFileMultiple" multiple>
+                <div class="form-floating">
+                    <textarea class="form-control" id="comment-lawyer" rows="3" style="height: 130px;"></textarea>
+                    <label for="comment-lawyer">Комментарий</label>
+                </div>
+                <button type="button" class="btn" id="button-lawyer-send-file">ОТПРАВИТЬ</button>
             </div>
-            <button type="button" class="btn" id="button-lawyer">ПОДТВЕРДИТЬ</button>
+<!--            <button type="button" class="btn" id="button-lawyer">ПОДТВЕРДИТЬ</button>-->
         </div>
-    {% elif approval_status.lawyer not in [None, 0, 1041] and approval_status.accountant not in [None, 0, 1035] and attached_file == False %}
-        <div id="file-lawyer" class="mb-3">
-            <h2>Договор согласован бухгалтером!</h2>
-            <label for="formFileMultiple" class="form-label">Прикрепите согласованный договор,
-                а также протокол разногласий (при наличии)</label>
-            <input class="form-control" type="file" id="formFileMultiple" multiple>
-            <button type="button" class="btn" id="button-lawyer-send-file">ОТПРАВИТЬ</button>
-        </div>
-    {% elif approval_status.lawyer not in [None, 0, 1041] and approval_status.accountant in [None, 0, 1035] and attached_file == False %}
+    {% elif approval_status.accountant in [None, 0, 1035] and attached_file == False %}
+        <h2>Договор пока не согласован бухгалтером</h2>
+    {% elif approval_status.lawyer in [1037, 1039] and attached_file == False %}
         <h2>Договор согласован</h2>
-    {% elif approval_status.lawyer not in [None, 0, 1041] and approval_status.accountant not in [None, 0, 1035] and attached_file == True %}
+    {% elif approval_status.lawyer in [1037, 1039] and attached_file == True %}
         <h2>Договор согласован и прикреплен к элементу</h2>
     {% endif %}
 {% endif %}
@@ -99,9 +98,9 @@
                     a.innerHTML = "<h2>Договор согласован с замечаниями</h2>";
                     document.body.style.background = '#ffcd38';
                 } else if (select_option_accountant.value === "1035") {
-                    var message = "️[B]📄Согласуйте договор[/B][BR][BR]Договор НЕ согласован Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]"; 
+                    var message = "️[B]📄Договор несогласован[/B][BR][BR]Договор НЕ согласован Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]"; 
                     var a = document.createElement('h2');
-                    a.innerHTML = "<h2>Договор согласован НЕ согласован</h2>";
+                    a.innerHTML = "<h2>Договор не согласован</h2>";
                     document.body.style.background = '#fd4343';
                 }
                 document.body.appendChild(a);
@@ -110,8 +109,9 @@
             select_container_accountant_div.style.display = 'none';
         });
     }
-    if (button_lawyer) {
-        button_lawyer.addEventListener('click', function () {
+    if (button_lawyer_file) {
+        button_lawyer_file.addEventListener('click', function () {
+            
             var select_option_lawyer = document.getElementById('lawyer');
             var comment_lawyer = document.getElementById('comment-lawyer');
             BX24.init(function () {
@@ -125,17 +125,17 @@
                     }
                 });
                 if (select_option_lawyer.value === "1037") {
-                    var message = "️️[B]📄Отметьте результат согласования договора[/B][BR][BR]Договор согласован без замечаний Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]";
+                    var message = "️️[B]📄Договор согласован и прикреплен[/B][BR][BR]Договор согласован без замечаний Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]";
                     var a = document.createElement('h2');
                     a.innerHTML = "<h2>Договор согласован без замечаний</h2>";
                     document.body.style.background = '#cffcd2';
                 } else if (select_option_lawyer.value === "1039") {
-                    var message = "️️[B]📄Отметьте результат согласования договора[/B]️[BR][BR]Договор согласован с замечаниями Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]";
+                    var message = "️️[B]📄Договор согласован и прикреплен с замечаниями[/B]️[BR][BR]Договор согласован с замечаниями Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]";
                     var a = document.createElement('h2');
                     a.innerHTML = "<h2>Договор согласован с замечаниями</h2>";
                     document.body.style.background = '#ffcd38';
                 } else if (select_option_lawyer.value === "1041") {
-                    var message = "️️[B]📄Отметьте результат согласования договора[/B][BR][BR]Договор НЕ согласован Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]";
+                    var message = "️️[B]📄Договор не согласован[/B][BR][BR]Договор НЕ согласован Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]";
                     var a = document.createElement('h2');
                     a.innerHTML = "<h2>Договор согласован НЕ согласован</h2>";
                     document.body.style.background = '#fd4343';
@@ -145,11 +145,8 @@
             });
 
             select_container_lawyer.style.display = 'none';
-        });
-    }
-
-    if (button_lawyer_file) {
-        button_lawyer_file.addEventListener('click', function () {
+            file_lawyer.style.display = 'none';
+            
             const files = document.getElementById('formFileMultiple').files;
             if (files[0]) {
                 const list_file = [];
@@ -168,22 +165,13 @@
                             'ufCrm12_1712146917716': list_file,
                         }
                     });
-                    var message = "[B]✔️Договор согласован[/B][BR][BR]Договор был согласован и прикреплен к элементу: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]";
-                    fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ accomplices }}`);
-                    BX24.callMethod('tasks.task.update', {
-                        taskId:{{ task_id }}, 
-                        fields:{"STATUS":5, }
-                    });
                 })
-                var a = document.createElement('h2');
-                a.innerHTML = "<h2>Договор согласован и прикреплен к элементу</h2>";
-                document.body.appendChild(a);
-                document.body.style.background = '#cffcd2';
-                file_lawyer.style.display = 'none';
-            } else {
-                alert('Прикрепите договор!');
             }
-
+            BX24.callMethod('tasks.task.update', {
+                taskId:{{ task_id }}, 
+                fields:{"STATUS":5,
+                }
+            });
         });
     }
     </script>
