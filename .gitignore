@@ -7,3 +7,4 @@ doc/**/__pycache__
 logs/app.log
 logs/debug.log
 cgi-bin
+.restart-app

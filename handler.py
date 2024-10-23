@@ -321,8 +321,11 @@ async def task_panel(
         attached_file = False
     approval_status = {"accountant": element['result']["item"]['ufCrm12_1709191865371'],
                        "lawyer": element['result']["item"]['ufCrm12_1709192259979']}
+    a = ''
     for i in user['result']['UF_DEPARTMENT']:  # перебираем все подразделения сотрудника
-        if i in list_access or user_admin['result']:  # Если есть разрешение
+        a += str(i)
+        if str(i) in list_access or user_admin['result']:  # Если есть разрешение
+            a += 'verno'
             if user_admin['result']:
                 i = '0'
             return templates.TemplateResponse(request,
@@ -331,16 +334,16 @@ async def task_panel(
                                                   'element_id': element_id,
                                                   'task_id': task_id,
                                                   'user_id': user['result']['ID'],
-                                                  'access': list_access[i],
+                                                  'access': list_access[str(i)],
                                                   'approval_status': approval_status,
                                                   'attached_file': attached_file,
                                                   'accomplices': task['result']['task']['accomplices'][0],
                                                   'responsible': task['result']['task']['responsibleId'],
                                                   'title_task': task['result']['task']['title'],
-                                                  'auth': access[0]
+                                                  'auth': access[0],
                                               }
                                               )
-    return "Доступ запрещен"
+    return f"Доступ запрещен {a}"
 
 
 if __name__ == "__main__":
