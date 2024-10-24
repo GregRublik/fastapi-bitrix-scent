@@ -7,8 +7,10 @@
         Приложение установлено
     </h1>
     <script>
-        BX24.installFinish(function () {
-            print("Приложение установлено");
+        BX24.init(function(){
+            console.log('Инициализация завершена!', BX24.installFinish(function () {
+                print("Приложение установлено");
+            }));
         });
     </script>
 {% endblock %}

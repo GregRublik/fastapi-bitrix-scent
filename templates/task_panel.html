@@ -141,7 +141,8 @@
                     document.body.style.background = '#fd4343';
                 }
                 document.body.appendChild(a);
-                fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ accomplices }}`);
+                console.log(`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ accomplices }}`)
+                let promise = fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ accomplices }}`);
             });
 
             select_container_lawyer.style.display = 'none';

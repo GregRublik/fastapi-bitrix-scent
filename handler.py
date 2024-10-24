@@ -40,8 +40,6 @@ async def app_install(
     data_parsed = parse_qs(data.decode())
     os.environ["ACCESS_TOKEN"] = data_parsed["AUTH_ID"][0]
     await update_tokens(access=data_parsed["AUTH_ID"][0], refresh=data_parsed["REFRESH_ID"][0])
-    with open("auth/refresh.txt", "w") as file:
-        file.write(data_parsed["REFRESH_ID"][0])
     await reboot_tokens(client_secret=secret)
     return templates.TemplateResponse(request, name="install.html")
 
@@ -73,9 +71,11 @@ async def send_message(
     recipient: int
 ):
     session = aiohttp.ClientSession()
-    await session.get(
+    result = await session.get(
         url=f"https://sporbita.bitrix24.ru/rest/55810/db0ku6gza9bt15jt/im.message.add.json?DIALOG_ID={recipient}&MESSAGE={message}"
     )
+    result = await result.json()
+    return result
 
 
 @app.post('/main_handler/', tags=["UNIVERSAL"])
@@ -283,6 +283,7 @@ async def task_panel(
     request: Request,
 
 ):
+    # return templates.TemplateResponse(request, name="install.html")
     """Приложение встроенное в интерфейс задачи"""
     data = await request.body()
     data_parsed = parse_qs(data.decode())
@@ -320,7 +321,7 @@ async def task_panel(
     else:
         attached_file = False
     approval_status = {"accountant": element['result']["item"]['ufCrm12_1709191865371'],
-                       "lawyer": element['result']["item"]['ufCrm12_1709192259979']}
+                      "lawyer": element['result']["item"]['ufCrm12_1709192259979']}
     a = ''
     for i in user['result']['UF_DEPARTMENT']:  # перебираем все подразделения сотрудника
         a += str(i)
