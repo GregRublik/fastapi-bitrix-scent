@@ -66,7 +66,7 @@
 {% endblock %}
 {% block footer %}
     <script>
-    const select_container_accountant = document.getElementById('select-container-accountant');
+        const select_container_accountant = document.getElementById('select-container-accountant');
     const select_container_accountant_div = document.getElementById('select-container-accountant-div');
     const select_container_lawyer = document.getElementById('select-container-lawyer');
     const button_accountant = document.querySelector('#button-accountant');
@@ -98,7 +98,7 @@
                     a.innerHTML = "<h2>Договор согласован с замечаниями</h2>";
                     document.body.style.background = '#ffcd38';
                 } else if (select_option_accountant.value === "1035") {
-                    var message = "️[B]📄Договор несогласован[/B][BR][BR]Договор НЕ согласован Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]"; 
+                    var message = "️[B]📄Договор не согласован[/B][BR][BR]Договор НЕ согласован Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]";
                     var a = document.createElement('h2');
                     a.innerHTML = "<h2>Договор не согласован</h2>";
                     document.body.style.background = '#fd4343';
@@ -111,7 +111,7 @@
     }
     if (button_lawyer_file) {
         button_lawyer_file.addEventListener('click', function () {
-            
+
             var select_option_lawyer = document.getElementById('lawyer');
             var comment_lawyer = document.getElementById('comment-lawyer');
             BX24.init(function () {
@@ -125,23 +125,83 @@
                     }
                 });
                 if (select_option_lawyer.value === "1037") {
+                    BX24.callMethod(
+                        'bizproc.workflow.start',
+                        {
+                            TEMPLATE_ID: 3171,
+                            DOCUMENT_ID: [
+                                'crm',
+                                'Bitrix\\Crm\\Integration\\BizProc\\Document\\Dynamic',
+                                'DYNAMIC_131_{{ element_id }}'
+                            ],
+                        },
+                        function(result) {
+                            console.log('response', result.answer);
+                            if(result.error())
+                                alert("Error: " + result.error());
+                            else
+                            console.log(result.data());
+                        }
+                    );
                     var message = "️️[B]📄Договор согласован и прикреплен[/B][BR][BR]Договор согласован без замечаний Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]";
                     var a = document.createElement('h2');
                     a.innerHTML = "<h2>Договор согласован без замечаний</h2>";
                     document.body.style.background = '#cffcd2';
                 } else if (select_option_lawyer.value === "1039") {
+                    BX24.callMethod(
+                        'bizproc.workflow.start',
+                        {
+                            TEMPLATE_ID: 3169,
+                            DOCUMENT_ID: [
+                                'crm',
+                                'Bitrix\\Crm\\Integration\\BizProc\\Document\\Dynamic',
+                                'DYNAMIC_131_{{ element_id }}'
+                            ],
+                            PARAMETERS: {
+                                'Parameter2': 'Юристами',
+                            },
+                        },
+                        function(result) {
+                            console.log('response', result.answer);
+                            if(result.error())
+                                alert("Error: " + result.error());
+                            else
+                            console.log(result.data());
+                        }
+                    );
                     var message = "️️[B]📄Договор согласован и прикреплен с замечаниями[/B]️[BR][BR]Договор согласован с замечаниями Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]";
                     var a = document.createElement('h2');
                     a.innerHTML = "<h2>Договор согласован с замечаниями</h2>";
                     document.body.style.background = '#ffcd38';
                 } else if (select_option_lawyer.value === "1041") {
+                    BX24.callMethod(
+                        'bizproc.workflow.start',
+                        {
+                            TEMPLATE_ID: 3173,
+                            DOCUMENT_ID: [
+                                'crm',
+                                'Bitrix\\Crm\\Integration\\BizProc\\Document\\Dynamic',
+                                'DYNAMIC_131_{{ element_id }}'
+                            ],
+                            PARAMETERS: {
+                                'Parameter1': 'Юристов',
+                                'Parameter2': comment_lawyer.value
+                            },
+                        },
+                        function(result) {
+                            console.log('response', result.answer);
+                            if(result.error())
+                                alert("Error: " + result.error());
+                            else
+                            console.log(result.data());
+                        }
+                    );
                     var message = "️️[B]📄Договор не согласован[/B][BR][BR]Договор НЕ согласован Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]";
                     var a = document.createElement('h2');
                     a.innerHTML = "<h2>Договор согласован НЕ согласован</h2>";
                     document.body.style.background = '#fd4343';
                 }
                 document.body.appendChild(a);
-                console.log(`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ accomplices }}`)
                 let promise = fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ accomplices }}`);
             });
 
