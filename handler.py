@@ -316,7 +316,7 @@ async def task_panel(
     accountants = await session.get(url=f"{portal_url}rest/user.search?auth={access[0]}&UF_DEPARTMENT=114")
     accountants = await accountants.json()
     list_accountants = []
-    for i in accountants["result"]["result"]:
+    for i in accountants["result"]:
         list_accountants.append(i["ID"])
     for a in task['result']['task']['accomplices']:
         if a in list_accountants:
