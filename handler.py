@@ -312,6 +312,16 @@ async def task_panel(
                                       f"&select[0]=ufCrm12_1709191865371"
                                       f"&select[1]=ufCrm12_1709192259979"))
 
+    accomplices = task['result']['task']['accomplices'][0]
+    accountants = await session.get(url=f"{portal_url}rest/user.search?auth={access[0]}&UF_DEPARTMENT=114")
+    accountants = await accountants.json()
+    list_accountants = []
+    for i in accountants["result"]["result"]:
+        list_accountants.append(i["ID"])
+    for a in task['result']['task']['accomplices']:
+        if a in list_accountants:
+            accomplices = a
+
     element = await element.json()
     user = await user.json()
     user_admin = await user_admin.json()
@@ -326,7 +336,6 @@ async def task_panel(
         if str(i) in list_access or user_admin['result']:  # Если есть разрешение
             if user_admin['result']:
                 i = '0'
-            print(task['result']['task']['accomplices'])
             return templates.TemplateResponse(request,
                                               name="task_panel.html",
                                               context={
@@ -336,7 +345,7 @@ async def task_panel(
                                                   'access': list_access[str(i)],
                                                   'approval_status': approval_status,
                                                   'attached_file': attached_file,
-                                                  'accomplices': task['result']['task']['accomplices'][0],
+                                                  'accomplices': accomplices,
                                                   'responsible': task['result']['task']['responsibleId'],
                                                   'title_task': task['result']['task']['title'],
                                                   'auth': access[0],
