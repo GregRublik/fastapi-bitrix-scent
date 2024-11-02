@@ -4,7 +4,7 @@
 {% endblock %}
 {% block body %}
 {% if access == "accountant" or access == "admin" %}
-    {% if approval_status.accountant in [None, 0, 1035] %}
+    {% if approval_status.accountant in [None, 0] %}
 
         <div class="select-container" id="select-container-accountant">
             <div id="select-container-accountant-div">
@@ -33,7 +33,7 @@
     {% endif %}
 {% endif %}
 {% if access == "lawyer" or access == "admin" %}
-    {% if approval_status.lawyer not in [1037, 1039] and approval_status.accountant not in [None, 0, 1035] %}
+    {% if approval_status.lawyer not in [1037, 1039] and approval_status.accountant not in [None, 0] %}
         <div class="select-container" id="select-container-lawyer">
             <h2>Договор согласован бухгалтером</h2>
             <div class="form-floating">
@@ -55,7 +55,7 @@
             </div>
 <!--            <button type="button" class="btn" id="button-lawyer">ПОДТВЕРДИТЬ</button>-->
         </div>
-    {% elif approval_status.accountant in [None, 0, 1035] and attached_file == False %}
+    {% elif approval_status.accountant in [None, 0] and attached_file == False %}
         <h2>Договор пока не согласован бухгалтером</h2>
     {% elif approval_status.lawyer in [1037, 1039] and attached_file == False %}
         <h2>Договор согласован</h2>
