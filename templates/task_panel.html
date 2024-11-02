@@ -98,11 +98,40 @@
                     a.innerHTML = "<h2>Договор согласован с замечаниями</h2>";
                     document.body.style.background = '#ffcd38';
                 } else if (select_option_accountant.value === "1035") {
+                                    BX24.callMethod(
+                        'bizproc.workflow.start',
+                        {
+                            TEMPLATE_ID: 3173,
+                            DOCUMENT_ID: [
+                                'crm',
+                                'Bitrix\\Crm\\Integration\\BizProc\\Document\\Dynamic',
+                                'DYNAMIC_131_{{ element_id }}'
+                            ],
+                            PARAMETERS: {
+                                'Parameter1': 'Бухгалтером',
+                                'Parameter2': comment_lawyer.value
+                            },
+                        },
+                        function(result) {
+                            console.log('response', result.answer);
+                            if(result.error())
+                                alert("Error: " + result.error());
+                            else
+                            console.log(result.data());
+                        }
+                    );
                     var message = "️[B]📄Договор не согласован[/B][BR][BR]Договор НЕ согласован Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL]";
                     var a = document.createElement('h2');
                     a.innerHTML = "<h2>Договор не согласован</h2>";
+
                     document.body.style.background = '#fd4343';
+                    BX24.callMethod('tasks.task.update', {
+                    taskId:{{ task_id }},
+                    fields:{"STATUS":5,
+                    }
+                });
                 }
+
                 document.body.appendChild(a);
                 fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ responsible }}`);
             });
