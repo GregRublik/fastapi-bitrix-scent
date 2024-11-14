@@ -354,7 +354,7 @@ async def task_panel(
                                                   'responsible': task['result']['task']['responsibleId'],
                                                   'title_task': task['result']['task']['title'],
                                                   'auth': access[0],
-                                                  'comments': comment_accountant
+                                                  'comment_accountant': comment_accountant
                                               }
                                               )
     return f"Доступ запрещен"
