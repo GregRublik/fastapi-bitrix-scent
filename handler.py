@@ -336,10 +336,7 @@ async def task_panel(
         "accountant": element['result']["item"]['ufCrm12_1709191865371'],
         "lawyer": element['result']["item"]['ufCrm12_1709192259979']
     }
-    comments = {
-        "accountant": element['result']["item"]['ufCrm12_1708093511140'],
-        "lawyer": element['result']["item"]['ufCrm12_1708599567866']
-    }
+    comment_accountant = element['result']["item"]['ufCrm12_1708599567866']
     for i in user['result']['UF_DEPARTMENT']:  # перебираем все подразделения сотрудника
         if str(i) in list_access or user_admin['result']:  # Если есть разрешение
             if user_admin['result']:
@@ -357,7 +354,7 @@ async def task_panel(
                                                   'responsible': task['result']['task']['responsibleId'],
                                                   'title_task': task['result']['task']['title'],
                                                   'auth': access[0],
-                                                  'comments': comments
+                                                  'comments': comment_accountant
                                               }
                                               )
     return f"Доступ запрещен"
