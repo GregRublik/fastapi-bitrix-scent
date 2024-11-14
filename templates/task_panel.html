@@ -36,6 +36,7 @@
     {% if approval_status.lawyer not in [1037, 1039] and approval_status.accountant not in [None, 0] %}
         <div class="select-container" id="select-container-lawyer">
             <h2>Договор согласован бухгалтером</h2>
+            <h4>Комментарий: {{ comments.accountant }}</h4>
             <div class="form-floating">
                 <select id="lawyer" class="form-select">
                     <option value="1037">Согласован без замечаний</option>

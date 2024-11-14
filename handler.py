@@ -310,6 +310,8 @@ async def task_panel(
     element = await session.post(url=(f"{portal_url}rest/crm.item.get?auth={access[0]}&entityTypeId=131"
                                       f"&id={element_id}"
                                       f"&select[0]=ufCrm12_1709191865371"
+                                      f"&select[3]=ufCrm12_1708093511140"
+                                      f"&select[2]=ufCrm12_1708599567866"
                                       f"&select[1]=ufCrm12_1709192259979"))
 
     accomplices = task['result']['task']['accomplices'][0]
@@ -330,8 +332,14 @@ async def task_panel(
         attached_file = True
     else:
         attached_file = False
-    approval_status = {"accountant": element['result']["item"]['ufCrm12_1709191865371'],
-                      "lawyer": element['result']["item"]['ufCrm12_1709192259979']}
+    approval_status = {
+        "accountant": element['result']["item"]['ufCrm12_1709191865371'],
+        "lawyer": element['result']["item"]['ufCrm12_1709192259979']
+    }
+    comments = {
+        "accountant": element['result']["item"]['ufCrm12_1708093511140'],
+        "lawyer": element['result']["item"]['ufCrm12_1708599567866']
+    }
     for i in user['result']['UF_DEPARTMENT']:  # перебираем все подразделения сотрудника
         if str(i) in list_access or user_admin['result']:  # Если есть разрешение
             if user_admin['result']:
@@ -349,6 +357,7 @@ async def task_panel(
                                                   'responsible': task['result']['task']['responsibleId'],
                                                   'title_task': task['result']['task']['title'],
                                                   'auth': access[0],
+                                                  'comments': comments
                                               }
                                               )
     return f"Доступ запрещен"
