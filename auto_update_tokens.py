@@ -9,7 +9,6 @@ urllib3.disable_warnings()
 def update():
     response = requests.post(url=f"https://sporbita-developers.ru/reboot_tokens/", params={'client_secret': secret},
                              verify=False)
-    print(response.json())
 
 
 status = True
@@ -20,3 +19,5 @@ try:
         update()
 except KeyboardInterrupt:
     print('Exiting....')
+finally:
+    print('End App...')
