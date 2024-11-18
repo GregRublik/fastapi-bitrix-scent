@@ -70,7 +70,7 @@
         <h2>Договор отклонен бухгалтером</h2>
     {% elif approval_status.lawyer == 1041 %}
         <h2>Договор отклонен юристом</h2>
-    {% elif approval_status.accountant in [None, 0, 1035] and attached_file == False %}
+    {% elif approval_status.accountant in [None, 0, 1035] %}
         <h2>Договор пока не согласован бухгалтером</h2>
     {% elif approval_status.lawyer in [1037, 1039] and attached_file == False %}
         <h2>Договор согласован</h2>
@@ -210,6 +210,7 @@
                         var a = document.createElement('h2');
                         a.innerHTML = "<h2>Договор согласован без замечаний</h2>";
                         document.body.style.background = '#cffcd2';
+                        document.body.appendChild(a);
                     } else if (select_option_lawyer.value === "1039") {
                         BX24.callMethod(
                             'bizproc.workflow.start',
