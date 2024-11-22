@@ -1,7 +1,6 @@
 import os
 import ast
 import platform
-import asyncio
 import uvicorn
 import datetime
 from os import getenv
@@ -25,13 +24,14 @@ session_manager = SessionManager.get_instance()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    yield
-    await session_manager.close_session()
+    try:
+        yield
+    finally:
+        await session_manager.close_session()
 
 
 logger.add("logs/debug.log", format="{time} - {level} - {message}", level="INFO", rotation="5 MB", compression="zip")
 app = FastAPI(lifespan=lifespan)
-# app = FastAPI()
 application = ASGIMiddleware(app)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -55,7 +55,7 @@ async def app_install(
 
 @app.post("/reboot_tokens/", tags=['AUTHENTICATION'])
 @logger.catch
-async def reboot_tokens(client_secret: str):
+async def reboot_tokens(client_secret: str) -> dict:
     """С помощью client_secret приложения можно обновить токены для дальнейшей работы приложения"""
     check_token(client_secret)
     session = await session_manager.get_session()
@@ -81,7 +81,8 @@ async def send_message(
 ):
     session = await session_manager.get_session()
     result = await session.get(
-        url=f"https://sporbita.bitrix24.ru/rest/55810/db0ku6gza9bt15jt/im.message.add.json?DIALOG_ID={recipient}&MESSAGE={message}"
+        url=(f"https://sporbita.bitrix24.ru/rest/55810/db0ku6gza9bt15jt/im.message.add.json?DIALOG_ID={recipient}"
+             f"&MESSAGE={message}")
     )
     result = await result.json()
     return result
@@ -106,7 +107,7 @@ async def main_handler(
     return {'status_code': 200, 'result': result}
 
 
-@app.post("/activity_update/", tags=['PURCHASE VED'])  # исходящий вебхук 387
+@app.post("/activity_update/", tags=['PURCHASE VED'])
 @logger.catch
 async def activity_update(
     data: str = Body()
@@ -123,13 +124,11 @@ async def activity_update(
     session = await session_manager.get_session()
     activity = await session.get(url=url)
     activity = await activity.json()
-    # print(activity)
     if (activity['result']['OWNER_TYPE_ID'] == '1058' and activity['result']['COMPLETED'] == 'Y'
             and 'Подтвердите дату' in activity['result']['DESCRIPTION']):
-
         async with session.get(
-                url=f"""{portal_url}rest/crm.item.get?auth={access[0]}&entityTypeId=1058
-            &id={activity['result']['OWNER_ID']}""") as element:
+                url=(f"""{portal_url}rest/crm.item.get?auth={access[0]}&entityTypeId=1058
+                &id={activity['result']['OWNER_ID']}""")) as element:
             element = await element.json()
             field_history = element['result']['item']['ufCrm41_1724744699216']
         if element['result']['item']['stageId'] in ['DT1058_69:UC_1CO49M',
@@ -141,7 +140,6 @@ async def activity_update(
             else:
                 field_history.append('')
             index, new_recording = '', ''
-            print(element)
             for index, v in enumerate(field_history):
                 fields_to_url += f"fields[ufCrm41_1724744699216][{index}]=" + str(v) + "&"
                 new_recording = f"Дата мониторинга: {datetime.date.today().isoformat()} | \
@@ -290,7 +288,6 @@ async def invite_an_employee(
 @logger.catch
 async def task_panel(
     request: Request,
-
 ):
     # return templates.TemplateResponse(request, name="install.html")
     """Приложение встроенное в интерфейс задачи"""
@@ -322,7 +319,6 @@ async def task_panel(
                                       f"&select[3]=ufCrm12_1708093511140"
                                       f"&select[2]=ufCrm12_1708599567866"
                                       f"&select[1]=ufCrm12_1709192259979"))
-
     accomplices = task['result']['task']['accomplices'][0]
     accountants = await session.get(url=f"{portal_url}rest/user.search?auth={access[0]}&UF_DEPARTMENT=114")
     accountants = await accountants.json()
@@ -332,7 +328,6 @@ async def task_panel(
     for a in task['result']['task']['accomplices']:
         if a in list_accountants:
             accomplices = a
-
     element = await element.json()
     user = await user.json()
     user_admin = await user_admin.json()
@@ -370,9 +365,12 @@ async def task_panel(
 
 
 if __name__ == "__main__":
-    if platform.system() == "Windows":
-        uvicorn.run(app, host="127.0.0.1", log_config="logs/log_config.json", use_colors=True, log_level="info",
-                    loop="asyncio")
-    else:
-        uvicorn.run(application, host="0.0.0.0", log_config="logs/log_config.json", use_colors=True, log_level="info",
-                    loop="asyncio")
+    try:
+        if platform.system() == "Windows":
+            uvicorn.run(app, host="127.0.0.1", log_config="logs/log_config.json", use_colors=True, log_level="info",
+                        loop="asyncio")
+        else:
+            uvicorn.run(application, host="0.0.0.0", log_config="logs/log_config.json", use_colors=True,
+                        log_level="info", loop="asyncio")
+    except Exception as e:
+        logger.error(f"Error launch app: {e}")
