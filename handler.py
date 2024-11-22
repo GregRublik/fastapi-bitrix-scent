@@ -1,9 +1,7 @@
-import os
 import ast
 import platform
 import uvicorn
 import datetime
-from os import getenv
 from contextlib import asynccontextmanager
 from loguru import logger
 from urllib.parse import parse_qs
@@ -47,7 +45,6 @@ async def app_install(
     """Обработчик для установки приложения"""
     data = await request.body()
     data_parsed = parse_qs(data.decode())
-    os.environ["ACCESS_TOKEN"] = data_parsed["AUTH_ID"][0]
     await update_tokens(access=data_parsed["AUTH_ID"][0], refresh=data_parsed["REFRESH_ID"][0])
     await reboot_tokens(client_secret=secret)
     return templates.TemplateResponse(request, name="install.html")
