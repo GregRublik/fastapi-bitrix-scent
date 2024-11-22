@@ -22,19 +22,8 @@ from sqlalchemy import text
 from db.database import update_tokens, get_bitrix_auth
 
 
-session = None
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    global session
-    session = aiohttp.ClientSession()
-    yield
-    await session.close()
-
-
 logger.add("logs/debug.log", format="{time} - {level} - {message}", level="INFO", rotation="5 MB", compression="zip")
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 application = ASGIMiddleware(app)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -61,6 +50,7 @@ async def app_install(
 async def reboot_tokens(client_secret: str):
     """С помощью client_secret приложения можно обновить токены для дальнейшей работы приложения"""
     check_token(client_secret)
+    session = aiohttp.ClientSession()
     access = await get_bitrix_auth()
     response = await session.get(
         url=f"https://oauth.bitrix.info/oauth/token/?grant_type=refresh_token&\
@@ -81,6 +71,7 @@ async def send_message(
     message: str,
     recipient: int
 ):
+    session = aiohttp.ClientSession()
     result = await session.get(
         url=f"https://sporbita.bitrix24.ru/rest/55810/db0ku6gza9bt15jt/im.message.add.json?DIALOG_ID={recipient}&MESSAGE={message}"
     )
@@ -101,6 +92,7 @@ async def main_handler(
     check_token(client_secret)
     access = await get_bitrix_auth()
     url = f"{portal_url}rest/{method}?auth={access[0]}&{params}"
+    session = aiohttp.ClientSession()
     async with session.get(url=url) as result:
         result = await result.json()
     return {'status_code': 200, 'result': result}
@@ -120,6 +112,7 @@ async def activity_update(
     activity_id = data_parsed['data[FIELDS][ID]'][0]
     access = await get_bitrix_auth()
     url = f"{portal_url}rest/crm.activity.get?auth={access[0]}&ID={activity_id}"
+    session = aiohttp.ClientSession()
     activity = await session.get(url=url)
     activity = await activity.json()
     # print(activity)
@@ -166,6 +159,7 @@ async def task_delegate(
     Метод для делегирования всех задач сотрудника на руководителя при его увольнении
     """
     check_token(client_secret)
+    session = aiohttp.ClientSession()
     access = await get_bitrix_auth()
     list_task = await session.get(url=(f"{portal_url}rest/tasks.task.list"
                                        f"?auth={access[0]}&filter[<REAL_STATUS]=5&filter[RESPONSIBLE_ID]={ID}"
@@ -209,6 +203,7 @@ c {date_old} на новую {date_new} по сделке: [URL={link_element}]{
 &DIALOG_ID=77297
 &KEYBOARD[0][BLOCK]=Y
     """
+    session = aiohttp.ClientSession()
     async with session.get(url=url) as result:
         message = await result.json()
         id_message = message['result']
@@ -235,6 +230,7 @@ async def handler_button(
     """
     Срабатывает при нажатии на кнопку "Подтвердить в сообщении."
     """
+    session = aiohttp.ClientSession()
     access = await get_bitrix_auth()
     async with session.get(
             url=f"{portal_url}rest/crm.item.get?auth={access[0]}&entityTypeId=1058&id={ID}"
@@ -271,6 +267,7 @@ async def invite_an_employee(
     UF_DEPARTMENT: str | None = None,
     ADAPTATION_ID: str | None = None,
 ):
+    session = aiohttp.ClientSession()
     access = await get_bitrix_auth()
     new_user = await session.post(url=f"{portal_url}rest/user.add.json?auth={access[0]}&NAME={NAME}"
                                       f"&LAST_NAME={LAST_NAME}&WORK_POSITION={WORK_POSITION}"
@@ -291,6 +288,7 @@ async def task_panel(
     """Приложение встроенное в интерфейс задачи"""
     data = await request.body()
     data_parsed = parse_qs(data.decode())
+    session = aiohttp.ClientSession()
     user = await session.post(url=f"{portal_url}rest/user.current?auth={data_parsed['AUTH_ID'][0]}")
     user_admin = await session.post(url=f"{portal_url}rest/user.admin?auth={data_parsed['AUTH_ID'][0]}")
     task_id = ast.literal_eval(data_parsed['PLACEMENT_OPTIONS'][0])["taskId"]
