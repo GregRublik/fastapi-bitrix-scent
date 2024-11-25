@@ -9,3 +9,4 @@ logs/debug.log
 cgi-bin
 .restart-app
 test.js
+logs/*.zip
