@@ -80,9 +80,6 @@
 {% endif %}
 {% endblock %}
 {% block footer %}
-    <script src="/static/task_panel.js"></script>
-{% endblock %}
-<script>
     const select_container_accountant = document.getElementById('select-container-accountant');
     const select_container_accountant_div = document.getElementById('select-container-accountant-div');
     const select_container_lawyer = document.getElementById('select-container-lawyer');
@@ -318,4 +315,6 @@
             }
         });
     }
-</script>
+    </script>
+    <script src="/static/task_panel.js"></script>
+{% endblock %}
