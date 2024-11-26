@@ -157,6 +157,7 @@
 
                 document.body.appendChild(a);
                 fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ responsible }}`);
+                fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ created_by }}`);
             });
             
         });
