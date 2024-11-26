@@ -80,6 +80,7 @@
 {% endif %}
 {% endblock %}
 {% block footer %}
+    <script>
     const select_container_accountant = document.getElementById('select-container-accountant');
     const select_container_accountant_div = document.getElementById('select-container-accountant-div');
     const select_container_lawyer = document.getElementById('select-container-lawyer');
@@ -102,13 +103,13 @@
                     }
                 });
                 if (select_option_accountant.value === "1031") {
-                    var message = "[B]️️📄Согласуйте договор[BR][BR]Договор согласован без замечаний Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]"
+                    var message = "[B]📄Согласуйте договор[BR][BR]Договор согласован без замечаний Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]"
                     var a = document.createElement('h2');
                     a.innerHTML = "<h2>Договор согласован без замечаний</h2>";
                     document.body.style.background = '#cffcd2';
                     select_container_accountant_div.style.display = 'none';
                 } else if (select_option_accountant.value === "1033") {
-                    var message = "[B]️️📄Согласуйте договор[BR][BR]Договор согласован с замечаниями Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
+                    var message = "[B]📄Согласуйте договор[BR][BR]Договор согласован с замечаниями Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
                     var a = document.createElement('h2');
                     a.innerHTML = "<h2>Договор согласован с замечаниями</h2>";
                     document.body.style.background = '#ffcd38';
@@ -142,7 +143,6 @@
                         var message = "️[B]📄Договор не согласован[BR][BR]Договор НЕ согласован Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
                         var a = document.createElement('h2');
                         a.innerHTML = "<h2>Договор не согласован</h2>";
-    
                         document.body.style.background = '#fd4343';
                         BX24.callMethod('tasks.task.update', {
                         taskId:{{ task_id }},
@@ -151,14 +151,11 @@
                         });
                         select_container_accountant_div.style.display = 'none';
                     };
-                    
                 }
-
                 document.body.appendChild(a);
                 fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ responsible }}`);
                 fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ created_by }}`);
             });
-            
         });
     }
     if (button_lawyer_file) {
@@ -172,7 +169,6 @@
             });
         });
         button_lawyer_file.addEventListener('click', function () {
-            
             const files = document.getElementById('formFileMultiple').files;
             var select_option_lawyer = document.getElementById('lawyer');
             var comment_lawyer = document.getElementById('comment-lawyer');
@@ -206,7 +202,7 @@
                                 console.log(result.data());
                             }
                         );
-                        var message = "️️[B]📄Договор согласован и прикреплен[BR][BR]Договор согласован без замечаний Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
+                        var message = "️[B]📄Договор согласован и прикреплен[BR][BR]Договор согласован без замечаний Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
                         var a = document.createElement('h2');
                         a.innerHTML = "<h2>Договор согласован без замечаний</h2>";
                         document.body.style.background = '#cffcd2';
@@ -241,17 +237,14 @@
                         let promise = fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ accomplices }}`);
                     }
                 });
-    
                 select_container_lawyer.style.display = 'none';
                 file_lawyer.style.display = 'none';
-                
-                
-                    const list_file = [];
-                    for (let i = 0; i < files.length; i++) {
-                        if (files[i]) {
-                            const reader = new FileReader();
-                            reader.onload = (event) => list_file.push([files[i].name, String(event.target.result.split(',')[1])])
-                            reader.readAsDataURL(files[i]);
+                const list_file = [];
+                for (let i = 0; i < files.length; i++) {
+                    if (files[i]) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => list_file.push([files[i].name, String(event.target.result.split(',')[1])])
+                        reader.readAsDataURL(files[i]);
                         }
                     }
                     BX24.init(function () {
