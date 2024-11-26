@@ -357,7 +357,7 @@ async def task_panel(
                                                   'auth': access[0],
                                                   'comment_accountant':
                                                       element['result']["item"]['ufCrm12_1708599567866'],
-                                                  'created_by': element['result']["item"]['CREATED_BY'],
+                                                  'created_by': element['result']["item"]['createdBy'],
                                               }
                                               )
     return f"Доступ запрещен"
