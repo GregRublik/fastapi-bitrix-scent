@@ -39,8 +39,10 @@ scheduler = AsyncIOScheduler()
 
 @app.get("/", tags=['MAIN'])
 @logger.catch
-async def app_install():
-    return templates.TemplateResponse(name="main.html")
+async def main(
+    request: Request
+):
+    return templates.TemplateResponse(request, name="main.html")
 
 
 @app.post("/install/", tags=['AUTHENTICATION'])
