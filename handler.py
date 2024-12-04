@@ -37,6 +37,12 @@ templates = Jinja2Templates(directory="templates")
 scheduler = AsyncIOScheduler()
 
 
+@app.get("/", tags=['MAIN'])
+@logger.catch
+async def app_install():
+    return templates.TemplateResponse(name="main.html")
+
+
 @app.post("/install/", tags=['AUTHENTICATION'])
 @logger.catch
 async def app_install(

@@ -10,3 +10,4 @@ cgi-bin
 .restart-app
 test.js
 logs/*.zip
+test.html
