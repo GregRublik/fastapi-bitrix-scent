@@ -163,7 +163,7 @@ async def activity_update(
 @app.post("/task_delegate/", tags=['USER'])
 @logger.catch
 async def task_delegate(
-    ID: int,
+    user_id: int,
     client_secret: str
 ):
     """
@@ -173,11 +173,11 @@ async def task_delegate(
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
     list_task = await session.get(url=(f"{portal_url}rest/tasks.task.list"
-                                       f"?auth={access[0]}&filter[<REAL_STATUS]=5&filter[RESPONSIBLE_ID]={ID}"
+                                       f"?auth={access[0]}&filter[<REAL_STATUS]=5&filter[RESPONSIBLE_ID]={user_id}"
                                        f"&select[0]=ID"))
     list_task = await list_task.json()
     user = await session.get(url=(f"{portal_url}rest/user.get"
-                                  f"?auth={access[0]}&ID={ID}"))
+                                  f"?auth={access[0]}&ID={user_id}"))
     user = await user.json()
 
     department = await session.get(url=(f"{portal_url}rest/department.get"
@@ -209,7 +209,7 @@ async def handler(
 &MESSAGE=[SIZE=16][B]⚠️Подтвердите получение информации о смене даты прихода 
 c {date_old} на новую {date_new} по сделке: [URL={link_element}]{name_element}[/URL][/B][/SIZE]
 &KEYBOARD[0][TEXT]=Подтвердить
-&KEYBOARD[0][LINK]={hosting_url}handler_button/?ID={id_element}
+&KEYBOARD[0][LINK]={hosting_url}handler_button/?item_id={id_element}
 &KEYBOARD[0][BG_COLOR_TOKEN]=alert
 &DIALOG_ID=77297
 &KEYBOARD[0][BLOCK]=Y
@@ -236,7 +236,7 @@ c {date_old} на новую {date_new} по сделке: [URL={link_element}]{
 @app.get('/handler_button/', tags=['PURCHASE VED'])
 @logger.catch
 async def handler_button(
-    ID: int
+    item_id: int
 ):
     """
     Срабатывает при нажатии на кнопку "Подтвердить в сообщении."
@@ -244,13 +244,13 @@ async def handler_button(
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
     async with session.get(
-            url=f"{portal_url}rest/crm.item.get?auth={access[0]}&entityTypeId=1058&id={ID}"
+            url=f"{portal_url}rest/crm.item.get?auth={access[0]}&entityTypeId=1058&id={item_id}"
     ) as element:
         el = await element.json()
 
     await session.get(url=f"{portal_url}rest/crm.timeline.comment.add?auth={access[0]}"
                           f"&fields[AUTHOR_ID]=77297"
-                          f"&fields[ENTITY_TYPE]=DYNAMIC_1058&fields[ENTITY_ID]={ID}"
+                          f"&fields[ENTITY_TYPE]=DYNAMIC_1058&fields[ENTITY_ID]={item_id}"
                           f"&fields[COMMENT]=Инициатор ознакомлен с новой датой прихода! "
                           f"Дата ознакомления: {datetime.date.today().isoformat()}")
     for i in el['result']['item']['ufCrm41_1725436565']:
@@ -259,33 +259,33 @@ async def handler_button(
 &MESSAGE_ID={i}&auth={access[0]}&KEYBOARD=0
 &MESSAGE=[SIZE=16][B]✔️Подтверждено получение информации о смене даты прихода на новую \
 {el['result']['item']['ufCrm41_1724228599427'][:10]} по сделке: \
-[URL={portal_url}crm/type/1058/details/{ID}/]{el['result']['item']['title']}[/URL][/B][/SIZE]""")
+[URL={portal_url}crm/type/1058/details/{item_id}/]{el['result']['item']['title']}[/URL][/B][/SIZE]""")
 
-    await session.get(url=f"{portal_url}rest/crm.item.update?auth={access[0]}&entityTypeId=1058&id={ID}\
+    await session.get(url=f"{portal_url}rest/crm.item.update?auth={access[0]}&entityTypeId=1058&id={item_id}\
     &fields[ufCrm41_1725436565]=''")
 
-    return RedirectResponse(url=f"{portal_url}crm/type/1058/details/{ID}/")
+    return RedirectResponse(url=f"{portal_url}crm/type/1058/details/{item_id}/")
 
 
 @app.post('/invite_an_employee/', tags=['HR'])
 @logger.catch
 async def invite_an_employee(
-    EMAIL: str,
-    NAME: str | None = None,
-    LAST_NAME: str | None = None,
-    WORK_POSITION: str | None = None,
-    PERSONAL_PHONE: str | None = None,
-    UF_DEPARTMENT: str | None = None,
-    ADAPTATION_ID: str | None = None,
+    email: str,
+    name: str | None = None,
+    last_name: str | None = None,
+    work_position: str | None = None,
+    personal_phone: str | None = None,
+    uf_department: str | None = None,
+    adaptation_id: str | None = None,
 ):
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
-    new_user = await session.post(url=f"{portal_url}rest/user.add.json?auth={access[0]}&NAME={NAME}"
-                                      f"&LAST_NAME={LAST_NAME}&WORK_POSITION={WORK_POSITION}"
-                                      f"&PERSONAL_PHONE={PERSONAL_PHONE}&EMAIL={EMAIL}&UF_DEPARTMENT={UF_DEPARTMENT}")
+    new_user = await session.post(url=f"{portal_url}rest/user.add.json?auth={access[0]}&NAME={name}"
+                                      f"&LAST_NAME={last_name}&WORK_POSITION={work_position}"
+                                      f"&PERSONAL_PHONE={personal_phone}&EMAIL={email}&UF_DEPARTMENT={uf_department}")
     new_user = await new_user.json()
     await session.post(url=(f"{portal_url}rest/crm.item.update?auth={access[0]}"
-                            f"&entityTypeId=191&id={ADAPTATION_ID}"
+                            f"&entityTypeId=191&id={adaptation_id}"
                             f"&fields[ufCrm19_1713532729]={new_user['result']}"))
 
 
