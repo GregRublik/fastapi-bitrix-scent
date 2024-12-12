@@ -81,9 +81,11 @@ async def reboot_tokens(client_secret: str) -> dict:
 @app.get("/send_message/", tags=['UNIVERSAL'])
 @logger.catch
 async def send_message(
+    client_secret: str,
     message: str,
     recipient: int
 ):
+    check_token(client_secret)
     session = await session_manager.get_session()
     result = await session.get(
         url=(f"https://sporbita.bitrix24.ru/rest/55810/db0ku6gza9bt15jt/im.message.add.json?DIALOG_ID={recipient}"
