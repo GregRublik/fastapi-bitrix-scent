@@ -271,6 +271,7 @@ async def handler_button(
 @logger.catch
 async def invite_an_employee(
     email: str,
+    client_secret: str,
     name: str | None = None,
     last_name: str | None = None,
     work_position: str | None = None,
@@ -278,6 +279,7 @@ async def invite_an_employee(
     uf_department: str | None = None,
     adaptation_id: str | None = None,
 ):
+    check_token(client_secret)
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
     new_user = await session.post(url=f"{portal_url}rest/user.add.json?auth={access[0]}&NAME={name}"
