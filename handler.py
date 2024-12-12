@@ -209,7 +209,7 @@ async def handler(
 &MESSAGE=[SIZE=16][B]⚠️Подтвердите получение информации о смене даты прихода 
 c {date_old} на новую {date_new} по сделке: [URL={link_element}]{name_element}[/URL][/B][/SIZE]
 &KEYBOARD[0][TEXT]=Подтвердить
-&KEYBOARD[0][LINK]={hosting_url}handler_button/?item_id={id_element}
+&KEYBOARD[0][LINK]={hosting_url}handler_button/?item_id={id_element}&client_secret={client_secret}
 &KEYBOARD[0][BG_COLOR_TOKEN]=alert
 &DIALOG_ID=77297
 &KEYBOARD[0][BLOCK]=Y
@@ -236,11 +236,13 @@ c {date_old} на новую {date_new} по сделке: [URL={link_element}]{
 @app.get('/handler_button/', tags=['PURCHASE VED'])
 @logger.catch
 async def handler_button(
-    item_id: int
+    item_id: int,
+    client_secret: str
 ):
     """
     Срабатывает при нажатии на кнопку "Подтвердить в сообщении."
     """
+    check_token(client_secret)
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
     async with session.get(
