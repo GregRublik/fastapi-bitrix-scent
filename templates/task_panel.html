@@ -173,6 +173,7 @@
             var select_option_lawyer = document.getElementById('lawyer');
             var comment_lawyer = document.getElementById('comment-lawyer');
             if (files[0] && select_option_lawyer.value != "1041") {
+                let currentDate = new Date();
                 BX24.init(function () {
                     BX24.callMethod('crm.item.update', {
                         'entityTypeId': 131,
@@ -180,7 +181,8 @@
                         'fields': {
                             'ufCrm12_1709192259979': select_option_lawyer.value,
                             'ufCrm12_1709702831': "{{ user_id }}",
-                            'ufCrm12_1708093511140': comment_lawyer.value
+                            'ufCrm12_1708093511140': comment_lawyer.value,
+                            'ufCrm12_1734421294694': currentDate.toISOString()
                         }
                     });
                     if (select_option_lawyer.value === "1037") {
@@ -266,13 +268,15 @@
             } else if (!comment_lawyer.value) {
                 alert('Укажите в комментарии причину отклонения');
             } else if (select_option_lawyer.value === "1041") {
+                let currentDate = new Date();
                 BX24.callMethod('crm.item.update', {
                         'entityTypeId': 131,
                         'id': "{{ element_id }}",
                         'fields': {
                             'ufCrm12_1709192259979': select_option_lawyer.value,
                             'ufCrm12_1709702831': "{{ user_id }}",
-                            'ufCrm12_1708093511140': comment_lawyer.value
+                            'ufCrm12_1708093511140': comment_lawyer.value,
+                            'ufCrm12_1734421319036': currentDate.toISOString()
                         }
                     });
                 BX24.callMethod(
