@@ -92,6 +92,7 @@
         button_accountant.addEventListener('click', function () {
             var select_option_accountant = document.getElementById('accountant');
             var comment_accountant = document.getElementById('comment-accountant');
+            let currentDate = new Date();
             BX24.init(function () {
                 BX24.callMethod('crm.item.update', {
                     'entityTypeId': 131,
@@ -99,7 +100,8 @@
                     'fields': {
                         'ufCrm12_1709191865371': select_option_accountant.value,
                         'ufCrm12_1709702893': "{{ user_id }}",
-                        'ufCrm12_1708599567866': comment_accountant.value
+                        'ufCrm12_1708599567866': comment_accountant.value,
+                        'ufCrm12_1734421294694': currentDate.toISOString()
                     }
                 });
                 if (select_option_accountant.value === "1031") {
