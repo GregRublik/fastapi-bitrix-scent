@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from config import portal_url, hosting_url, client_id, secret
+from config import portal_url, hosting_url, client_id, secret, key_405
 from session_manager import SessionManager
 from db.database import update_tokens, get_bitrix_auth
 
@@ -88,7 +88,7 @@ async def send_message(
     check_token(client_secret)
     session = await session_manager.get_session()
     result = await session.get(
-        url=(f"https://sporbita.bitrix24.ru/rest/55810/db0ku6gza9bt15jt/im.message.add.json?DIALOG_ID={recipient}"
+        url=(f"{portal_url}rest/55810/{key_405}/im.message.add.json?DIALOG_ID={recipient}"
              f"&MESSAGE={message}")
     )
     result = await result.json()
@@ -279,7 +279,6 @@ async def invite_an_employee(
     name: str | None = None,
     last_name: str | None = None,
     work_position: str | None = None,
-    personal_phone: str | None = None,
     uf_department: str | None = None,
     adaptation_id: str | None = None,
 ):
@@ -288,11 +287,20 @@ async def invite_an_employee(
     access = await get_bitrix_auth()
     new_user = await session.post(url=f"{portal_url}rest/user.add.json?auth={access[0]}&NAME={name}"
                                       f"&LAST_NAME={last_name}&WORK_POSITION={work_position}"
-                                      f"&PERSONAL_PHONE={personal_phone}&EMAIL={email}&UF_DEPARTMENT={uf_department}")
+                                      f"&EMAIL={email}&UF_DEPARTMENT={uf_department}")
     new_user = await new_user.json()
+
+    if 'error' in new_user:
+        await session.get((f"{hosting_url}send_message/?client_secret={secret}&message=Ошибка при приглашении: "
+                          f"{new_user['error_description']}&recipient={77297}"))
+        await session.get((f"{hosting_url}send_message/?client_secret={secret}&message=Ошибка при приглашении: "
+                           f"{new_user['error_description']}&recipient={50180}"))
+        return new_user
+
     await session.post(url=(f"{portal_url}rest/crm.item.update?auth={access[0]}"
                             f"&entityTypeId=191&id={adaptation_id}"
                             f"&fields[ufCrm19_1713532729]={new_user['result']}"))
+    return new_user
 
 
 @app.post("/task_panel/", tags=['CONCORDING'])
