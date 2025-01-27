@@ -271,6 +271,23 @@ async def handler_button(
     return RedirectResponse(url=f"{portal_url}crm/type/1058/details/{item_id}/")
 
 
+@app.post('/test/')
+@logger.catch
+async def test(
+    test: Request
+):
+    a = await test.json()
+    print(a)
+
+
+@app.post('/employee_testing/')
+@logger.catch
+async def employee_testing(
+    request: Request,
+):
+    return templates.TemplateResponse(request, name="install.html")
+
+
 @app.post('/invite_an_employee/', tags=['HR'])
 @logger.catch
 async def invite_an_employee(
