@@ -45,6 +45,14 @@ async def main(
     return templates.TemplateResponse(request, name="main.html")
 
 
+@app.post("/", tags=['MAIN'])
+@logger.catch
+async def main(
+    request: Request
+):
+    return templates.TemplateResponse(request, name="main.html")
+
+
 @app.post("/install/", tags=['AUTHENTICATION'])
 @logger.catch
 async def app_install(
@@ -310,9 +318,11 @@ async def invite_an_employee(
 
     if 'error' in new_user:
         await session.get((f"{hosting_url}send_message/?client_secret={secret}&message=Ошибка при приглашении: "
-                          f"{new_user['error_description']}&recipient={77297}"))
+                           f"[url={portal_url}page/hr/protsess_adaptatsii_sotrudnika_2/type/191/details/{adaptation_id}/]"
+                           f"Процесс[/url]{new_user['error_description']}&recipient={77297}"))
         await session.get((f"{hosting_url}send_message/?client_secret={secret}&message=Ошибка при приглашении: "
-                           f"{new_user['error_description']}&recipient={50180}"))
+                           f"[url={portal_url}page/hr/protsess_adaptatsii_sotrudnika_2/type/191/details/{adaptation_id}/]"
+                           f"Процесс[/url]{new_user['error_description']}&recipient={50180}"))
         return new_user
 
     await session.post(url=(f"{portal_url}rest/crm.item.update?auth={access[0]}"
