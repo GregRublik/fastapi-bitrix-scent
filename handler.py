@@ -278,6 +278,7 @@ async def test(
 ):
     a = await test.json()
     print(a)
+    return a
 
 
 @app.post('/employee_testing/')
