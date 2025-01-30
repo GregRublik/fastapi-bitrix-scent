@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Text, JSON
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
+
 
 class BitrixAuth(Base):
     __tablename__ = 'bitrix_auth'
@@ -13,3 +14,12 @@ class BitrixAuth(Base):
     client_id = Column(String(128), nullable=False)   # varchar(128)
     access_token = Column(String(256), nullable=False)  # varchar(256)
     refresh_token = Column(String(256), nullable=False)  # varchar(256)
+
+
+class FormsTests(Base):
+    __tablename__ = 'forms'
+
+    form_id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(Text, nullable=False)  # varchar(128)
+    url = Column(Text, nullable=False)  # int(11)
+    accesses = Column(JSON, nullable=True, default=None)  # varchar(50)

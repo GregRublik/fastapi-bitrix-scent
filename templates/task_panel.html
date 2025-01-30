@@ -105,13 +105,13 @@
                     }
                 });
                 if (select_option_accountant.value === "1031") {
-                    var message = "[B]📄Согласуйте договор[BR][BR]Договор согласован без замечаний Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]"
+                    var message = "[B]📄Согласуйте договор[BR][BR]Договор согласован без замечаний Бухгалтером по задаче: [URL={{ portal_url }}company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]"
                     var a = document.createElement('h2');
                     a.innerHTML = "<h2>Договор согласован без замечаний</h2>";
                     document.body.style.background = '#cffcd2';
                     select_container_accountant_div.style.display = 'none';
                 } else if (select_option_accountant.value === "1033") {
-                    var message = "[B]📄Согласуйте договор[BR][BR]Договор согласован с замечаниями Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
+                    var message = "[B]📄Согласуйте договор[BR][BR]Договор согласован с замечаниями Бухгалтером по задаче: [URL={{ portal_url }}company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
                     var a = document.createElement('h2');
                     a.innerHTML = "<h2>Договор согласован с замечаниями</h2>";
                     document.body.style.background = '#ffcd38';
@@ -142,7 +142,7 @@
                             console.log(result.data());
                         }
                         );
-                        var message = "️[B]📄Договор не согласован[BR][BR]Договор НЕ согласован Бухгалтером по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
+                        var message = "️[B]📄Договор не согласован[BR][BR]Договор НЕ согласован Бухгалтером по задаче: [URL={{ portal_url }}company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
                         var a = document.createElement('h2');
                         a.innerHTML = "<h2>Договор не согласован</h2>";
                         document.body.style.background = '#fd4343';
@@ -155,8 +155,8 @@
                     };
                 }
                 document.body.appendChild(a);
-                fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ responsible }}`);
-                fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ created_by }}`);
+                fetch(url=`{{ hosting_url }}send_message/?message=${message}&recipient={{ responsible }}`);
+                fetch(url=`{{ hosting_url }}send_message/?message=${message}&recipient={{ created_by }}`);
             });
         });
     }
@@ -206,7 +206,7 @@
                                 console.log(result.data());
                             }
                         );
-                        var message = "️[B]📄Договор согласован и прикреплен[BR][BR]Договор согласован без замечаний Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
+                        var message = "️[B]📄Договор согласован и прикреплен[BR][BR]Договор согласован без замечаний Юристом по задаче: [URL={{ portal_url }}company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
                         var a = document.createElement('h2');
                         a.innerHTML = "<h2>Договор согласован без замечаний</h2>";
                         document.body.style.background = '#cffcd2';
@@ -233,12 +233,12 @@
                                 console.log(result.data());
                             }
                         );
-                        var message = "️️[B]📄Договор согласован и прикреплен с замечаниями[BR][BR]Договор согласован с замечаниями Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
+                        var message = "️️[B]📄Договор согласован и прикреплен с замечаниями[BR][BR]Договор согласован с замечаниями Юристом по задаче: [URL={{ portal_url }}company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
                         var a = document.createElement('h2');
                         a.innerHTML = "<h2>Договор согласован с замечаниями</h2>";
                         document.body.style.background = '#ffcd38';
                         document.body.appendChild(a);
-                        let promise = fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ accomplices }}`);
+                        let promise = fetch(url=`{{ hosting_url }}send_message/?message=${message}&recipient={{ accomplices }}`);
                     }
                 });
                 select_container_lawyer.style.display = 'none';
@@ -305,12 +305,12 @@
                 );
                 select_container_lawyer.style.display = 'none';
                 file_lawyer.style.display = 'none';
-                var message = "️️[B]📄Договор не согласован[BR][BR]Договор НЕ согласован Юристом по задаче: [URL=https://sporbita.bitrix24.ru/company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
+                var message = "️️[B]📄Договор не согласован[BR][BR]Договор НЕ согласован Юристом по задаче: [URL={{ portal_url }}company/personal/user/77297/tasks/task/view/{{ task_id }}/]{{ title_task }}[/URL][/B]";
                 var a = document.createElement('h2');
                 a.innerHTML = "<h2>Договор отклонен</h2>";
                 document.body.style.background = '#fd4343';
                 document.body.appendChild(a);
-                let promise = fetch(url=`https://sporbita-developers.ru/send_message/?message=${message}&recipient={{ accomplices }}`);
+                let promise = fetch(url=`{{ hosting_url }}send_message/?message=${message}&recipient={{ accomplices }}`);
             }
         });
     }

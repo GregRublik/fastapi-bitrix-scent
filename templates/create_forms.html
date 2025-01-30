@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Панель тестов</title>
+<link rel="stylesheet" href="/static/create_forms.css">
+{% endblock %}
+{% block body %}
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2>Добавить тест</h2>
+            <label for="form_id">ID Формы:</label>
+            <input type="text" id="form_id" name="name">
+            <br>
+            <label for="url">URL:</label>
+            <input type="text" id="url" name="url">
+            <br>
+            <label for="name">Название:</label>
+            <input type="text" id="name" name="name">
+            <br>
+            <button class="button" id="add-link">Добавить</button>
+            <button class="button" id="close-modal" style="margin-top:5px">Закрыть</button>
+        </div>
+    </div>
+    <div class="button-container">
+        <button class="button" id="open-modal">Добавить тест</button>
+    </div>
+    <div class="panel">
+        {% for i in list_forms %}
+        <div class="test-header">
+            {{ error }}
+            <h2>{{ i[1] }}</h2>
+            <div>
+                <button value="{{ i[0] }}" title="Добавить доступ" class="button add-department" onclick="showDepartmentSelect(event)">✛</button>
+                <button value="{{ i[0] }}" title="Удалить тест" class="button delete-button" onclick="deleteTest(event)">✕</button>
+            </div>
+        </div>
+        {% if i[3] %}
+            {% for j in i[3] %}
+            <div class="test-row">
+                <div class="item">{{ dict_department[j] }}</div>
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    <script>
+        document.getElementById('open-modal').addEventListener('click', function() {
+            document.getElementById('modal').style.display = "block";
+        });
+
+        document.getElementById('close-modal').addEventListener('click', function() {
+            document.getElementById('modal').style.display = "none";
+        });
+
+        document.getElementById('add-link').addEventListener('click', function() {
+            var url = document.getElementById('url').value;
+            var name = document.getElementById('name').value;
+            var form_id = document.getElementById('form_id').value;
+
+            let body = {
+                form_id: form_id,
+                title: name,
+                url: url,
+                type: 'add_test'
+            }
+
+            if(url && name && form_id) {
+                location.reload()
+                fetch(url='{{ hosting_url }}control_forms/',
+                    {method: 'POST', body: JSON.stringify(body)}).then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                document.getElementById('modal').style.display = "none";
+            } else {
+                alert('Пожалуйста, заполните все поля');
+            }
+        });
+
+        let currentSelectContainer = null;
+
+        function showDepartmentSelect(event) {
+            if (currentSelectContainer) {
+                currentSelectContainer.remove();
+            }
+
+            const container = document.createElement('div');
+            container.className = 'select-department';
+            container.style.display = 'flex';
+            container.style.alignItems = 'center';
+
+            const select = document.createElement('select');
+            select.innerHTML = `
+                {% for i in list_department %}
+                <option value="{{i['ID']}}">{{i['NAME']}}</option>
+                {% endfor %}
+            `;
+
+            let id_form = document.getElementById('form_id').value;
+            const addButton = document.createElement('button');
+            addButton.className = 'button';
+            addButton.textContent = 'Добавить';
+            addButton.onclick = () => {
+                let test_id = event.target;
+
+                const selectedDepartment = select.value;
+                let body = {
+                    type: 'add_access',
+                    form_id: test_id.value,
+                    department: selectedDepartment
+                }
+                fetch(url='{{ hosting_url }}control_forms/',
+                    {method: 'POST', body: JSON.stringify(body)}).then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                container.remove();
+                currentSelectContainer = null;
+            };
+
+            container.appendChild(select);
+            container.appendChild(addButton);
+
+            const button = event.target;
+            const rect = button.getBoundingClientRect();
+            container.style.position = 'absolute';
+            container.style.left = `${rect.right + 10}px`;
+            container.style.top = `${rect.top}px`;
+
+            document.body.appendChild(container);
+            currentSelectContainer = container;
+        }
+
+        function deleteTest(event) {
+            let test_id = event.target;
+            let body = {
+                type: 'test_delete',
+                form_id: test_id.value,
+            }
+            fetch(url='{{ hosting_url }}control_forms/',
+                {method: 'POST', body: JSON.stringify(body)}).then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+        }
+
+        document.addEventListener('click', (event) => {
+            if (currentSelectContainer && !currentSelectContainer.contains(event.target) && !event.target.classList.contains('add-department')) {
+                currentSelectContainer.remove();
+                currentSelectContainer = null;
+            }
+        });
+    </script>
+{% endblock %}

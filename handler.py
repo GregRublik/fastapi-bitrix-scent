@@ -14,7 +14,8 @@ from fastapi.responses import RedirectResponse
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from config import portal_url, hosting_url, client_id, secret, key_405
 from session_manager import SessionManager
-from db.database import update_tokens, get_bitrix_auth
+from db.database import update_tokens, get_bitrix_auth, get_forms, add_test, del_test, add_department
+import json
 
 
 session_manager = SessionManager.get_instance()
@@ -282,11 +283,11 @@ async def handler_button(
 @app.post('/test/')
 @logger.catch
 async def test(
-    test: Request
+    request: Request
 ):
-    a = await test.json()
-    print(a)
-    return a
+    data = await request.body()
+    data_parsed = parse_qs(data.decode())
+    print(data_parsed)
 
 
 @app.post('/employee_testing/')
@@ -294,7 +295,53 @@ async def test(
 async def employee_testing(
     request: Request,
 ):
-    return templates.TemplateResponse(request, name="install.html")
+    a = await request.json()
+    print(a)
+    return a
+
+
+@app.post('/create_forms/')
+@logger.catch
+async def create_forms(
+    request: Request
+):
+    # return templates.TemplateResponse(request, name="install.html")
+    data = await request.body()
+    data_parsed = parse_qs(data.decode())
+    session = await session_manager.get_session()
+    access = await get_bitrix_auth()
+    list_department = await session.get(f"{portal_url}rest/department.get/?auth={access[0]}")
+    list_department = await list_department.json()
+    forms = await get_forms()
+    dict_department = {}
+    for i in list_department['result']:
+        dict_department[i['ID']] = i['NAME']
+    return templates.TemplateResponse(request,
+                                      name="create_forms.html",
+                                      context={"list_forms": forms,
+                                               "list_department": list_department['result'],
+                                               "dict_department": dict_department,
+                                               "hosting_url": hosting_url})
+
+
+@app.post("/control_forms/")
+async def control_forms(request: Request):
+    data = await request.body()
+
+    body = json.loads(data.decode())
+    print(body)
+    if body['type'] == 'add_test':
+        if await add_test(body) == True:
+            print('go')
+    elif body['type'] == 'add_access':
+
+        if await add_department(body) == True:
+            print('department added')
+
+    elif body['type'] == 'test_delete':
+
+        if await del_test(body) == True:
+            print('test deleted')
 
 
 @app.post('/invite_an_employee/', tags=['HR'])
@@ -408,6 +455,8 @@ async def task_panel(
                                                   'comment_accountant':
                                                       element['result']["item"]['ufCrm12_1708599567866'],
                                                   'created_by': element['result']["item"]['createdBy'],
+                                                  'portal_url': portal_url,
+                                                  'hosting_url': hosting_url
                                               }
                                               )
     return f"Доступ запрещен"
