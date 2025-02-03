@@ -382,12 +382,9 @@ async def control_forms(request: Request):
         if await add_test(body) == True:
             print('go')
     elif body['type'] == 'add_access':
-
         if await add_department(body) == True:
             print('department added')
-
     elif body['type'] == 'test_delete':
-
         if await del_test(body) == True:
             print('test deleted')
 
