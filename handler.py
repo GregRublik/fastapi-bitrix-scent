@@ -336,10 +336,8 @@ async def employee_testing(
                 'max_points': i['ufCrm59_1738322964'],
                 'count': 1}
     forms_access = []
-    for i in user['result']['UF_DEPARTMENT']:
-        for j in forms:
-            if str(i) in j[3]:
-                forms_access.append(j)
+    for department_id in user['result']['UF_DEPARTMENT']:
+        forms_access = [form for form in forms if form[3] and str(department_id) in form[3]]
     return templates.TemplateResponse(request,
                                       name="employee_testing.html",
                                       context={"hosting_url": hosting_url,
@@ -358,16 +356,24 @@ async def create_forms(
     data_parsed = parse_qs(data.decode())
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
-    list_department = await session.get(f"{portal_url}rest/department.get/?auth={access[0]}")
-    list_department = await list_department.json()
+    count = 0
+    list_all_department = []
+    while True:
+        list_department = await session.get(f"{portal_url}rest/department.get/?auth={access[0]}&sort=ID&start={count}")
+        list_department = await list_department.json()
+        list_all_department += list_department['result']
+        if 'next' in list_department:
+            count = list_department['next']
+        else:
+            break
     forms = await get_forms()
     dict_department = {}
-    for i in list_department['result']:
+    for i in list_all_department:
         dict_department[i['ID']] = i['NAME']
     return templates.TemplateResponse(request,
                                       name="create_forms.html",
                                       context={"list_forms": forms,
-                                               "list_department": list_department['result'],
+                                               "list_department": list_all_department,
                                                "dict_department": dict_department,
                                                "hosting_url": hosting_url})
 
