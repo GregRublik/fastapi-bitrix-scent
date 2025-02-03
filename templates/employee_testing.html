@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Панель тестов</title>
+<link rel="stylesheet" href="/static/employee_testing.css">
+{% endblock %}
+
+{% block body %}
+<body>
+  {% for i in forms %}
+
+        <div class="test-block">
+          <a href="{{ i[2] }}?user_id={{ user_id }}">{{ i[1] }}</a>
+            {% if list_end_test[i[0]] %}
+          <p>Результат: {{ list_end_test[i[0]]['points'] }} / {{ list_end_test[i[0]]['max_points'] }}</p>
+          <p>Кол-во попыток: {{ list_end_test[i[0]]['count'] }}</p>
+          <p>Дата последнего прохождения: {{ list_end_test[i[0]]['date']}}</p>
+            {% endif %}
+        </div>
+
+  {%  endfor %}
+{% endblock %}

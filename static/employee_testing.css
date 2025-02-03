@@ -1,0 +1,30 @@
+.test-block {
+  border: 1px solid black;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  background-color: gray;
+}
+.test-block h3 {
+  margin-top: 0;
+}
+.test-block p {
+  font-style: italic;
+  text-align: end;
+}
+body h2 {
+  text-align: center;
+}
+.test-block a {
+  display: inline-block;
+  margin-bottom: 1em;
+  font-size: 1.25em;
+  font-weight: bold;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.3s ease;
+}
+.test-block a:hover {
+  text-decoration: underline;
+  color: #007BFF;
+}

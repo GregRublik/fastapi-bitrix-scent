@@ -286,7 +286,17 @@ async def test(
     request: Request
 ):
     data = await request.body()
-    data_parsed = parse_qs(data.decode())
+    data_parsed = json.loads(data.decode())
+    params = data_parsed['params']
+    session = await session_manager.get_session()
+    access = await get_bitrix_auth()
+
+    new_element = await session.post(url=(f"{portal_url}rest/crm.item.add?auth={access[0]}&entityTypeId=1098"
+                                          f"&fields[ufCrm59_1738313884]={params['points']}"
+                                          f"&fields[ufCrm59_1738322964]={params['max_points']}"
+                                          f"&fields[ufCrm59_1738323186]={params['user_id']}"
+                                          f"&fields[ufCrm59_1738323573]={params['form_id']}"
+                                          f"&fields[title]={params['form_name']}"))
     print(data_parsed)
 
 
@@ -295,9 +305,47 @@ async def test(
 async def employee_testing(
     request: Request,
 ):
-    a = await request.json()
-    print(a)
-    return a
+    """Список тестов к которым есть доступ, а также информация о завершении последних"""
+    data = await request.body()
+    data_parsed = parse_qs(data.decode())
+    forms = await get_forms()
+    session = await session_manager.get_session()
+
+    user = await session.post(url=f"{portal_url}rest/user.current?auth={data_parsed['AUTH_ID'][0]}")
+    user = await user.json()
+    list_tests = await session.post(url=(f"{portal_url}rest/crm.item.list?auth={data_parsed['AUTH_ID'][0]}"
+                                         f"&entityTypeId=1098&filter[ufCrm59_1738323186]={user['result']['ID']}"))
+    list_tests = await list_tests.json()
+    list_end_test = {}
+    for i in list_tests['result']['items']:
+        if i['ufCrm59_1738323573'] in list_end_test:
+            a = datetime.datetime.strptime(list_end_test[i['ufCrm59_1738323573']]['date'], "%d.%m.%Y %H:%M:%S")
+            b = datetime.datetime.fromisoformat(i['createdTime'])
+            if a < b.replace(tzinfo=None):
+                list_end_test[i['ufCrm59_1738323573']] = {
+                    'date': datetime.datetime.fromisoformat(i['createdTime']).strftime("%d.%m.%Y %H:%M:%S"),
+                    'points': i['ufCrm59_1738313884'],
+                    'max_points': i['ufCrm59_1738322964'],
+                    'count': list_end_test[i['ufCrm59_1738323573']]['count'] + 1}
+            else:
+                list_end_test[i['ufCrm59_1738323573']]['count'] += 1
+        else:
+            list_end_test[i['ufCrm59_1738323573']] = {
+                'date': datetime.datetime.fromisoformat(i['createdTime']).strftime("%d.%m.%Y %H:%M:%S"),
+                'points': i['ufCrm59_1738313884'],
+                'max_points': i['ufCrm59_1738322964'],
+                'count': 1}
+    forms_access = []
+    for i in user['result']['UF_DEPARTMENT']:
+        for j in forms:
+            if str(i) in j[3]:
+                forms_access.append(j)
+    return templates.TemplateResponse(request,
+                                      name="employee_testing.html",
+                                      context={"hosting_url": hosting_url,
+                                               "forms": forms_access,
+                                               'user_id': user['result']['ID'],
+                                               'list_end_test': list_end_test})
 
 
 @app.post('/create_forms/')
