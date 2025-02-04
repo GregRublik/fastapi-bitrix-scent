@@ -1,8 +1,12 @@
 import ast
 import platform
+import re
+
 import uvicorn
 import datetime
 from contextlib import asynccontextmanager
+
+from bs4 import BeautifulSoup
 from loguru import logger
 from urllib.parse import parse_qs
 from functions import check_token
@@ -383,16 +387,13 @@ async def control_forms(request: Request):
     data = await request.body()
 
     body = json.loads(data.decode())
-    print(body)
     if body['type'] == 'add_test':
-        if await add_test(body) == True:
-            print('go')
+        body['form_id'] = body['url'][26:50:]
+        await add_test(body)
     elif body['type'] == 'add_access':
-        if await add_department(body) == True:
-            print('department added')
+        await add_department(body)
     elif body['type'] == 'test_delete':
-        if await del_test(body) == True:
-            print('test deleted')
+        await del_test(body)
 
 
 @app.post('/invite_an_employee/', tags=['HR'])

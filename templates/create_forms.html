@@ -8,9 +8,6 @@
     <div id="modal" class="modal">
         <div class="modal-content">
             <h2>Добавить тест</h2>
-            <label for="form_id">ID Формы:</label>
-            <input type="text" id="form_id" name="name">
-            <br>
             <label for="url">URL:</label>
             <input type="text" id="url" name="url">
             <br>
@@ -56,16 +53,14 @@
         document.getElementById('add-link').addEventListener('click', function() {
             var url = document.getElementById('url').value;
             var name = document.getElementById('name').value;
-            var form_id = document.getElementById('form_id').value;
 
             let body = {
-                form_id: form_id,
                 title: name,
                 url: url,
                 type: 'add_test'
             }
 
-            if(url && name && form_id) {
+            if(url && name) {
                 location.reload()
                 fetch(url='{{ hosting_url }}control_forms/',
                     {method: 'POST', body: JSON.stringify(body)}).then(response => response.json())
