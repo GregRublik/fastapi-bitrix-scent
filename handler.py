@@ -280,9 +280,9 @@ async def handler_button(
     return RedirectResponse(url=f"{portal_url}crm/type/1058/details/{item_id}/")
 
 
-@app.post('/test/')
+@app.post('/form_to_sp/')
 @logger.catch
-async def test(
+async def form_to_sp(
     request: Request
 ):
     data = await request.body()
@@ -296,8 +296,8 @@ async def test(
                                           f"&fields[ufCrm59_1738322964]={params['max_points']}"
                                           f"&fields[ufCrm59_1738323186]={params['user_id']}"
                                           f"&fields[ufCrm59_1738323573]={params['form_id']}"
+                                          f"&fields[ufCrm59_1738648993]={params['answer_id']}"
                                           f"&fields[title]={params['form_name']}"))
-    print(data_parsed)
 
 
 @app.post('/employee_testing/')
