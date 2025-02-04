@@ -304,7 +304,7 @@ async def form_to_sp(
                                           f"&fields[title]={params['form_name']}"))
 
 
-@app.post('/employee_testing/')
+@app.post('/employee_testing/', tags=['FORMS'])
 @logger.catch
 async def employee_testing(
     request: Request,
@@ -350,7 +350,7 @@ async def employee_testing(
                                                'list_end_test': list_end_test})
 
 
-@app.post('/create_forms/')
+@app.post('/create_forms/', tags=['FORMS'])
 @logger.catch
 async def create_forms(
     request: Request
@@ -382,7 +382,7 @@ async def create_forms(
                                                "hosting_url": hosting_url})
 
 
-@app.post("/control_forms/")
+@app.post("/control_forms/", tags=['FORMS'])
 async def control_forms(request: Request):
     data = await request.body()
 
@@ -419,9 +419,6 @@ async def invite_an_employee(
         await session.get((f"{hosting_url}send_message/?client_secret={secret}&message=Ошибка при приглашении: "
                            f"[url={portal_url}page/hr/protsess_adaptatsii_sotrudnika_2/type/191/details/{adaptation_id}/]"
                            f"Процесс[/url]{new_user['error_description']}&recipient={77297}"))
-        await session.get((f"{hosting_url}send_message/?client_secret={secret}&message=Ошибка при приглашении: "
-                           f"[url={portal_url}page/hr/protsess_adaptatsii_sotrudnika_2/type/191/details/{adaptation_id}/]"
-                           f"Процесс[/url]{new_user['error_description']}&recipient={50180}"))
         return new_user
 
     await session.post(url=(f"{portal_url}rest/crm.item.update?auth={access[0]}"
@@ -444,8 +441,8 @@ async def task_panel(
     user_admin = await session.post(url=f"{portal_url}rest/user.admin?auth={data_parsed['AUTH_ID'][0]}")
     task_id = ast.literal_eval(data_parsed['PLACEMENT_OPTIONS'][0])["taskId"]
     access = await get_bitrix_auth()
-    task = await session.get(url=(
-        f"{portal_url}rest/tasks.task.get/?auth={access[0]}"  # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
+    task = await session.get(url=(  # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
+        f"{portal_url}rest/tasks.task.get/?auth={access[0]}"
         f"&taskId={task_id}"
         f"&select[0]=ACCOMPLICES"
         f"&select[1]=RESPONSIBLE_ID"
