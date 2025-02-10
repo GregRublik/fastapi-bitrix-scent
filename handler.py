@@ -511,6 +511,14 @@ async def task_panel(
     return f"Доступ запрещен"
 
 
+@app.post("/cs_1.6/", tags=['CS'])
+@logger.catch
+async def cs_16(
+    request: Request,
+):
+    return RedirectResponse(url=f"https://play-cs.com/")
+
+
 if __name__ == "__main__":
     try:
         if platform.system() == "Windows":
