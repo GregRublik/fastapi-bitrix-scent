@@ -1,12 +1,8 @@
 import ast
 import platform
-import re
-
 import uvicorn
 import datetime
 from contextlib import asynccontextmanager
-
-from bs4 import BeautifulSoup
 from loguru import logger
 from urllib.parse import parse_qs
 from functions import check_token
@@ -79,10 +75,14 @@ async def reboot_tokens(client_secret: str) -> dict:
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
     response = await session.get(
-        url=f"https://oauth.bitrix.info/oauth/token/?grant_type=refresh_token&\
-        client_id={client_id}&\
-        client_secret={client_secret}&\
-        refresh_token={access[1]}"
+        url=f"https://oauth.bitrix.info/oauth/token/",
+        params={
+            'grant_type': 'refresh_token',
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'refresh_token': access[1]
+
+        }
     )
     if response.status != 200:
         return {'status_code': response.status, 'error': 'Failed to update tokens.'}
@@ -101,8 +101,11 @@ async def send_message(
     check_token(client_secret)
     session = await session_manager.get_session()
     result = await session.get(
-        url=(f"{portal_url}rest/55810/{key_405}/im.message.add.json?DIALOG_ID={recipient}"
-             f"&MESSAGE={message}")
+        url=f"{portal_url}rest/55810/{key_405}/im.message.add.json",
+        params={
+            'DIALOG_ID': recipient,
+            'MESSAGE': message
+        }
     )
     result = await result.json()
     return result
@@ -120,10 +123,12 @@ async def main_handler(
     """
     check_token(client_secret)
     access = await get_bitrix_auth()
-    url = f"{portal_url}rest/{method}?auth={access[0]}&{params}"
     session = await session_manager.get_session()
-    async with session.get(url=url) as result:
-        result = await result.json()
+    result = await session.get(url=f"{portal_url}rest/{method}?{params}",
+                               params={
+                                   'auth': access[0]
+                               })
+    result = await result.json()
     return {'status_code': 200, 'result': result}
 
 
@@ -140,17 +145,23 @@ async def activity_update(
     data_parsed = parse_qs(data)
     activity_id = data_parsed['data[FIELDS][ID]'][0]
     access = await get_bitrix_auth()
-    url = f"{portal_url}rest/crm.activity.get?auth={access[0]}&ID={activity_id}"
     session = await session_manager.get_session()
-    activity = await session.get(url=url)
+    activity = await session.get(url=f"{portal_url}rest/crm.activity.get",
+                                 params={
+                                     'auth': access[0],
+                                     'ID': activity_id
+                                 })
     activity = await activity.json()
     if (activity['result']['OWNER_TYPE_ID'] == '1058' and activity['result']['COMPLETED'] == 'Y'
             and 'Подтвердите дату' in activity['result']['DESCRIPTION']):
-        async with session.get(
-                url=(f"""{portal_url}rest/crm.item.get?auth={access[0]}&entityTypeId=1058
-                &id={activity['result']['OWNER_ID']}""")) as element:
-            element = await element.json()
-            field_history = element['result']['item']['ufCrm41_1724744699216']
+        element = await session.get(
+                url=f"{portal_url}rest/crm.item.get",
+                params={'auth': access[0],
+                        'entityTypeId': 1058,
+                        'id': activity['result']['OWNER_ID']
+                        })
+        element = await element.json()
+        field_history = element['result']['item']['ufCrm41_1724744699216']
         if element['result']['item']['stageId'] in ['DT1058_69:UC_1CO49M',
                                                     'DT1058_69:UC_D22INS',
                                                     'DT1058_69:UC_74Q414']:
@@ -165,13 +176,14 @@ async def activity_update(
                 new_recording = f"Дата мониторинга: {datetime.date.today().isoformat()} | \
                 Дата прихода на наш склад: {element['result']['item']['ufCrm41_1724228599427'][:10]}"
             fields_to_url += f"fields[ufCrm41_1724744699216][{index + 1}]={new_recording}"
-            url = f"{portal_url}rest/crm.item.update?auth={access[0]}&entityTypeId=1058&\
-            id={activity['result']['OWNER_ID']}&{fields_to_url}"
-            async with session.get(
-                    url=url
-            ) as update_element:
-                final_result = await update_element.json()
-                return {"status_code": 200, 'result': final_result}
+            update_element = await session.get(
+                    url=f"{portal_url}rest/crm.item.update?{fields_to_url}",
+                    params={'auth': access[0],
+                            'entityTypeId': 1058,
+                            'id': activity['result']['OWNER_ID']}
+            )
+            final_result = await update_element.json()
+            return {"status_code": 200, 'result': final_result}
     return {'status_code': 400, 'result': 'you invalid'}
 
 
@@ -187,20 +199,29 @@ async def task_delegate(
     check_token(client_secret)
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
-    list_task = await session.get(url=(f"{portal_url}rest/tasks.task.list"
-                                       f"?auth={access[0]}&filter[<REAL_STATUS]=5&filter[RESPONSIBLE_ID]={user_id}"
-                                       f"&select[0]=ID"))
+    list_task = await session.get(url=f"{portal_url}rest/tasks.task.list",
+                                  params={
+                                      'auth': access[0],
+                                      'filter[<REAL_STATUS]': 5,
+                                      'filter[RESPONSIBLE_ID]': user_id,
+                                      'select[0]': 'ID'})
     list_task = await list_task.json()
-    user = await session.get(url=(f"{portal_url}rest/user.get"
-                                  f"?auth={access[0]}&ID={user_id}"))
+    user = await session.get(url=f"{portal_url}rest/user.get",
+                             params={'auth': access[0], 'ID': user_id})
     user = await user.json()
 
-    department = await session.get(url=(f"{portal_url}rest/department.get"
-                                        f"?auth={access[0]}&ID={user['result'][0]['UF_DEPARTMENT'][0]}"))
+    department = await session.get(url=f"{portal_url}rest/department.get",
+                                   params={'auth': access[0], 'ID': user['result'][0]['UF_DEPARTMENT'][0]})
     department = await department.json()
     for task in list_task['result']['tasks']:
-        await session.get(url=(f"{portal_url}rest/tasks.task.update?auth={access[0]}"
-                               f"&taskId={task['id']}&fields[RESPONSIBLE_ID]={department['result'][0]['UF_HEAD']}"))
+        await session.get(
+            url=f"{portal_url}rest/tasks.task.update?",
+            params={
+                'auth': access[0],
+                'taskId': task['id'],
+                'fields[RESPONSIBLE_ID]': department['result'][0]['UF_HEAD'],
+            }
+        )
     return {"status_code": 200, "list id task": list_task}
 
 
@@ -219,33 +240,45 @@ async def handler(
     Создание сообщения с кнопкой, для подтверждения об ознакомлении.
     """
     access = await get_bitrix_auth()
-    url = f"""
-{portal_url}rest/im.message.add?auth={access[0]}
-&MESSAGE=[SIZE=16][B]⚠️Подтвердите получение информации о смене даты прихода 
-c {date_old} на новую {date_new} по сделке: [URL={link_element}]{name_element}[/URL][/B][/SIZE]
-&KEYBOARD[0][TEXT]=Подтвердить
-&KEYBOARD[0][LINK]={hosting_url}handler_button/?item_id={id_element}&client_secret={client_secret}
-&KEYBOARD[0][BG_COLOR_TOKEN]=alert
-&DIALOG_ID=77297
-&KEYBOARD[0][BLOCK]=Y
-    """
     session = await session_manager.get_session()
-    async with session.get(url=url) as result:
-        message = await result.json()
-        id_message = message['result']
-        async with session.get(url=f"{portal_url}rest/crm.item.get?auth={access[0]}&entityTypeId=1058\
-        &id={id_element}") as element:
-            update_element = await element.json()
-            url_new_id_message = ''
-
-            if update_element['result']['item']['ufCrm41_1725436565']:
-                for i, v in enumerate(update_element['result']['item']['ufCrm41_1725436565']):
-                    url_new_id_message += f'fields[ufCrm41_1725436565][{i + 1}]={v}&'
-            url_new_id_message += f'fields[ufCrm41_1725436565][0]={id_message}&'
-        async with session.get(url=f"{portal_url}rest/crm.item.update?auth={access[0]}&entityTypeId=1058\
-        &id={id_element}&{url_new_id_message}") as element:
-            el = await element.json()
-        return {"status_code": 200, 'result': await result.json()}
+    result = await session.get(
+        url=f"{portal_url}rest/im.message.add",
+        params={
+            'auth': access[0],
+            'MESSAGE': f"""[SIZE=16][B]⚠️Подтвердите получение информации о смене даты прихода 
+c {date_old} на новую {date_new} по сделке: [URL={link_element}]{name_element}[/URL][/B][/SIZE]""",
+            'KEYBOARD[0][TEXT]': 'Подтвердить',
+            'KEYBOARD[0][LINK]': f'{hosting_url}handler_button/?item_id={id_element}&client_secret={client_secret}',
+            'KEYBOARD[0][BG_COLOR_TOKEN]': 'alert',
+            'DIALOG_ID': 77297,
+            'KEYBOARD[0][BLOCK]': 'Y'
+        }
+    )
+    message = await result.json()
+    id_message = message['result']
+    element = await session.get(
+            url=f"{portal_url}rest/crm.item.get",
+            params={
+                'auth': access[0],
+                'entityTypeId': 1058,
+                'id': id_element
+            }
+    )
+    update_element = await element.json()
+    url_new_id_message = ''
+    if update_element['result']['item']['ufCrm41_1725436565']:
+        for i, v in enumerate(update_element['result']['item']['ufCrm41_1725436565']):
+            url_new_id_message += f'fields[ufCrm41_1725436565][{i + 1}]={v}&'
+    url_new_id_message += f'fields[ufCrm41_1725436565][0]={id_message}&'
+    await session.get(
+        url=f"{portal_url}rest/crm.item.update?{url_new_id_message}",
+        params={
+            'auth': access[0],
+            'entityTypeId': 1058,
+            'id': id_element,
+        }
+    )
+    return {"status_code": 200, 'result': await result.json()}
 
 
 @app.get('/handler_button/', tags=['PURCHASE VED'])
@@ -260,26 +293,52 @@ async def handler_button(
     check_token(client_secret)
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
-    async with session.get(
-            url=f"{portal_url}rest/crm.item.get?auth={access[0]}&entityTypeId=1058&id={item_id}"
-    ) as element:
-        el = await element.json()
+    element = await session.get(
+        url=f"{portal_url}rest/crm.item.get",
+        params={
+            'auth': access[0],
+            'entityTypeId': 1058,
+            'id': item_id
+        }
+    )
+    element = await element.json()
 
-    await session.get(url=f"{portal_url}rest/crm.timeline.comment.add?auth={access[0]}"
-                          f"&fields[AUTHOR_ID]=77297"
-                          f"&fields[ENTITY_TYPE]=DYNAMIC_1058&fields[ENTITY_ID]={item_id}"
-                          f"&fields[COMMENT]=Инициатор ознакомлен с новой датой прихода! "
-                          f"Дата ознакомления: {datetime.date.today().isoformat()}")
-    for i in el['result']['item']['ufCrm41_1725436565']:
+    await session.get(
+        url=f"{portal_url}rest/crm.timeline.comment.add?",
+        params={
+            'auth': access[0],
+            'fields[AUTHOR_ID]': 77297,
+            'fields[ENTITY_TYPE]': 'DYNAMIC_1058',
+            'fields[ENTITY_ID]': item_id,
+            'fields[COMMENT]': (f'Инициатор ознакомлен с новой датой прихода! Дата ознакомления: '
+                                f'{datetime.date.today().isoformat()}'),
+
+        }
+    )
+    for i in element['result']['item']['ufCrm41_1725436565']:
         if i != 0:
-            await session.get(url=f"""{portal_url}rest/im.message.update?BOT_ID=78051
-&MESSAGE_ID={i}&auth={access[0]}&KEYBOARD=0
-&MESSAGE=[SIZE=16][B]✔️Подтверждено получение информации о смене даты прихода на новую \
-{el['result']['item']['ufCrm41_1724228599427'][:10]} по сделке: \
-[URL={portal_url}crm/type/1058/details/{item_id}/]{el['result']['item']['title']}[/URL][/B][/SIZE]""")
+            await session.get(
+                url=f"{portal_url}rest/im.message.update?",
+                params={
+                    'BOT_ID': 78051,
+                    'MESSAGE_ID': i,
+                    'auth': access[0],
+                    'KEYBOARD': 0,
+                    'MESSAGE': f"""[SIZE=16][B]✔️Подтверждено получение информации о смене даты прихода на новую 
+{element['result']['item']['ufCrm41_1724228599427'][:10]} по сделке: 
+[URL={portal_url}crm/type/1058/details/{item_id}/]{element['result']['item']['title']}[/URL][/B][/SIZE]"""
+                }
+            )
 
-    await session.get(url=f"{portal_url}rest/crm.item.update?auth={access[0]}&entityTypeId=1058&id={item_id}\
-    &fields[ufCrm41_1725436565]=''")
+    await session.get(
+        url=f"{portal_url}rest/crm.item.update?",
+        params={
+            'auth': access[0],
+            'entityTypeId': 1058,
+            'id': item_id,
+            'fields[ufCrm41_1725436565]': ''
+        }
+    )
 
     return RedirectResponse(url=f"{portal_url}crm/type/1058/details/{item_id}/")
 
@@ -295,13 +354,19 @@ async def form_to_sp(
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
 
-    new_element = await session.post(url=(f"{portal_url}rest/crm.item.add?auth={access[0]}&entityTypeId=1098"
-                                          f"&fields[ufCrm59_1738313884]={params['points']}"
-                                          f"&fields[ufCrm59_1738322964]={params['max_points']}"
-                                          f"&fields[ufCrm59_1738323186]={params['user_id']}"
-                                          f"&fields[ufCrm59_1738323573]={params['form_id']}"
-                                          f"&fields[ufCrm59_1738648993]={params['answer_id']}"
-                                          f"&fields[title]={params['form_name']}"))
+    await session.post(
+        url=f"{portal_url}rest/crm.item.add?",
+        params={
+            'auth': access[0],
+            'entityTypeId': 1098,
+            'fields[ufCrm59_1738313884]': params['points'],
+            'fields[ufCrm59_1738322964]': params['max_points'],
+            'fields[ufCrm59_1738323186]': params['user_id'],
+            'fields[ufCrm59_1738323573]': params['form_id'],
+            'fields[ufCrm59_1738648993]': params['answer_id'],
+            'fields[title]': params['form_name']
+        }
+    )
 
 
 @app.post('/employee_testing/', tags=['FORMS'])
@@ -315,10 +380,19 @@ async def employee_testing(
     forms = await get_forms()
     session = await session_manager.get_session()
 
-    user = await session.post(url=f"{portal_url}rest/user.current?auth={data_parsed['AUTH_ID'][0]}")
+    user = await session.post(
+        url=f"{portal_url}rest/user.current?",
+        params={'auth': data_parsed['AUTH_ID'][0]}
+    )
     user = await user.json()
-    list_tests = await session.post(url=(f"{portal_url}rest/crm.item.list?auth={data_parsed['AUTH_ID'][0]}"
-                                         f"&entityTypeId=1098&filter[ufCrm59_1738323186]={user['result']['ID']}"))
+    list_tests = await session.post(
+        url=f"{portal_url}rest/crm.item.list?",
+        params={
+            'auth': data_parsed['AUTH_ID'][0],
+            'entityTypeId': 1098,
+            'filter[ufCrm59_1738323186]': user['result']['ID']
+        }
+    )
     list_tests = await list_tests.json()
     list_end_test = {}
     for i in list_tests['result']['items']:
@@ -342,12 +416,16 @@ async def employee_testing(
     forms_access = []
     for department_id in user['result']['UF_DEPARTMENT']:
         forms_access = [form for form in forms if form[3] and str(department_id) in form[3]]
-    return templates.TemplateResponse(request,
-                                      name="employee_testing.html",
-                                      context={"hosting_url": hosting_url,
-                                               "forms": forms_access,
-                                               'user_id': user['result']['ID'],
-                                               'list_end_test': list_end_test})
+    return templates.TemplateResponse(
+        request,
+        name="employee_testing.html",
+        context={
+            "hosting_url": hosting_url,
+            "forms": forms_access,
+            'user_id': user['result']['ID'],
+            'list_end_test': list_end_test
+        }
+    )
 
 
 @app.post('/create_forms/', tags=['FORMS'])
@@ -363,7 +441,14 @@ async def create_forms(
     count = 0
     list_all_department = []
     while True:
-        list_department = await session.get(f"{portal_url}rest/department.get/?auth={access[0]}&sort=ID&start={count}")
+        list_department = await session.get(
+            url=f"{portal_url}rest/department.get/",
+            params={
+                'auth': access[0],
+                'sort': 'ID',
+                'start': count
+            }
+        )
         list_department = await list_department.json()
         list_all_department += list_department['result']
         if 'next' in list_department:
@@ -374,12 +459,16 @@ async def create_forms(
     dict_department = {}
     for i in list_all_department:
         dict_department[i['ID']] = i['NAME']
-    return templates.TemplateResponse(request,
-                                      name="create_forms.html",
-                                      context={"list_forms": forms,
-                                               "list_department": list_all_department,
-                                               "dict_department": dict_department,
-                                               "hosting_url": hosting_url})
+    return templates.TemplateResponse(
+        request,
+        name="create_forms.html",
+        context={
+            "list_forms": forms,
+            "list_department": list_all_department,
+            "dict_department": dict_department,
+            "hosting_url": hosting_url
+        }
+    )
 
 
 @app.post("/control_forms/", tags=['FORMS'])
@@ -410,20 +499,38 @@ async def invite_an_employee(
     check_token(client_secret)
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
-    new_user = await session.post(url=f"{portal_url}rest/user.add.json?auth={access[0]}&NAME={name}"
-                                      f"&LAST_NAME={last_name}&WORK_POSITION={work_position}"
-                                      f"&EMAIL={email}&UF_DEPARTMENT={uf_department}")
+    new_user = await session.post(
+        url=f"{portal_url}rest/user.add.json",
+        params={
+            'auth': access[0],
+            'NAME': name,
+            'LAST_NAME': last_name,
+            'WORK_POSITION': work_position,
+            'EMAIL': email,
+            'UF_DEPARTMENT': uf_department
+        }
+    )
     new_user = await new_user.json()
 
     if 'error' in new_user:
-        await session.get((f"{hosting_url}send_message/?client_secret={secret}&message=Ошибка при приглашении: "
-                           f"[url={portal_url}page/hr/protsess_adaptatsii_sotrudnika_2/type/191/details/{adaptation_id}/]"
-                           f"Процесс[/url]{new_user['error_description']}&recipient={77297}"))
+        await session.get(
+            url=f"{hosting_url}send_message/",
+            params={
+                'client_secret': secret,
+                'message': f'''Ошибка при приглашении: [url={portal_url}page/hr/protsess_adaptatsii_sotrudnika_2/type/191/details/{adaptation_id}/]Процесс: [/url]{new_user['error_description']}''',
+                'recipient': 77297
+            })
         return new_user
 
-    await session.post(url=(f"{portal_url}rest/crm.item.update?auth={access[0]}"
-                            f"&entityTypeId=191&id={adaptation_id}"
-                            f"&fields[ufCrm19_1713532729]={new_user['result']}"))
+    await session.post(
+        url=f"{portal_url}rest/crm.item.update",
+        params={
+            'auth': access[0],
+            'entityTypeId': 191,
+            'id': adaptation_id,
+            'fields[ufCrm19_1713532729]': new_user['result']
+        }
+    )
     return new_user
 
 
@@ -437,17 +544,32 @@ async def task_panel(
     data = await request.body()
     data_parsed = parse_qs(data.decode())
     session = await session_manager.get_session()
-    user = await session.post(url=f"{portal_url}rest/user.current?auth={data_parsed['AUTH_ID'][0]}")
-    user_admin = await session.post(url=f"{portal_url}rest/user.admin?auth={data_parsed['AUTH_ID'][0]}")
+    user = await session.post(
+        url=f"{portal_url}rest/user.current",
+        params={
+            'auth': data_parsed['AUTH_ID'][0]
+        }
+    )
+    user_admin = await session.post(
+        url=f"{portal_url}rest/user.admin",
+        params={
+            'auth': data_parsed['AUTH_ID'][0]
+        }
+    )
     task_id = ast.literal_eval(data_parsed['PLACEMENT_OPTIONS'][0])["taskId"]
     access = await get_bitrix_auth()
-    task = await session.get(url=(  # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
-        f"{portal_url}rest/tasks.task.get/?auth={access[0]}"
-        f"&taskId={task_id}"
-        f"&select[0]=ACCOMPLICES"
-        f"&select[1]=RESPONSIBLE_ID"
-        f"&select[2]=UF_CRM_TASK"
-        f"&select[3]=TITLE"))
+    # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
+    task = await session.get(
+        url=f"{portal_url}rest/tasks.task.get/",
+        params={
+            'auth': access[0],
+            'taskId': task_id,
+            'select[0]': 'ACCOMPLICES',
+            'select[1]': 'RESPONSIBLE_ID',
+            'select[2]': 'UF_CRM_TASK',
+            'select[3]': 'TITLE'
+        }
+    )
     task = await task.json()
     if 'ufCrmTask' not in task['result']['task']:
         return "Нет привязки элемента к CRM"
@@ -456,15 +578,27 @@ async def task_panel(
     if task['result']['task']['ufCrmTask'][0][:4] != 'T83_':
         return "Нет привязки к процессу согласования договора"
     element_id = task['result']['task']['ufCrmTask'][0][4:]
-    element = await session.post(url=(f"{portal_url}rest/crm.item.get?auth={access[0]}&entityTypeId=131"
-                                      f"&id={element_id}"
-                                      f"&select[0]=ufCrm12_1709191865371"
-                                      f"&select[1]=ufCrm12_1709192259979"
-                                      f"&select[2]=ufCrm12_1708599567866"
-                                      f"&select[3]=ufCrm12_1708093511140"
-                                      f"?select[4]=CREATED_BY"))
+    element = await session.post(
+        url=f"{portal_url}rest/crm.item.get",
+        params={
+            'auth': access[0],
+            'entityTypeId': 131,
+            'id': element_id,
+            'select[0]': 'ufCrm12_1709191865371',
+            'select[1]': 'ufCrm12_1709192259979',
+            'select[2]': 'ufCrm12_1708599567866',
+            'select[3]': 'ufCrm12_1708093511140',
+            'select[4]': 'CREATED_BY',
+        }
+    )
     accomplices = task['result']['task']['accomplices'][0]
-    accountants = await session.get(url=f"{portal_url}rest/user.search?auth={access[0]}&UF_DEPARTMENT=114")
+    accountants = await session.get(
+        url=f"{portal_url}rest/user.search",
+        params={
+            'auth': access[0],
+            'UF_DEPARTMENT': 114
+        }
+    )
     accountants = await accountants.json()
     list_accountants = []
     for i in accountants["result"]:
@@ -475,7 +609,11 @@ async def task_panel(
     element = await element.json()
     user = await user.json()
     user_admin = await user_admin.json()
-    list_access = {'114': 'accountant', '94': 'lawyer', '0': 'admin'}  # бухгалтера, юристы
+    list_access = {
+        '114': 'accountant',
+        '94': 'lawyer',
+        '0': 'admin'
+    }  # бухгалтера, юристы
     if element['result']["item"]['ufCrm12_1712146917716']:
         attached_file = True
     else:
@@ -488,36 +626,49 @@ async def task_panel(
         if str(i) in list_access or user_admin['result']:  # Если есть разрешение
             if user_admin['result']:
                 i = '0'
-            return templates.TemplateResponse(request,
-                                              name="task_panel.html",
-                                              context={
-                                                  'element_id': element_id,
-                                                  'task_id': task_id,
-                                                  'user_id': user['result']['ID'],
-                                                  'access': list_access[str(i)],
-                                                  'approval_status': approval_status,
-                                                  'attached_file': attached_file,
-                                                  'accomplices': accomplices,
-                                                  'responsible': task['result']['task']['responsibleId'],
-                                                  'title_task': task['result']['task']['title'],
-                                                  'auth': access[0],
-                                                  'comment_accountant':
-                                                      element['result']["item"]['ufCrm12_1708599567866'],
-                                                  'created_by': element['result']["item"]['createdBy'],
-                                                  'portal_url': portal_url,
-                                                  'hosting_url': hosting_url
-                                              }
-                                              )
-    return f"Доступ запрещен"
+            return templates.TemplateResponse(
+                request,
+                name="task_panel.html",
+                context={
+                    'element_id': element_id,
+                    'task_id': task_id,
+                    'user_id': user['result']['ID'],
+                    'access': list_access[str(i)],
+                    'approval_status': approval_status,
+                    'attached_file': attached_file,
+                    'accomplices': accomplices,
+                    'responsible': task['result']['task']['responsibleId'],
+                    'title_task': task['result']['task']['title'],
+                    'auth': access[0],
+                    'comment_accountant':
+                        element['result']["item"]['ufCrm12_1708599567866'],
+                    'created_by': element['result']["item"]['createdBy'],
+                    'portal_url': portal_url,
+                    'hosting_url': hosting_url
+                }
+            )
+    return "Доступ запрещен"
 
 
 if __name__ == "__main__":
     try:
         if platform.system() == "Windows":
-            uvicorn.run(app, host="127.0.0.1", log_config="logs/log_config.json", use_colors=True, log_level="info",
-                        loop="asyncio")
+            uvicorn.run(
+                app,
+                host="127.0.0.1",
+                log_config="logs/log_config.json",
+                use_colors=True,
+                log_level="info",
+                loop="asyncio"
+            )
         else:
-            uvicorn.run(application, host="0.0.0.0", log_config="logs/log_config.json", use_colors=True,
-                        log_level="info", loop="asyncio")
+            uvicorn.run(
+                application,
+                host="0.0.0.0",
+                log_config="logs/log_config.json",
+                use_colors=True,
+                log_level="info",
+                loop="asyncio"
+            )
     except Exception as e:
         logger.error(f"Error launch app: {e}")
