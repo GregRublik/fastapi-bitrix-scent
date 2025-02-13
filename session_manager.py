@@ -27,3 +27,6 @@ class SessionManager:
         if self._session is not None:
             await self._session.close()
             self._session = None
+
+
+session_manager = SessionManager.get_instance()
