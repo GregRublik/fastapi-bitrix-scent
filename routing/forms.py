@@ -17,6 +17,11 @@ async def form_to_sp(
     request: FormRequest,
 ):
     params = request.params
+
+    answers = ''
+    for name_answer, answer in params.answers.items():
+        answers += f"{name_answer}: {answer}\n"
+
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
     await session.post(
@@ -29,6 +34,7 @@ async def form_to_sp(
             'fields[ufCrm59_1738323186]': params.user_id,
             'fields[ufCrm59_1738323573]': params.form_id,
             'fields[ufCrm59_1738648993]': params.answer_id,
+            'fields[ufCrm59_1739453357]': answers,
             'fields[title]': params.form_name
         }
     )

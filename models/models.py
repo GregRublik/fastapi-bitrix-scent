@@ -1,5 +1,6 @@
-from pydantic import BaseModel
-from typing import Dict
+from pydantic import BaseModel, validator
+from typing import Dict, Any
+import json
 
 
 class InvalidToken(Exception):
@@ -19,6 +20,16 @@ class Params(BaseModel):
     max_points: str
     form_name: str
     answer_id: str
+    answers: Dict[str, Any]
+
+    @validator('answers', pre=True)
+    def parse_answers(cls, value):
+        if isinstance(value, str):
+            try:
+                return json.loads(value)  # Преобразуем JSON-строку в словарь
+            except json.JSONDecodeError:
+                raise ValueError("Invalid JSON string in 'answers'")
+        return value
 
 
 class FormRequest(BaseModel):
