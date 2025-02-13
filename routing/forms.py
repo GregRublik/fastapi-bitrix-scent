@@ -18,13 +18,13 @@ async def form_to_sp(
 ):
     params = request.params
 
-    answers = ''
-    for name_answer, answer in params.answers.items():
-        answers += f"{name_answer}: {answer}\n"
-
+    # answers = ''
+    # for name_answer, answer in params.answers.items():
+    #     answers += f"{name_answer}: {answer}\n"
+    # print(answers)
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
-    await session.post(
+    result = await session.post(
         url=f"{portal_url}rest/crm.item.add?",
         params={
             'auth': access[0],
@@ -34,10 +34,11 @@ async def form_to_sp(
             'fields[ufCrm59_1738323186]': params.user_id,
             'fields[ufCrm59_1738323573]': params.form_id,
             'fields[ufCrm59_1738648993]': params.answer_id,
-            'fields[ufCrm59_1739453357]': answers,
+            # 'fields[ufCrm59_1739453357]': answers,
             'fields[title]': params.form_name
         }
     )
+    print(await result.text())
 
 
 @app_forms.post('/employee_testing/', tags=['FORMS'], summary="Панель доступов")
