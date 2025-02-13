@@ -7,7 +7,7 @@ from loguru import logger
 from urllib.parse import parse_qs
 from functions import check_token
 from a2wsgi import ASGIMiddleware
-from fastapi import FastAPI, Body, Request
+from fastapi import FastAPI, Request, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
@@ -16,13 +16,14 @@ from config import portal_url, hosting_url, client_id, secret, key_405
 from session_manager import SessionManager
 from db.database import update_tokens, get_bitrix_auth, get_forms, add_test, del_test, add_department
 import json
+from models.models import FormRequest
 
 
 session_manager = SessionManager.get_instance()
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(apps: FastAPI):
     try:
         yield
     finally:
@@ -38,7 +39,7 @@ templates = Jinja2Templates(directory="templates")
 scheduler = AsyncIOScheduler()
 
 
-@app.get("/", tags=['MAIN'])
+@app.get("/", tags=['MAIN'], summary="Главная страница")
 @logger.catch
 async def main(
     request: Request
@@ -46,28 +47,20 @@ async def main(
     return templates.TemplateResponse(request, name="main.html")
 
 
-@app.post("/", tags=['MAIN'])
-@logger.catch
-async def main(
-    request: Request
-):
-    return templates.TemplateResponse(request, name="main.html")
-
-
-@app.post("/install/", tags=['AUTHENTICATION'])
+@app.post("/install/", tags=['AUTHENTICATION'], summary="Установка приложения на портал")
 @logger.catch
 async def app_install(
-    request: Request
+    request: Request,
+    AUTH_ID: str = Form(...),
+    REFRESH_ID: str = Form(...)
 ):
     """Обработчик для установки приложения"""
-    data = await request.body()
-    data_parsed = parse_qs(data.decode())
-    await update_tokens(access=data_parsed["AUTH_ID"][0], refresh=data_parsed["REFRESH_ID"][0])
+    await update_tokens(access=AUTH_ID, refresh=REFRESH_ID)
     await reboot_tokens(client_secret=secret)
     return templates.TemplateResponse(request, name="install.html")
 
 
-@app.post("/reboot_tokens/", tags=['AUTHENTICATION'])
+@app.post("/reboot_tokens/", tags=['AUTHENTICATION'], summary="Обновление токенов")
 @logger.catch
 async def reboot_tokens(client_secret: str) -> dict:
     """С помощью client_secret приложения можно обновить токены для дальнейшей работы приложения"""
@@ -91,7 +84,7 @@ async def reboot_tokens(client_secret: str) -> dict:
     return {'status_code': 200, 'result': result}
 
 
-@app.get("/send_message/", tags=['UNIVERSAL'])
+@app.get("/send_message/", tags=['UNIVERSAL'], summary="Отправить сообщение от лизы")
 @logger.catch
 async def send_message(
     client_secret: str,
@@ -111,7 +104,7 @@ async def send_message(
     return result
 
 
-@app.post('/main_handler/', tags=["UNIVERSAL"])
+@app.post('/main_handler/', tags=["UNIVERSAL"], summary="Главный обработчик")
 @logger.catch
 async def main_handler(
     method: str,
@@ -132,34 +125,38 @@ async def main_handler(
     return {'status_code': 200, 'result': result}
 
 
-@app.post("/activity_update/", tags=['PURCHASE VED'])
+@app.post("/activity_update/", tags=['PURCHASE VED'], summary="Записывает дату прихода на наш склад в историю")
 @logger.catch
 async def activity_update(
-    data: str = Body()
+    request: Request,
 ):
     """
     Обработчик для дела. При изменении дела он проверяет, принадлежит ли оно
     воронке "закуп ВЭД" и если да то записывает "дату прихода на наш склад"
     в историю. Также он проверяет, что дело начинается на "подтвердите дату"
     """
-    data_parsed = parse_qs(data)
-    activity_id = data_parsed['data[FIELDS][ID]'][0]
+    data = await request.form()
+    activity_id = data.get('data[FIELDS][ID]')
+
     access = await get_bitrix_auth()
     session = await session_manager.get_session()
-    activity = await session.get(url=f"{portal_url}rest/crm.activity.get",
-                                 params={
-                                     'auth': access[0],
-                                     'ID': activity_id
-                                 })
+    activity = await session.get(
+        url=f"{portal_url}rest/crm.activity.get",
+        params={
+            'auth': access[0],
+            'ID': activity_id
+        })
     activity = await activity.json()
     if (activity['result']['OWNER_TYPE_ID'] == '1058' and activity['result']['COMPLETED'] == 'Y'
             and 'Подтвердите дату' in activity['result']['DESCRIPTION']):
         element = await session.get(
-                url=f"{portal_url}rest/crm.item.get",
-                params={'auth': access[0],
-                        'entityTypeId': 1058,
-                        'id': activity['result']['OWNER_ID']
-                        })
+            url=f"{portal_url}rest/crm.item.get",
+            params={
+                'auth': access[0],
+                'entityTypeId': 1058,
+                'id': activity['result']['OWNER_ID']
+                }
+        )
         element = await element.json()
         field_history = element['result']['item']['ufCrm41_1724744699216']
         if element['result']['item']['stageId'] in ['DT1058_69:UC_1CO49M',
@@ -178,16 +175,18 @@ async def activity_update(
             fields_to_url += f"fields[ufCrm41_1724744699216][{index + 1}]={new_recording}"
             update_element = await session.get(
                     url=f"{portal_url}rest/crm.item.update?{fields_to_url}",
-                    params={'auth': access[0],
-                            'entityTypeId': 1058,
-                            'id': activity['result']['OWNER_ID']}
+                    params={
+                        'auth': access[0],
+                        'entityTypeId': 1058,
+                        'id': activity['result']['OWNER_ID']
+                    }
             )
             final_result = await update_element.json()
             return {"status_code": 200, 'result': final_result}
     return {'status_code': 400, 'result': 'you invalid'}
 
 
-@app.post("/task_delegate/", tags=['USER'])
+@app.post("/task_delegate/", tags=['USER'], summary="Делегирование задач на руководителя")
 @logger.catch
 async def task_delegate(
     user_id: int,
@@ -225,7 +224,7 @@ async def task_delegate(
     return {"status_code": 200, "list id task": list_task}
 
 
-@app.post("/handler/", tags=['PURCHASE VED'])
+@app.post("/handler/", tags=['PURCHASE VED'], summary="Отправляет сообщение с кнопкой")
 @logger.catch
 async def handler(
     id_element: str,
@@ -281,7 +280,7 @@ c {date_old} на новую {date_new} по сделке: [URL={link_element}]{
     return {"status_code": 200, 'result': await result.json()}
 
 
-@app.get('/handler_button/', tags=['PURCHASE VED'])
+@app.get('/handler_button/', tags=['PURCHASE VED'], summary="Обработчик нажатия на кнопку")
 @logger.catch
 async def handler_button(
     item_id: int,
@@ -343,52 +342,50 @@ async def handler_button(
     return RedirectResponse(url=f"{portal_url}crm/type/1058/details/{item_id}/")
 
 
-@app.post('/form_to_sp/')
+@app.post('/form_to_sp/', tags=['FORMS'], summary="Создание элемента СП Тестирования")
 @logger.catch
 async def form_to_sp(
-    request: Request
+    request: FormRequest,
 ):
-    data = await request.body()
-    data_parsed = json.loads(data.decode())
-    params = data_parsed['params']
+    params = request.params
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
-
     await session.post(
         url=f"{portal_url}rest/crm.item.add?",
         params={
             'auth': access[0],
             'entityTypeId': 1098,
-            'fields[ufCrm59_1738313884]': params['points'],
-            'fields[ufCrm59_1738322964]': params['max_points'],
-            'fields[ufCrm59_1738323186]': params['user_id'],
-            'fields[ufCrm59_1738323573]': params['form_id'],
-            'fields[ufCrm59_1738648993]': params['answer_id'],
-            'fields[title]': params['form_name']
+            'fields[ufCrm59_1738313884]': params.points,
+            'fields[ufCrm59_1738322964]': params.max_points,
+            'fields[ufCrm59_1738323186]': params.user_id,
+            'fields[ufCrm59_1738323573]': params.form_id,
+            'fields[ufCrm59_1738648993]': params.answer_id,
+            'fields[title]': params.form_name
         }
     )
 
 
-@app.post('/employee_testing/', tags=['FORMS'])
+@app.post('/employee_testing/', tags=['FORMS'], summary="Панель доступов")
 @logger.catch
 async def employee_testing(
     request: Request,
+    AUTH_ID: str = Form(...),
 ):
     """Список тестов к которым есть доступ, а также информация о завершении последних"""
-    data = await request.body()
-    data_parsed = parse_qs(data.decode())
     forms = await get_forms()
     session = await session_manager.get_session()
 
     user = await session.post(
         url=f"{portal_url}rest/user.current?",
-        params={'auth': data_parsed['AUTH_ID'][0]}
+        params={
+            'auth': AUTH_ID
+        }
     )
     user = await user.json()
     list_tests = await session.post(
         url=f"{portal_url}rest/crm.item.list?",
         params={
-            'auth': data_parsed['AUTH_ID'][0],
+            'auth': AUTH_ID,
             'entityTypeId': 1098,
             'filter[ufCrm59_1738323186]': user['result']['ID']
         }
@@ -428,14 +425,12 @@ async def employee_testing(
     )
 
 
-@app.post('/create_forms/', tags=['FORMS'])
+@app.post('/create_forms/', tags=['FORMS'], summary="Панель тестов")
 @logger.catch
 async def create_forms(
     request: Request
 ):
     # return templates.TemplateResponse(request, name="install.html")
-    data = await request.body()
-    data_parsed = parse_qs(data.decode())
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
     count = 0
@@ -471,8 +466,10 @@ async def create_forms(
     )
 
 
-@app.post("/control_forms/", tags=['FORMS'])
-async def control_forms(request: Request):
+@app.post("/control_forms/", tags=['FORMS'], summary="Обработчик доступов к тестам")
+async def control_forms(
+        request: Request
+):
     data = await request.body()
 
     body = json.loads(data.decode())
@@ -485,7 +482,7 @@ async def control_forms(request: Request):
         await del_test(body)
 
 
-@app.post('/invite_an_employee/', tags=['HR'])
+@app.post('/invite_an_employee/', tags=['HR'], summary="Приглашение сотрудников")
 @logger.catch
 async def invite_an_employee(
     email: str,
@@ -517,7 +514,10 @@ async def invite_an_employee(
             url=f"{hosting_url}send_message/",
             params={
                 'client_secret': secret,
-                'message': f'''Ошибка при приглашении: [url={portal_url}page/hr/protsess_adaptatsii_sotrudnika_2/type/191/details/{adaptation_id}/]Процесс: [/url]{new_user['error_description']}''',
+                'message': (
+                    f"Ошибка при приглашении: [url={portal_url}page/hr/protsess_adaptatsii_sotrudnika_2/"
+                    f"type/191/details/{adaptation_id}/]Процесс: [/url]{new_user['error_description']}"
+                ),
                 'recipient': 77297
             })
         return new_user
@@ -534,13 +534,13 @@ async def invite_an_employee(
     return new_user
 
 
-@app.post("/task_panel/", tags=['CONCORDING'])
+@app.post("/task_panel/", tags=['CONCORDING'], summary="Панель согласования для задач")
 @logger.catch
 async def task_panel(
     request: Request,
 ):
     # return templates.TemplateResponse(request, name="install.html")
-    """Приложение встроенное в интерфейс задачи"""
+    """Панель для согласования договора в задаче"""
     data = await request.body()
     data_parsed = parse_qs(data.decode())
     session = await session_manager.get_session()

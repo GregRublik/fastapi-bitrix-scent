@@ -7,8 +7,12 @@ urllib3.disable_warnings()
 
 
 def update():
-    response = requests.post(url=f"https://sporbita-developers.ru/reboot_tokens/", params={'client_secret': secret},
-                             verify=False)
+    response = requests.post(
+        url=f"https://sporbita-developers.ru/reboot_tokens/",
+        params={
+            'client_secret': secret
+        },
+        verify=False)
 
 
 status = True
