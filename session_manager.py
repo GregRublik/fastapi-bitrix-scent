@@ -1,7 +1,13 @@
 import aiohttp
 from loguru import logger
 
-logger.add("logs/debug.log", format="{time} - {level} - {message}", level="INFO", rotation="5 MB", compression="zip")
+logger.add(
+    "logs/debug.log",
+    format="{time} - {level} - {message}",
+    level="INFO",
+    rotation="5 MB",
+    compression="zip"
+)
 
 
 class SessionManager:

@@ -1,14 +1,13 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.future import select
 from db.models import BitrixAuth, FormsTests
-from db.config import settings
+from core.config import settings
 from sqlalchemy import update, insert, delete
 from functools import wraps
-from json import JSONEncoder
-import asyncio
+
 
 engine = create_async_engine(
-    url=settings.database_url_asyncmy,
+    url=settings.db.database_url_asyncmy,
     pool_size=5,
     max_overflow=10
 )

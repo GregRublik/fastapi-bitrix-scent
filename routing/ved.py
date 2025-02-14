@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Request
-from config import logger
+from core.config import logger
 from db.database import get_bitrix_auth
 import datetime
 from session_manager import session_manager
-from config import portal_url, hosting_url
+from core.config import settings
 from fastapi.responses import RedirectResponse
 from functions import check_token
 
@@ -26,7 +26,7 @@ async def activity_update(
     access = await get_bitrix_auth()
     session = await session_manager.get_session()
     activity = await session.get(
-        url=f"{portal_url}rest/crm.activity.get",
+        url=f"{settings.portal_url}rest/crm.activity.get",
         params={
             'auth': access[0],
             'ID': activity_id
@@ -35,7 +35,7 @@ async def activity_update(
     if (activity['result']['OWNER_TYPE_ID'] == '1058' and activity['result']['COMPLETED'] == 'Y'
             and 'Подтвердите дату' in activity['result']['DESCRIPTION']):
         element = await session.get(
-            url=f"{portal_url}rest/crm.item.get",
+            url=f"{settings.portal_url}rest/crm.item.get",
             params={
                 'auth': access[0],
                 'entityTypeId': 1058,
@@ -59,7 +59,7 @@ async def activity_update(
                 Дата прихода на наш склад: {element['result']['item']['ufCrm41_1724228599427'][:10]}"
             fields_to_url += f"fields[ufCrm41_1724744699216][{index + 1}]={new_recording}"
             update_element = await session.get(
-                    url=f"{portal_url}rest/crm.item.update?{fields_to_url}",
+                    url=f"{settings.portal_url}rest/crm.item.update?{fields_to_url}",
                     params={
                         'auth': access[0],
                         'entityTypeId': 1058,
@@ -88,13 +88,13 @@ async def handler(
     access = await get_bitrix_auth()
     session = await session_manager.get_session()
     result = await session.get(
-        url=f"{portal_url}rest/im.message.add",
+        url=f"{settings.portal_url}rest/im.message.add",
         params={
             'auth': access[0],
             'MESSAGE': f"""[SIZE=16][B]⚠️Подтвердите получение информации о смене даты прихода 
 c {date_old} на новую {date_new} по сделке: [URL={link_element}]{name_element}[/URL][/B][/SIZE]""",
             'KEYBOARD[0][TEXT]': 'Подтвердить',
-            'KEYBOARD[0][LINK]': f'{hosting_url}handler_button/?item_id={id_element}&client_secret={client_secret}',
+            'KEYBOARD[0][LINK]': f'{settings.hosting_url}handler_button/?item_id={id_element}&client_secret={client_secret}',
             'KEYBOARD[0][BG_COLOR_TOKEN]': 'alert',
             'DIALOG_ID': 77297,
             'KEYBOARD[0][BLOCK]': 'Y'
@@ -103,7 +103,7 @@ c {date_old} на новую {date_new} по сделке: [URL={link_element}]{
     message = await result.json()
     id_message = message['result']
     element = await session.get(
-            url=f"{portal_url}rest/crm.item.get",
+            url=f"{settings.portal_url}rest/crm.item.get",
             params={
                 'auth': access[0],
                 'entityTypeId': 1058,
@@ -117,7 +117,7 @@ c {date_old} на новую {date_new} по сделке: [URL={link_element}]{
             url_new_id_message += f'fields[ufCrm41_1725436565][{i + 1}]={v}&'
     url_new_id_message += f'fields[ufCrm41_1725436565][0]={id_message}&'
     await session.get(
-        url=f"{portal_url}rest/crm.item.update?{url_new_id_message}",
+        url=f"{settings.portal_url}rest/crm.item.update?{url_new_id_message}",
         params={
             'auth': access[0],
             'entityTypeId': 1058,
@@ -140,7 +140,7 @@ async def handler_button(
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
     element = await session.get(
-        url=f"{portal_url}rest/crm.item.get",
+        url=f"{settings.portal_url}rest/crm.item.get",
         params={
             'auth': access[0],
             'entityTypeId': 1058,
@@ -150,7 +150,7 @@ async def handler_button(
     element = await element.json()
 
     await session.get(
-        url=f"{portal_url}rest/crm.timeline.comment.add?",
+        url=f"{settings.portal_url}rest/crm.timeline.comment.add?",
         params={
             'auth': access[0],
             'fields[AUTHOR_ID]': 77297,
@@ -164,7 +164,7 @@ async def handler_button(
     for i in element['result']['item']['ufCrm41_1725436565']:
         if i != 0:
             await session.get(
-                url=f"{portal_url}rest/im.message.update?",
+                url=f"{settings.portal_url}rest/im.message.update?",
                 params={
                     'BOT_ID': 78051,
                     'MESSAGE_ID': i,
@@ -172,12 +172,12 @@ async def handler_button(
                     'KEYBOARD': 0,
                     'MESSAGE': f"""[SIZE=16][B]✔️Подтверждено получение информации о смене даты прихода на новую 
 {element['result']['item']['ufCrm41_1724228599427'][:10]} по сделке: 
-[URL={portal_url}crm/type/1058/details/{item_id}/]{element['result']['item']['title']}[/URL][/B][/SIZE]"""
+[URL={settings.portal_url}crm/type/1058/details/{item_id}/]{element['result']['item']['title']}[/URL][/B][/SIZE]"""
                 }
             )
 
     await session.get(
-        url=f"{portal_url}rest/crm.item.update?",
+        url=f"{settings.portal_url}rest/crm.item.update?",
         params={
             'auth': access[0],
             'entityTypeId': 1058,
@@ -186,4 +186,4 @@ async def handler_button(
         }
     )
 
-    return RedirectResponse(url=f"{portal_url}crm/type/1058/details/{item_id}/")
+    return RedirectResponse(url=f"{settings.portal_url}crm/type/1058/details/{item_id}/")

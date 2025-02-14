@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from session_manager import session_manager
-from config import logger
+from core.config import logger
 from routing import auth, concord, forms, universal, user, ved
 
 

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Request
-from config import logger
+from core.config import logger
 from db.database import get_bitrix_auth
 from functions import check_token
 from session_manager import session_manager
-from config import portal_url, key_405, templates
+from core.config import templates, settings
 
 
 app_univers = APIRouter()
@@ -27,7 +27,7 @@ async def send_message(
     check_token(client_secret)
     session = await session_manager.get_session()
     result = await session.get(
-        url=f"{portal_url}rest/55810/{key_405}/im.message.add.json",
+        url=f"{settings.portal_url}rest/55810/{settings.key_405}/im.message.add.json",
         params={
             'DIALOG_ID': recipient,
             'MESSAGE': message
@@ -51,7 +51,7 @@ async def main_handler(
     access = await get_bitrix_auth()
     session = await session_manager.get_session()
     result = await session.get(
-        url=f"{portal_url}rest/{method}?{params}",
+        url=f"{settings.portal_url}rest/{method}?{params}",
         params={
             'auth': access[0]
         }

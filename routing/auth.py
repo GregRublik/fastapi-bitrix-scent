@@ -1,8 +1,8 @@
 from fastapi import APIRouter
-from config import logger
+from core.config import logger
 from fastapi import Request, Form
 from db.database import update_tokens, get_bitrix_auth
-from config import client_id, secret, templates
+from core.config import settings, templates
 from functions import check_token
 from session_manager import session_manager
 
@@ -18,13 +18,15 @@ async def app_install(
 ):
     """Обработчик для установки приложения"""
     await update_tokens(access=AUTH_ID, refresh=REFRESH_ID)
-    await reboot_tokens(client_secret=secret)
+    await reboot_tokens(client_secret=settings.secret)
     return templates.TemplateResponse(request, name="install.html")
 
 
 @app_auth.post("/reboot_tokens/", tags=['AUTHENTICATION'], summary="Обновление токенов")
 @logger.catch
-async def reboot_tokens(client_secret: str) -> dict:
+async def reboot_tokens(
+        client_secret: str
+) -> dict:
     """С помощью client_secret приложения можно обновить токены для дальнейшей работы приложения"""
     check_token(client_secret)
     session = await session_manager.get_session()
@@ -33,7 +35,7 @@ async def reboot_tokens(client_secret: str) -> dict:
         url=f"https://oauth.bitrix.info/oauth/token/",
         params={
             'grant_type': 'refresh_token',
-            'client_id': client_id,
+            'client_id': settings.client_id,
             'client_secret': client_secret,
             'refresh_token': access[1]
 

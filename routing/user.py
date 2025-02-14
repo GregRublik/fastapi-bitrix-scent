@@ -1,9 +1,9 @@
 from fastapi import APIRouter
-from config import logger
+from core.config import logger
 from db.database import get_bitrix_auth
 from functions import check_token
 from session_manager import session_manager
-from config import portal_url, hosting_url, secret
+from core.config import settings
 
 app_user = APIRouter()
 
@@ -23,7 +23,7 @@ async def invite_an_employee(
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
     new_user = await session.post(
-        url=f"{portal_url}rest/user.add.json",
+        url=f"{settings.portal_url}rest/user.add.json",
         params={
             'auth': access[0],
             'NAME': name,
@@ -37,11 +37,11 @@ async def invite_an_employee(
 
     if 'error' in new_user:
         await session.get(
-            url=f"{hosting_url}send_message/",
+            url=f"{settings.hosting_url}send_message/",
             params={
-                'client_secret': secret,
+                'client_secret': settings.secret,
                 'message': (
-                    f"Ошибка при приглашении: [url={portal_url}page/hr/protsess_adaptatsii_sotrudnika_2/"
+                    f"Ошибка при приглашении: [url={settings.portal_url}page/hr/protsess_adaptatsii_sotrudnika_2/"
                     f"type/191/details/{adaptation_id}/]Процесс: [/url]{new_user['error_description']}"
                 ),
                 'recipient': 77297
@@ -49,7 +49,7 @@ async def invite_an_employee(
         return new_user
 
     await session.post(
-        url=f"{portal_url}rest/crm.item.update",
+        url=f"{settings.portal_url}rest/crm.item.update",
         params={
             'auth': access[0],
             'entityTypeId': 191,
@@ -72,23 +72,23 @@ async def task_delegate(
     check_token(client_secret)
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
-    list_task = await session.get(url=f"{portal_url}rest/tasks.task.list",
+    list_task = await session.get(url=f"{settings.portal_url}rest/tasks.task.list",
                                   params={
                                       'auth': access[0],
                                       'filter[<REAL_STATUS]': 5,
                                       'filter[RESPONSIBLE_ID]': user_id,
                                       'select[0]': 'ID'})
     list_task = await list_task.json()
-    user = await session.get(url=f"{portal_url}rest/user.get",
+    user = await session.get(url=f"{settings.portal_url}rest/user.get",
                              params={'auth': access[0], 'ID': user_id})
     user = await user.json()
 
-    department = await session.get(url=f"{portal_url}rest/department.get",
+    department = await session.get(url=f"{settings.portal_url}rest/department.get",
                                    params={'auth': access[0], 'ID': user['result'][0]['UF_DEPARTMENT'][0]})
     department = await department.json()
     for task in list_task['result']['tasks']:
         await session.get(
-            url=f"{portal_url}rest/tasks.task.update?",
+            url=f"{settings.portal_url}rest/tasks.task.update?",
             params={
                 'auth': access[0],
                 'taskId': task['id'],

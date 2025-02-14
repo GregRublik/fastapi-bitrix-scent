@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Request
-from config import logger
+from core.config import logger
 from db.database import get_bitrix_auth
 from session_manager import session_manager
-from config import portal_url, templates, hosting_url
+from core.config import templates, settings
 from urllib.parse import parse_qs
 import ast
 
@@ -21,13 +21,13 @@ async def task_panel(
     data_parsed = parse_qs(data.decode())
     session = await session_manager.get_session()
     user = await session.post(
-        url=f"{portal_url}rest/user.current",
+        url=f"{settings.portal_url}rest/user.current",
         params={
             'auth': data_parsed['AUTH_ID'][0]
         }
     )
     user_admin = await session.post(
-        url=f"{portal_url}rest/user.admin",
+        url=f"{settings.portal_url}rest/user.admin",
         params={
             'auth': data_parsed['AUTH_ID'][0]
         }
@@ -36,7 +36,7 @@ async def task_panel(
     access = await get_bitrix_auth()
     # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
     task = await session.get(
-        url=f"{portal_url}rest/tasks.task.get/",
+        url=f"{settings.portal_url}rest/tasks.task.get/",
         params={
             'auth': access[0],
             'taskId': task_id,
@@ -55,7 +55,7 @@ async def task_panel(
         return "Нет привязки к процессу согласования договора"
     element_id = task['result']['task']['ufCrmTask'][0][4:]
     element = await session.post(
-        url=f"{portal_url}rest/crm.item.get",
+        url=f"{settings.portal_url}rest/crm.item.get",
         params={
             'auth': access[0],
             'entityTypeId': 131,
@@ -69,7 +69,7 @@ async def task_panel(
     )
     accomplices = task['result']['task']['accomplices'][0]
     accountants = await session.get(
-        url=f"{portal_url}rest/user.search",
+        url=f"{settings.portal_url}rest/user.search",
         params={
             'auth': access[0],
             'UF_DEPARTMENT': 114
@@ -119,8 +119,8 @@ async def task_panel(
                     'comment_accountant':
                         element['result']["item"]['ufCrm12_1708599567866'],
                     'created_by': element['result']["item"]['createdBy'],
-                    'portal_url': portal_url,
-                    'hosting_url': hosting_url
+                    'portal_url': settings.portal_url,
+                    'hosting_url': settings.hosting_url
                 }
             )
     return "Доступ запрещен"

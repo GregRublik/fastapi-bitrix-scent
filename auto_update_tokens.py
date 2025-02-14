@@ -1,16 +1,16 @@
 import time
 import urllib3
 import requests
-from config import secret
+from core.config import settings
 
 urllib3.disable_warnings()
 
 
 def update():
-    response = requests.post(
+    requests.post(
         url=f"https://sporbita-developers.ru/reboot_tokens/",
         params={
-            'client_secret': secret
+            'client_secret': settings.secret
         },
         verify=False)
 

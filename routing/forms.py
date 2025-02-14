@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Request, Form
-from config import logger
+from core.config import logger
 from db.database import get_bitrix_auth, get_forms, add_test, add_department, del_test
 from models.models import FormRequest
 from session_manager import session_manager
-from config import portal_url, hosting_url, templates
+from core.config import settings, templates
 import datetime
 import json
 
@@ -25,7 +25,7 @@ async def form_to_sp(
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
     result = await session.post(
-        url=f"{portal_url}rest/crm.item.add?",
+        url=f"{settings.portal_url}rest/crm.item.add?",
         params={
             'auth': access[0],
             'entityTypeId': 1098,
@@ -52,14 +52,14 @@ async def employee_testing(
     session = await session_manager.get_session()
 
     user = await session.post(
-        url=f"{portal_url}rest/user.current?",
+        url=f"{settings.portal_url}rest/user.current?",
         params={
             'auth': AUTH_ID
         }
     )
     user = await user.json()
     list_tests = await session.post(
-        url=f"{portal_url}rest/crm.item.list?",
+        url=f"{settings.portal_url}rest/crm.item.list?",
         params={
             'auth': AUTH_ID,
             'entityTypeId': 1098,
@@ -93,7 +93,7 @@ async def employee_testing(
         request,
         name="employee_testing.html",
         context={
-            "hosting_url": hosting_url,
+            "hosting_url": settings.hosting_url,
             "forms": forms_access,
             'user_id': user['result']['ID'],
             'list_end_test': list_end_test
@@ -113,7 +113,7 @@ async def create_forms(
     list_all_department = []
     while True:
         list_department = await session.get(
-            url=f"{portal_url}rest/department.get/",
+            url=f"{settings.portal_url}rest/department.get/",
             params={
                 'auth': access[0],
                 'sort': 'ID',
@@ -137,7 +137,7 @@ async def create_forms(
             "list_forms": forms,
             "list_department": list_all_department,
             "dict_department": dict_department,
-            "hosting_url": hosting_url
+            "hosting_url": settings.hosting_url
         }
     )
 

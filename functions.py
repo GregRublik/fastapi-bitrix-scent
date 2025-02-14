@@ -1,5 +1,5 @@
-from os import getenv
+from core.config import settings
 
 
 def check_token(client_secret):
-    assert client_secret == getenv("CLIENT_SECRET"), "Invalid Token"
+    assert client_secret == settings.secret, "Invalid Token"
