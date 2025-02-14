@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Request, Form
+from fastapi import APIRouter, Request, Form, Response
+from fastapi.responses import RedirectResponse
 from core.config import logger
 from db.database import get_bitrix_auth, get_forms, add_test, add_department, del_test
 from models.models import FormRequest
@@ -46,10 +47,13 @@ async def form_to_sp(
 async def employee_testing(
     request: Request,
     AUTH_ID: str = Form(...),
+    PLACEMENT_OPTIONS: str = Form(...)
+
 ):
     """Список тестов к которым есть доступ, а также информация о завершении последних"""
     forms = await get_forms()
     session = await session_manager.get_session()
+    params = json.loads(PLACEMENT_OPTIONS)
 
     user = await session.post(
         url=f"{settings.portal_url}rest/user.current?",
@@ -58,6 +62,10 @@ async def employee_testing(
         }
     )
     user = await user.json()
+
+    if 'test_id' in params:
+        return RedirectResponse(status_code=303, url=f"https://forms.yandex.ru/u/{params['test_id']}/?user_id={user['result']['ID']}")
+
     list_tests = await session.post(
         url=f"{settings.portal_url}rest/crm.item.list?",
         params={
