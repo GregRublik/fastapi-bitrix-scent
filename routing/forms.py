@@ -82,6 +82,7 @@ async def employee_testing(
         }
     )
     list_tests = await list_tests.json()
+    print(list_tests)
     list_end_test = {}
     for i in list_tests['result']['items']:
         if i['ufCrm59_1738323573'] in list_end_test:
@@ -89,17 +90,21 @@ async def employee_testing(
             b = datetime.datetime.fromisoformat(i['createdTime'])
             if a < b.replace(tzinfo=None):
                 list_end_test[i['ufCrm59_1738323573']] = {
+                    'id': i['ufCrm59_1738323573'],
                     'date': datetime.datetime.fromisoformat(i['createdTime']).strftime("%d.%m.%Y %H:%M:%S"),
                     'points': i['ufCrm59_1738313884'],
                     'max_points': i['ufCrm59_1738322964'],
+                    'result': i['ufCrm59_1739788661061'],
                     'count': list_end_test[i['ufCrm59_1738323573']]['count'] + 1}
             else:
                 list_end_test[i['ufCrm59_1738323573']]['count'] += 1
         else:
             list_end_test[i['ufCrm59_1738323573']] = {
+                'id': i['ufCrm59_1738323573'],
                 'date': datetime.datetime.fromisoformat(i['createdTime']).strftime("%d.%m.%Y %H:%M:%S"),
                 'points': i['ufCrm59_1738313884'],
                 'max_points': i['ufCrm59_1738322964'],
+                'result': i['ufCrm59_1739788661061'],
                 'count': 1}
     forms_access = []
     for department_id in user['result']['UF_DEPARTMENT']:
