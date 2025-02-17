@@ -18,7 +18,7 @@ async def app_install(
 ):
     """Обработчик для установки приложения"""
     await update_tokens(access=AUTH_ID, refresh=REFRESH_ID)
-    await reboot_tokens(client_secret=settings.secret)
+    await reboot_tokens(client_secret=settings.client_secret)
     return templates.TemplateResponse(request, name="install.html")
 
 

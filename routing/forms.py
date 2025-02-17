@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Form, Response
+from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse
 from core.config import logger
 from db.database import get_bitrix_auth, get_forms, add_test, add_department, del_test
@@ -42,7 +42,7 @@ async def form_to_sp(
     print(await result.text())
 
 
-@app_forms.post('/employee_testing/', tags=['FORMS'], summary="Панель доступов")
+@app_forms.post('/employee_testing/', tags=['FORMS'], summary="Панель разрешенных тестов")
 @logger.catch
 async def employee_testing(
     request: Request,
