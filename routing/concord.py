@@ -37,9 +37,8 @@ async def task_panel(
     # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
 
     task = await session.get(
-        url=f"{settings.portal_url}rest/tasks.task.get.json",
+        url=f"{settings.portal_url}rest/tasks.task.get.json/?auth={access[0]}",
         json={
-            'auth': access[0],
             'taskId': task_id,
             'select': [
                 'ACCOMPLICES',
