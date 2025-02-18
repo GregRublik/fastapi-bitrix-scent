@@ -35,8 +35,9 @@ async def task_panel(
     task_id = ast.literal_eval(data_parsed['PLACEMENT_OPTIONS'][0])["taskId"]
     access = await get_bitrix_auth()
     # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
+
     task = await session.get(
-        url=f"{settings.portal_url}rest/tasks.task.get.json/",
+        url=f"{settings.portal_url}rest/tasks.task.get.json",
         json={
             'auth': access[0],
             'taskId': task_id,
@@ -49,6 +50,7 @@ async def task_panel(
         }
     )
     task = await task.json()
+    logger.add(f'{task}')
     if 'ufCrmTask' not in task['result']['task']:
         return "Нет привязки элемента к CRM"
     if not task['result']['task']['ufCrmTask']:
