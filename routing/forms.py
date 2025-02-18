@@ -22,7 +22,6 @@ async def form_to_sp(
     answers = ''
     for name_answer, answer in params.answers.items():
         answers += f"{name_answer}: {answer}\n"
-    print(answers)
 
     session = await session_manager.get_session()
     access = await get_bitrix_auth()
@@ -43,7 +42,6 @@ async def form_to_sp(
             }
         }
     )
-    print(await result.text())
 
 
 @app_forms.post('/employee_testing/', tags=['FORMS'], summary="Панель разрешенных тестов")
@@ -74,15 +72,17 @@ async def employee_testing(
         )
 
     list_tests = await session.post(
-        url=f"{settings.portal_url}rest/crm.item.list?",
-        params={
+        url=f"{settings.portal_url}rest/crm.item.list.json?",
+        json={
             'auth': AUTH_ID,
             'entityTypeId': 1098,
-            'filter[ufCrm59_1738323186]': user['result']['ID']
+            'filter': {
+                'ufCrm59_1738323186': user['result']['ID']
+            }
         }
     )
     list_tests = await list_tests.json()
-    print(list_tests)
+
     list_end_test = {}
     for i in list_tests['result']['items']:
         if i['ufCrm59_1738323573'] in list_end_test:
@@ -133,8 +133,8 @@ async def create_forms(
     list_all_department = []
     while True:
         list_department = await session.get(
-            url=f"{settings.portal_url}rest/department.get/",
-            params={
+            url=f"{settings.portal_url}rest/department.get.json",
+            json={
                 'auth': access[0],
                 'sort': 'ID',
                 'start': count
@@ -176,37 +176,3 @@ async def control_forms(
         await add_department(body)
     elif body['type'] == 'test_delete':
         await del_test(body)
-
-
-@app_forms.post('/test_form/', tags=['FORMS'], summary="Создание элемента СП Тестирования")
-@logger.catch
-async def form_to_sp(
-    request: FormRequest,
-):
-    params = request.params
-
-    answers = ''
-    for name_answer, answer in params.answers.items():
-        answers += f"{name_answer}: {answer}\n"
-    print(answers)
-
-    session = await session_manager.get_session()
-    access = await get_bitrix_auth()
-    result = await session.post(
-        url=f"{settings.portal_url}rest/crm.item.add.json?",
-        json={
-            'auth': access[0],
-            'entityTypeId': 1098,
-            'fields': {
-                'ufCrm59_1738313884': params.points,
-                'ufCrm59_1738322964': params.max_points,
-                'ufCrm59_1738323186': params.user_id,
-                'ufCrm59_1738323573': params.form_id,
-                'ufCrm59_1738648993': params.answer_id,
-                'ufCrm59_1739453357': answers,
-                'ufCrm59_1739788661061': params.result,
-                'title': params.form_name
-            }
-        }
-    )
-    print(await result.text())
