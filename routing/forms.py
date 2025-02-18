@@ -132,7 +132,7 @@ async def create_forms(
     count = 0
     list_all_department = []
     while True:
-        list_department = await session.get(
+        list_department = await session.post(
             url=f"{settings.portal_url}rest/department.get.json",
             json={
                 'auth': access[0],
