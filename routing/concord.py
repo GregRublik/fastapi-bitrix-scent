@@ -36,14 +36,16 @@ async def task_panel(
     access = await get_bitrix_auth()
     # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
     task = await session.get(
-        url=f"{settings.portal_url}rest/tasks.task.get/",
-        params={
+        url=f"{settings.portal_url}rest/tasks.task.get.json/",
+        json={
             'auth': access[0],
             'taskId': task_id,
-            'select[0]': 'ACCOMPLICES',
-            'select[1]': 'RESPONSIBLE_ID',
-            'select[2]': 'UF_CRM_TASK',
-            'select[3]': 'TITLE'
+            'select': [
+                'ACCOMPLICES',
+                'RESPONSIBLE_ID',
+                'UF_CRM_TASK',
+                'TITLE'
+            ]
         }
     )
     task = await task.json()
@@ -55,16 +57,18 @@ async def task_panel(
         return "Нет привязки к процессу согласования договора"
     element_id = task['result']['task']['ufCrmTask'][0][4:]
     element = await session.post(
-        url=f"{settings.portal_url}rest/crm.item.get",
-        params={
+        url=f"{settings.portal_url}rest/crm.item.get.json",
+        json={
             'auth': access[0],
             'entityTypeId': 131,
             'id': element_id,
-            'select[0]': 'ufCrm12_1709191865371',
-            'select[1]': 'ufCrm12_1709192259979',
-            'select[2]': 'ufCrm12_1708599567866',
-            'select[3]': 'ufCrm12_1708093511140',
-            'select[4]': 'CREATED_BY',
+            'select': [
+                'ufCrm12_1709191865371',
+                'ufCrm12_1709192259979',
+                'ufCrm12_1708599567866',
+                'ufCrm12_1708093511140',
+                'CREATED_BY'
+            ],
         }
     )
     accomplices = task['result']['task']['accomplices'][0]

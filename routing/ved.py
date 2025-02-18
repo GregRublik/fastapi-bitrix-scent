@@ -3,9 +3,8 @@ from core.config import logger
 from db.database import get_bitrix_auth
 import datetime
 from session_manager import session_manager
-from core.config import settings
+from core.config import settings, check_token
 from fastapi.responses import RedirectResponse
-from functions import check_token
 
 app_ved = APIRouter()
 

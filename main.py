@@ -23,7 +23,7 @@ app.include_router(auth.app_auth)
 app.include_router(concord.app_concord)
 app.include_router(forms.app_forms)
 app.include_router(user.app_user)
-app.include_router(ved.app_ved)
+# app.include_router(ved.app_ved)
 
 application = ASGIMiddleware(app)
 

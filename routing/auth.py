@@ -2,8 +2,7 @@ from fastapi import APIRouter
 from core.config import logger
 from fastapi import Request, Form
 from db.database import update_tokens, get_bitrix_auth
-from core.config import settings, templates
-from functions import check_token
+from core.config import settings, templates, check_token
 from session_manager import session_manager
 
 app_auth = APIRouter()

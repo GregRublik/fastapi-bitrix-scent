@@ -8,9 +8,9 @@ urllib3.disable_warnings()
 
 def update():
     requests.post(
-        url=f"https://sporbita-developers.ru/reboot_tokens/",
+        url=f"{settings.hosting_url}reboot_tokens/",
         params={
-            'client_secret': settings.secret
+            'client_secret': settings.client_secret
         },
         verify=False)
 

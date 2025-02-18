@@ -43,3 +43,7 @@ logger.add(
 templates = Jinja2Templates(directory="templates")
 session_manager = SessionManager.get_instance()
 settings = Settings()
+
+
+def check_token(client_secret):
+    assert client_secret == settings.client_secret, "Invalid Token"
