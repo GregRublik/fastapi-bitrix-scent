@@ -50,7 +50,7 @@ async def task_panel(
         }
     )
     task = await task.json()
-    logger.add(f'{task}')
+    logger.info(f'task - {task}')
     if 'ufCrmTask' not in task['result']['task']:
         return "Нет привязки элемента к CRM"
     if not task['result']['task']['ufCrmTask']:
