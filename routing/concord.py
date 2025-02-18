@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Request
+import json
+
+from fastapi import APIRouter, Request, Form
+from typing import Dict, Any
 from core.config import logger
 from db.database import get_bitrix_auth
 from session_manager import session_manager
@@ -13,37 +16,38 @@ app_concord = APIRouter()
 @app_concord.post("/task_panel/", tags=['CONCORDING'], summary="Панель согласования для задач")
 @logger.catch
 async def task_panel(
-    request: Request,
+        request: Request,
+        AUTH_ID: str = Form(),
+        PLACEMENT_OPTIONS: str = Form(),
+
 ):
     # return templates.TemplateResponse(request, name="install.html")
     """Панель для согласования договора в задаче"""
-    data = await request.body()
-    data_parsed = parse_qs(data.decode())
     session = await session_manager.get_session()
+
+    placement_options = json.loads(PLACEMENT_OPTIONS)
+
     user = await session.post(
         url=f"{settings.portal_url}rest/user.current",
         params={
-            'auth': data_parsed['AUTH_ID'][0]
+            'auth': AUTH_ID
         }
     )
     user_admin = await session.post(
         url=f"{settings.portal_url}rest/user.admin",
         params={
-            'auth': data_parsed['AUTH_ID'][0]
+            'auth': AUTH_ID
         }
     )
-    task_id = ast.literal_eval(data_parsed['PLACEMENT_OPTIONS'][0])["taskId"]
+
     access = await get_bitrix_auth()
     # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
-    task = await session.get(
-        url=f"{settings.portal_url}rest/tasks.task.get/",
-        params={
+    task = await session.post(
+        url=f"{settings.portal_url}rest/tasks.task.get.json/",
+        json={
             'auth': access[0],
-            'taskId': task_id,
-            'select[0]': 'ACCOMPLICES',
-            'select[1]': 'RESPONSIBLE_ID',
-            'select[2]': 'UF_CRM_TASK',
-            'select[3]': 'TITLE'
+            'taskId': placement_options['taskId'],
+            'select': ['ACCOMPLICES', 'RESPONSIBLE_ID', 'UF_CRM_TASK', 'TITLE'],
         }
     )
     task = await task.json()
@@ -55,22 +59,24 @@ async def task_panel(
         return "Нет привязки к процессу согласования договора"
     element_id = task['result']['task']['ufCrmTask'][0][4:]
     element = await session.post(
-        url=f"{settings.portal_url}rest/crm.item.get",
-        params={
+        url=f"{settings.portal_url}rest/crm.item.get.json",
+        json={
             'auth': access[0],
             'entityTypeId': 131,
             'id': element_id,
-            'select[0]': 'ufCrm12_1709191865371',
-            'select[1]': 'ufCrm12_1709192259979',
-            'select[2]': 'ufCrm12_1708599567866',
-            'select[3]': 'ufCrm12_1708093511140',
-            'select[4]': 'CREATED_BY',
+            'select': [
+                'ufCrm12_1709191865371',
+                'ufCrm12_1709192259979',
+                'ufCrm12_1708599567866',
+                'ufCrm12_1708093511140',
+                'CREATED_BY',
+            ],
         }
     )
     accomplices = task['result']['task']['accomplices'][0]
-    accountants = await session.get(
-        url=f"{settings.portal_url}rest/user.search",
-        params={
+    accountants = await session.post(
+        url=f"{settings.portal_url}rest/user.search.json",
+        json={
             'auth': access[0],
             'UF_DEPARTMENT': 114
         }
@@ -107,7 +113,7 @@ async def task_panel(
                 name="task_panel.html",
                 context={
                     'element_id': element_id,
-                    'task_id': task_id,
+                    'task_id': placement_options['taskId'],
                     'user_id': user['result']['ID'],
                     'access': list_access[str(i)],
                     'approval_status': approval_status,
