@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     client_secret: str = Field(env='CLIENT_SECRET')
     client_id: str = Field(env='CLIENT_ID')
     key_405: str = Field(env='KEY_405')
+    sentry_url: str = Field(env='SENTRY_URL')
 
     db: DbSettings = DbSettings()
 

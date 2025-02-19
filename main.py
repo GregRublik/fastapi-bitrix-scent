@@ -6,8 +6,17 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from session_manager import session_manager
-from core.config import logger
+from core.config import logger, settings
 from routing import auth, concord, forms, universal, user, ved
+import sentry_sdk
+
+
+sentry_sdk.init(
+    dsn=settings.sentry_url,
+    send_default_pii=True,
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+)
 
 
 @asynccontextmanager
