@@ -1,13 +1,10 @@
 import json
 
 from fastapi import APIRouter, Request, Form
-from typing import Dict, Any
 from core.config import logger
 from db.database import get_bitrix_auth
 from session_manager import session_manager
 from core.config import templates, settings
-from urllib.parse import parse_qs
-import ast
 
 
 app_concord = APIRouter()

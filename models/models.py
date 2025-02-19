@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, field_validator
 from typing import Dict, Any
 import json
 
@@ -23,7 +23,7 @@ class Params(BaseModel):
     answers: Dict[str, Any]
     result: str
 
-    @validator('answers', pre=True)
+    @field_validator('answers', mode='before')
     def parse_answers(cls, value):
         if isinstance(value, str):
             try:
@@ -32,7 +32,7 @@ class Params(BaseModel):
                 raise ValueError("Invalid JSON string in 'answers'")
         return value
 
-    @validator('result', pre=True)
+    @field_validator('result', mode='before')
     def parse_result(cls, value):
         if value == 'Тест пройден':
             return '4197'

@@ -7,11 +7,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DbSettings(BaseSettings):
-    db_host: str = Field(env='DB_HOST')
-    db_user: str = Field(env='DB_USER')
-    db_pass: str = Field(env='DB_PASS')
-    db_name: str = Field(env='DB_NAME')
-    db_port: int = Field(env='DB_PORT')
+    db_host: str = Field(json_schema_extra={'env': 'DB_HOST'})
+    db_user: str = Field(json_schema_extra={'env': 'DB_USER'})
+    db_pass: str = Field(json_schema_extra={'env': 'DB_PASS'})
+    db_name: str = Field(json_schema_extra={'env': 'DB_NAME'})
+    db_port: int = Field(json_schema_extra={'env': 'DB_PORT'})
 
     model_config = SettingsConfigDict(env_file="db/db.env")
 
@@ -21,12 +21,12 @@ class DbSettings(BaseSettings):
 
 
 class Settings(BaseSettings):
-    hosting_url: str = Field(env='HOSTING_URL')
-    portal_url: str = Field(env='PORTAL_URL')
-    client_secret: str = Field(env='CLIENT_SECRET')
-    client_id: str = Field(env='CLIENT_ID')
-    key_405: str = Field(env='KEY_405')
-    sentry_url: str = Field(env='SENTRY_URL')
+    hosting_url: str = Field(json_schema_extra={'env': 'HOSTING_URL'})
+    portal_url: str = Field(json_schema_extra={'env': 'PORTAL_URL'})
+    client_secret: str = Field(json_schema_extra={'env': 'CLIENT_SECRET'})
+    client_id: str = Field(json_schema_extra={'env': 'CLIENT_ID'})
+    key_405: str = Field(json_schema_extra={'env': 'KEY_405'})
+    sentry_url: str = Field(json_schema_extra={'env': 'SENTRY_URL'})
 
     db: DbSettings = DbSettings()
 
