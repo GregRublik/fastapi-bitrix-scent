@@ -87,7 +87,7 @@ async def del_test(session: AsyncSession, body):
         delete(FormsTests)
         .where(FormsTests.form_id == body['form_id'])
     )
-    result = await session.execute(stmt)
+    await session.execute(stmt)
     await session.commit()
     return True
 
@@ -117,7 +117,6 @@ async def add_department(session: AsyncSession, body):
             accesses=a,
         )
     )
-    result = await session.execute(stmt)
+    await session.execute(stmt)
     await session.commit()
     return True
-
