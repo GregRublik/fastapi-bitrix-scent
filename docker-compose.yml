@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     image: bitrix-fastapi-image:latest  # Укажите имя и тег вашего образа FastAPI
