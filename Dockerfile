@@ -6,4 +6,6 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
+RUN ["alembic", "revision", "--autogenerate"]
+
 CMD ["python", "main.py"]
