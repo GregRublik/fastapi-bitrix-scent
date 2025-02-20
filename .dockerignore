@@ -1,14 +1,9 @@
-.env
-redis.env
 .idea
-db/db.env
 venv
 __pycache__
 doc/**/__pycache__
 logs/app.log
 logs/debug.log
 cgi-bin
-.restart-app
-test.js
 logs/*.zip
-test.html
+README.md

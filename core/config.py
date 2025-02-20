@@ -20,6 +20,15 @@ class DbSettings(BaseSettings):
         return f"mysql+asyncmy://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
 
 
+class RedisSettings(BaseSettings):
+    redis_pass: str = Field(json_schema_extra={'env': 'REDIS_PASS'})
+    redis_user: str = Field(json_schema_extra={'env': 'REDIS_USER'})
+    redis_user_pass: str = Field(json_schema_extra={'env': 'REDIS_USER_PASS'})
+    redis_port: str = Field(json_schema_extra={'env': 'REDIS_PORT'})
+
+    model_config = SettingsConfigDict(env_file="redis.env")
+
+
 class Settings(BaseSettings):
     hosting_url: str = Field(json_schema_extra={'env': 'HOSTING_URL'})
     portal_url: str = Field(json_schema_extra={'env': 'PORTAL_URL'})
@@ -29,6 +38,7 @@ class Settings(BaseSettings):
     sentry_url: str = Field(json_schema_extra={'env': 'SENTRY_URL'})
 
     db: DbSettings = DbSettings()
+    redis: RedisSettings = RedisSettings()
 
     model_config = SettingsConfigDict(env_file=".env")
 
