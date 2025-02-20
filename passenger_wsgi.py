@@ -4,7 +4,7 @@ import os
 
 INTERP = os.path.expanduser("/var/www/u2842936/data/venv/bin/python")
 if sys.executable != INTERP:
-   os.execl(INTERP, INTERP, *sys.argv)
+    os.execl(INTERP, INTERP, *sys.argv)
 
 sys.path.append(os.getcwd())
 

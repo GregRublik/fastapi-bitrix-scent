@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    image: bitrix-fastapi-image:latest  # Укажите имя и тег вашего образа FastAPI
+    container_name: bitrix-fastapi
+    build:
+      context: .  # Укажите путь к Dockerfile для сборки образа FastAPI
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"  # Проброс порта для доступа к FastAPI
+    depends_on:
+      - redis
+      - db
+
+  # Redis
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"  # Проброс порта Redis
+    volumes:
+      - redis_data:/data  # Сохранение данных Redis
+
+  # PostgreSQL
+  db:
+    image: postgres:latest
+    container_name: postgres_db
+    ports:
+      - "5432:5432"  # Проброс порта PostgreSQL
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Сохранение данных PostgreSQL
+
+# Тома для хранения данных
+volumes:
+  redis_data:
+  postgres_data:

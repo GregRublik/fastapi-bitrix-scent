@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from session_manager import session_manager
 from core.config import logger, settings
-from routing import auth, concord, forms, universal, user, ved
+from routing import auth, concord, forms, universal, user
 import sentry_sdk
 
 
@@ -20,7 +20,7 @@ sentry_sdk.init(
 
 
 @asynccontextmanager
-async def lifespan(apps: FastAPI):
+async def lifespan(_apps: FastAPI):
     try:
         yield
     finally:
