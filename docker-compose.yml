@@ -22,12 +22,13 @@ services:
       - 6379:${REDIS_PORT}  # Проброс порта Redis
     volumes:
       - redis_data:/data  # Сохранение данных Redis
+    env_file:
+      - redis.env
     environment:
       - REDIS_PASSWORD=${REDIS_PASS}
       - REDIS_USER=${REDIS_USER}
       - REDIS_USER_PASSWORD=${REDIS_USER_PASS}
-    env_file:
-      - redis.env
+
 
   # PostgreSQL
   db:
@@ -37,12 +38,13 @@ services:
       - 5432:${DB_PORT}  # Проброс порта PostgreSQL
     volumes:
       - postgres_data:/var/lib/postgresql/data  # Сохранение данных PostgreSQL
+    env_file:
+      - db/db.env
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
-    env_file:
-      - db/db.env
+
 
 # Тома для хранения данных
 volumes:

@@ -19,6 +19,10 @@ class DbSettings(BaseSettings):
     def database_url_asyncmy(self):
         return f"mysql+asyncmy://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
 
+    @property
+    def database_url_psycopg2(self):
+        return f"postgresql+psycopg2://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
+
 
 class RedisSettings(BaseSettings):
     redis_pass: str = Field(json_schema_extra={'env': 'REDIS_PASS'})
