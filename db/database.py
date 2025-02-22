@@ -4,10 +4,11 @@ from db.models import BitrixAuth, FormsTests
 from core.config import settings
 from sqlalchemy import update, insert, delete
 from functools import wraps
+from core.config import settings
 
 
 engine = create_async_engine(
-    url=settings.db.database_url_asyncmy,
+    url=settings.db.database_url_asyncpg,
     pool_size=5,
     max_overflow=10
 )
@@ -32,7 +33,24 @@ async def get_bitrix_auth(session: AsyncSession):
     stmt = select(BitrixAuth.access_token, BitrixAuth.refresh_token)
     result = await session.execute(stmt)
     return result.first()
-    
+
+
+@session_manager
+async def insert_tokens(session: AsyncSession, access: str, refresh: str):
+    stmt = (
+        insert(BitrixAuth)
+        .values(
+            owner=77297,
+            name_app="Main",
+            access_token=access,
+            refresh_token=refresh,
+            client_secret=settings.client_secret,
+            client_id=settings.client_id
+        )
+    )
+    await session.execute(stmt)
+    await session.commit()
+
 
 @session_manager
 async def update_tokens(session: AsyncSession, access: str, refresh: str):

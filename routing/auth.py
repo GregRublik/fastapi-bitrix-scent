@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from core.config import logger
 from fastapi import Request, Form
-from db.database import update_tokens, get_bitrix_auth
+from db.database import update_tokens, get_bitrix_auth, insert_tokens
 from core.config import settings, templates, check_token
 from session_manager import session_manager
 
@@ -16,7 +16,9 @@ async def app_install(
     REFRESH_ID: str = Form(...)
 ):
     """Обработчик для установки приложения"""
-    await update_tokens(access=AUTH_ID, refresh=REFRESH_ID)
+    print(await request.form())
+    # await update_tokens(access=AUTH_ID, refresh=REFRESH_ID)
+    await insert_tokens(access=AUTH_ID, refresh=REFRESH_ID)
     await reboot_tokens(client_secret=settings.client_secret)
     return templates.TemplateResponse(request, name="install.html")
 

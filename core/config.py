@@ -20,17 +20,17 @@ class DbSettings(BaseSettings):
         return f"mysql+asyncmy://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
 
     @property
-    def database_url_psycopg2(self):
-        return f"postgresql+psycopg2://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
+    def database_url_asyncpg(self):
+        return f"postgresql+asyncpg://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
 
 
-class RedisSettings(BaseSettings):
-    redis_pass: str = Field(json_schema_extra={'env': 'REDIS_PASS'})
-    redis_user: str = Field(json_schema_extra={'env': 'REDIS_USER'})
-    redis_user_pass: str = Field(json_schema_extra={'env': 'REDIS_USER_PASS'})
-    redis_port: str = Field(json_schema_extra={'env': 'REDIS_PORT'})
-
-    model_config = SettingsConfigDict(env_file="redis.env")
+# class RedisSettings(BaseSettings):
+#     redis_pass: str = Field(json_schema_extra={'env': 'REDIS_PASS'})
+#     redis_user: str = Field(json_schema_extra={'env': 'REDIS_USER'})
+#     redis_user_pass: str = Field(json_schema_extra={'env': 'REDIS_USER_PASS'})
+#     redis_port: str = Field(json_schema_extra={'env': 'REDIS_PORT'})
+#
+#     model_config = SettingsConfigDict(env_file="redis.env")
 
 
 class Settings(BaseSettings):
@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     sentry_url: str = Field(json_schema_extra={'env': 'SENTRY_URL'})
 
     db: DbSettings = DbSettings()
-    redis: RedisSettings = RedisSettings()
+    # redis: RedisSettings = RedisSettings()
 
     model_config = SettingsConfigDict(env_file=".env")
 

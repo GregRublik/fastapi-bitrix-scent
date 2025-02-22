@@ -53,7 +53,7 @@ if __name__ == "__main__":
             )
         else:
             uvicorn.run(
-                application,
+                app,
                 host="0.0.0.0",
                 log_config="logs/log_config.json",
                 use_colors=True,

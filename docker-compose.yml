@@ -1,52 +1,53 @@
 services:
   app:
-    image: bitrix-fastapi-image:latest  # Укажите имя и тег вашего образа FastAPI
+    image: bitrix-fastapi-image:latest
     container_name: bitrix-fastapi
     build:
-      context: .  # Укажите путь к Dockerfile для сборки образа FastAPI
+      context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"  # Проброс порта для доступа к FastAPI
+      - "8000:8000"
     depends_on:
-      - redis
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .env
       - db/db.env
-
-  # Redis
-  redis:
-    image: redis:latest
-    container_name: redis
-    ports:
-      - 6379:${REDIS_PORT}  # Проброс порта Redis
-    volumes:
-      - redis_data:/data  # Сохранение данных Redis
-    env_file:
-      - redis.env
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASS}
-      - REDIS_USER=${REDIS_USER}
-      - REDIS_USER_PASSWORD=${REDIS_USER_PASS}
+    command: >
+      sh -c "while ! nc -z db 5432; do sleep 1; done &&
+      alembic upgrade head &&
+      uvicorn main:app --host 0.0.0.0 --port 8000"
+    networks:
+          - mynetwork
 
 
-  # PostgreSQL
   db:
     image: postgres:latest
     container_name: postgres_db
     ports:
-      - 5432:${DB_PORT}  # Проброс порта PostgreSQL
+      - 5432:${DB_PORT}
     volumes:
-      - postgres_data:/var/lib/postgresql/data  # Сохранение данных PostgreSQL
+      - postgres_data:/var/lib/postgresql/data
     env_file:
       - db/db.env
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynetwork
 
+
+networks:
+  mynetwork:
+    driver: bridge
 
 # Тома для хранения данных
 volumes:
-  redis_data:
+#  redis_data:
   postgres_data:
