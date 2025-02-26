@@ -19,11 +19,11 @@ async def main(
 @app_univers.get("/send_message/", tags=['UNIVERSAL'], summary="Отправить сообщение от лизы")
 @logger.catch
 async def send_message(
-    client_secret: str,
+    # client_secret: str,
     message: str,
     recipient: int
 ):
-    check_token(client_secret)
+    # check_token(client_secret)
     session = await session_manager.get_session()
     result = await session.get(
         url=f"{settings.portal_url}rest/55810/{settings.key_405}/im.message.add.json",

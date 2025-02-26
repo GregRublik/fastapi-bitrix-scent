@@ -11,3 +11,5 @@ cgi-bin
 test.js
 logs/*.zip
 test.html
+old.env
+redis.env
