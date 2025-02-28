@@ -13,7 +13,7 @@ class DbSettings(BaseSettings):
     db_name: str = Field(json_schema_extra={'env': 'DB_NAME'})
     db_port: int = Field(json_schema_extra={'env': 'DB_PORT'})
 
-    model_config = SettingsConfigDict(env_file="db/db.env")
+    model_config = SettingsConfigDict(env_prefix="DB_", env_file=".env", extra="ignore")
 
     @property
     def database_url_asyncmy(self):
@@ -30,7 +30,7 @@ class Settings(BaseSettings):
 
     db: DbSettings = DbSettings()
 
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
 logger.add(

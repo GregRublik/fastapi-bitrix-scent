@@ -1,6 +1,6 @@
 .env
 .idea
-db/db.env
+db.env
 venv
 __pycache__
 doc/**/__pycache__
