@@ -56,6 +56,7 @@ async def employee_testing(
     forms = await get_forms()
     session = await session_manager.get_session()
     params = json.loads(PLACEMENT_OPTIONS)
+    access = await get_bitrix_auth()
 
     user = await session.post(
         url=f"{settings.portal_url}rest/user.current?",
@@ -74,7 +75,7 @@ async def employee_testing(
     list_tests = await session.post(
         url=f"{settings.portal_url}rest/crm.item.list.json?",
         json={
-            'auth': AUTH_ID,
+            'auth': access[0],
             'entityTypeId': 1098,
             'filter': {
                 'ufCrm59_1738323186': user['result']['ID']
