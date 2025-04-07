@@ -12,24 +12,24 @@
     <div class="test-block" id="test-block-{{form[0]}}">
         <a href="{{ form[2] }}?user_id={{ user_id }}">{{ form[1] }}</a>
         {% if list_end_test[form[0]] %}
-        <p>Результат: {{ list_end_test[form[0]]['points'] }} / {{ list_end_test[form[0]]['max_points'] }}</p>
+        <p>Последний результат: {{ list_end_test[form[0]]['points'] }} / {{ list_end_test[form[0]]['max_points'] }}</p>
         <p>Кол-во попыток: {{ list_end_test[form[0]]['count'] }}</p>
-        <p>Дата последнего прохождения: {{ list_end_test[form[0]]['date']}}</p>
+        <p>Последняя попытка: {{ list_end_test[form[0]]['date']}}</p>
         <style type="text/css">
             {% if list_end_test[form[0]]['result'] == 4199 %}
             #test-block-{{form[0]}} {
-                background-color: red;
+                background-color: #FF8284;
             }
             {% elif list_end_test[form[0]]['result'] == 4197 %}
             #test-block-{{form[0]}} {
-                background-color: green;
+                background-color: #96E38D;
             }
             {% endif %}
         </style>
         {% else%}
         <style type="text/css">
         #test-block-{{form[0]}} {
-                background-color: gray;
+                background-color: #D3D3D3;
             }
         </style>
         {% endif %}
