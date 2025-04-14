@@ -34,9 +34,9 @@ class Params(BaseModel):
 
     @field_validator('result', mode='before')
     def parse_result(cls, value):
-        if value == 'Тест пройден':
+        if value == 'Поздравляем, вы сдали тест!':
             return '4197'
-        elif value == 'Тест провален':
+        elif value == 'Вы не прошли тест':
             return '4199'
         return '0'
 
