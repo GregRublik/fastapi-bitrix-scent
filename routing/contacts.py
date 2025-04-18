@@ -66,40 +66,35 @@ async def activity_update(
 
     # если это ненужное нам дело, то мы ничего не далаем
     if provider_type_id not in ['CALL', 'EMAIL'] and provider_id != 'IMOPENLINES_SESSION':
-        print({'status_code': 200, 'detail': 'case is not call, email, message'})
         return {'status_code': 200, 'detail': 'case is not call, email, message'}
 
     # звонок
     elif provider_type_id == 'CALL':
-        print(f"Phone activity: {case_id}")
+        # print(f"Phone activity: {case_id}")
 
         # если это пропущенный звонок, то мы ничего не делаем
         if activity['result']['SETTINGS'].get('MISSED_CALL', False):
-            print(f"call missed activity: {case_id}")
-
+            pass
+        # если это входящий и его просто отметили как обработанный
         elif activity['result']['COMPLETED'] == 'Y' and activity['result']['DIRECTION'] == '1':
-            print(f"call closed activity: {case_id}")
-
+            pass
         # если это входящий или исходящий не пропущенный, то надо заполнить дату
         else:
             updated_owner = await update_time_activity( )
-            print(f'--------------> add time to field (call) : {owner_id}, type : {owner_type_id}')
 
     # почта
     elif provider_type_id == 'EMAIL':
-        print(f"Email activity: {case_id}")
+        # print(f"Email activity: {case_id}")
 
         # только если это новое письмо (вход, исход)
         if data.get('event') == 'ONCRMACTIVITYADD':
             updated_owner = await update_time_activity()
-            print(f'--------------> add time to field (email) : {owner_id}, type : {owner_type_id}')
 
     # мессенджер
     elif provider_id == 'IMOPENLINES_SESSION':
-        print(f"Message activity: {case_id}")
+        # print(f"Message activity: {case_id}")
         if activity['result']['COMPLETED'] == 'Y':
-            print(f"chat closed activity: {case_id}")
-            # return {'status_code': 200, 'detail': 'chat closed'}
+            pass
         else:
             updated_owner = await update_time_activity()
-            print(f'--------------> add time to field (message) : {owner_id}, type : {owner_type_id} ')
+    return {'status_code': 200}
