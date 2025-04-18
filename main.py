@@ -5,9 +5,10 @@ from a2wsgi import ASGIMiddleware
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 from session_manager import session_manager
 from core.config import logger, settings
-from routing import auth, concord, forms, universal, user, ved
+from routing import auth, concord, forms, universal, user, ved, contacts
 import sentry_sdk
 
 
@@ -32,7 +33,7 @@ app.include_router(auth.app_auth)
 app.include_router(concord.app_concord)
 app.include_router(forms.app_forms)
 app.include_router(user.app_user)
-# app.include_router(ved.app_ved)
+app.include_router(contacts.contacts)
 
 application = ASGIMiddleware(app)
 
