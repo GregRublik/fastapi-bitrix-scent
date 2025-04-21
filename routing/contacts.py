@@ -39,6 +39,29 @@ async def activity_update(
     async def update_time_activity():
         # owner_type_id - 3 contact, 4 company
         if owner_type_id == '3':
+
+            # список компаний которые привязаны к данному контакту
+            list_company = await session.post(
+                url=f"{settings.portal_url}rest/crm.contact.company.items.get.json",
+                json={
+                    'auth': access[0],
+                    'id': owner_id,
+                }
+            )
+            list_company= await list_company.json()
+            # обновление "даты последнего контакта" во всех компаниях связанных с контактом
+            for company in list_company['result']:
+                await session.post(
+                    url=f"{settings.portal_url}rest/crm.company.update.json",
+                    json={
+                        'auth': access[0],
+                        'id': company['COMPANY_ID'],
+                        'fields': {
+                            'UF_CRM_1744886793': datetime.datetime.now().isoformat()
+                        }
+                    }
+                )
+
             return await session.post(
                 url=f"{settings.portal_url}rest/crm.contact.update.json",
                 json={
