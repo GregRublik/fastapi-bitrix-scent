@@ -3,6 +3,7 @@ from core.config import logger, check_token
 from db.database import get_bitrix_auth
 from session_manager import session_manager
 from core.config import templates, settings
+from asyncio import sleep
 
 
 app_univers = APIRouter()
@@ -57,3 +58,34 @@ async def main_handler(
     )
     result = await result.json()
     return {'status_code': 200, 'result': result}
+
+
+@app_univers.post('/activity_close/', tags=["UNIVERSAL"], summary="Главный обработчик")
+@logger.catch
+async def main_handler(
+    owner_id: int,
+    type_owner_id: int,
+    client_secret: str,
+):
+    check_token(client_secret)
+    access = await get_bitrix_auth()
+    session = await session_manager.get_session()
+    list_activity = await session.get(
+        url=f"{settings.portal_url}rest/crm.activity.list?auth={access[0]}&filter[OWNER_ID]={owner_id}]&filter[OWNER_TYPE_ID]={type_owner_id}&filter[COMPLETED]=N",
+    )
+    list_activity = await list_activity.json()
+    for activity in list_activity["result"]:
+        await sleep(0.1)
+        result = await session.post(
+            url=f"{settings.portal_url}rest/crm.activity.update?",
+            json={
+                "auth": access[0],
+                'id':activity["ID"],
+                "fields": {
+                    "OWNER_ID": activity['OWNER_ID'],
+                    "OWNER_TYPE_ID": activity['OWNER_TYPE_ID'],
+                    "TYPE_ID": activity['TYPE_ID'],
+                    "COMPLETED": 'Y'
+                }
+            }
+        )

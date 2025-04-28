@@ -27,7 +27,8 @@ async def activity_update(
         params={
             'auth': access[0],
             'ID': activity_id
-        })
+        }
+    )
     activity = await activity.json()
 
     provider_type_id = activity['result']['PROVIDER_TYPE_ID']
