@@ -71,21 +71,26 @@ async def main_handler(
     access = await get_bitrix_auth()
     session = await session_manager.get_session()
     list_activity = await session.get(
-        url=f"{settings.portal_url}rest/crm.activity.list?auth={access[0]}&filter[OWNER_ID]={owner_id}]&filter[OWNER_TYPE_ID]={type_owner_id}&filter[COMPLETED]=N",
+        url=(
+            f"{settings.portal_url}rest/crm.activity.list?auth={access[0]}&"
+            f"filter[OWNER_ID]={owner_id}]&filter[COMPLETED]=N&"
+            f"select[0]=ID&select[1]=OWNER_ID&select[2]=OWNER_TYPE_ID&select[3]=TYPE_ID"
+        ),
     )
     list_activity = await list_activity.json()
     for activity in list_activity["result"]:
-        await sleep(0.1)
-        result = await session.post(
-            url=f"{settings.portal_url}rest/crm.activity.update?",
-            json={
-                "auth": access[0],
-                'id':activity["ID"],
-                "fields": {
-                    "OWNER_ID": activity['OWNER_ID'],
-                    "OWNER_TYPE_ID": activity['OWNER_TYPE_ID'],
-                    "TYPE_ID": activity['TYPE_ID'],
-                    "COMPLETED": 'Y'
+        if activity["TYPE_ID"] == '4':
+            await sleep(0.01)
+            result = await session.post(
+                url=f"{settings.portal_url}rest/crm.activity.update?",
+                json={
+                    "auth": access[0],
+                    'id':activity["ID"],
+                    "fields": {
+                        # "OWNER_ID": activity['OWNER_ID'],
+                        # "OWNER_TYPE_ID": activity['OWNER_TYPE_ID'],
+                        "TYPE_ID": activity['TYPE_ID'],
+                        "COMPLETED": 'Y'
+                    }
                 }
-            }
-        )
+            )
