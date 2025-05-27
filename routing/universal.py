@@ -50,14 +50,15 @@ async def main_handler(
     check_token(client_secret)
     access = await get_bitrix_auth()
     session = await session_manager.get_session()
-    result = await session.get(
+    response = await session.get(
         url=f"{settings.portal_url}rest/{method}?{params}",
         params={
             'auth': access[0]
         }
     )
-    result = await result.json()
-    return {'status_code': 200, 'result': result}
+
+    result = await response.json()
+    return {'status_code': response.status, 'result': result, "methods": dir(result), }
 
 
 @app_univers.post('/activity_close/', tags=["UNIVERSAL"], summary="Главный обработчик")

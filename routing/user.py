@@ -38,7 +38,7 @@ async def invite_an_employee(
         await session.get(
             url=f"{settings.hosting_url}send_message/",
             params={
-                'client_secret': settings.secret,
+                'client_secret': settings.client_secret,
                 'message': (
                     f"Ошибка при приглашении: [url={settings.portal_url}page/hr/protsess_adaptatsii_sotrudnika_2/"
                     f"type/191/details/{adaptation_id}/]Процесс: [/url]{new_user['error_description']}"
