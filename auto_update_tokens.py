@@ -19,7 +19,7 @@ status = True
 try:
     update()
     while status:
-        time.sleep(3600)
+        time.sleep(3500)
         update()
 except KeyboardInterrupt:
     print('Exiting....')
