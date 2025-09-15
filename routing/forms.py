@@ -32,12 +32,12 @@ async def form_to_sp(
             'entityTypeId': 1098,
             'fields': {
                 'ufCrm59_1738313884': params.points,
-                'ufCrm59_1738322964': params.max_points,
+                'ufCrm59_1756812190971': params.max_points,
                 'ufCrm59_1738323186': params.user_id,
                 'ufCrm59_1738323573': params.form_id,
                 'ufCrm59_1738648993': params.answer_id,
                 'ufCrm59_1739453357': answers,
-                'ufCrm59_1739788661061': params.result,
+                'ufCrm59_1756449763': params.result,
                 'title': params.form_name
             }
         }
@@ -94,8 +94,8 @@ async def employee_testing(
                     'id': test['ufCrm59_1738323573'],
                     'date': datetime.datetime.fromisoformat(test['createdTime']).strftime("%d.%m.%Y %H:%M:%S"),
                     'points': test['ufCrm59_1738313884'],
-                    'max_points': test['ufCrm59_1738322964'],
-                    'result': test['ufCrm59_1739788661061'],
+                    'max_points': test['ufCrm59_1756812190971'],
+                    'result': test['ufCrm59_1756449763'],
                     'count': list_end_test[test['ufCrm59_1738323573']]['count'] + 1}
             else:
                 list_end_test[test['ufCrm59_1738323573']]['count'] += 1
@@ -104,8 +104,8 @@ async def employee_testing(
                 'id': test['ufCrm59_1738323573'],
                 'date': datetime.datetime.fromisoformat(test['createdTime']).strftime("%d.%m.%Y %H:%M:%S"),
                 'points': test['ufCrm59_1738313884'],
-                'max_points': test['ufCrm59_1738322964'],
-                'result': test['ufCrm59_1739788661061'],
+                'max_points': test['ufCrm59_1756812190971'],
+                'result': test['ufCrm59_1756449763'],
                 'count': 1}
     forms_access = []
     for department_id in user['result']['UF_DEPARTMENT']:
