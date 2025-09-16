@@ -16,11 +16,11 @@
         <p>Кол-во попыток: {{ list_end_test[form[0]]['count'] }}</p>
         <p>Последняя попытка: {{ list_end_test[form[0]]['date']}}</p>
         <style type="text/css">
-            {% if list_end_test[form[0]]['result'] == 4199 %}
+            {% if list_end_test[form[0]]['result'] == "Тест провален" %}
             #test-block-{{form[0]}} {
                 background-color: #FF8284;
             }
-            {% elif list_end_test[form[0]]['result'] == 4197 %}
+            {% elif list_end_test[form[0]]['result'] == "Тест пройден" %}
             #test-block-{{form[0]}} {
                 background-color: #96E38D;
             }
