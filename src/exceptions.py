@@ -4,6 +4,11 @@ class ModelAlreadyExistsException(BaseException):
 class ModelNoFoundException(BaseException):
     """Объект не найден"""
 
+class FormsTestsNoFoundException(ModelNoFoundException):
+    """Результат теста не найден"""
+
+    detail = "form test no found"
+
 class ModelMultipleResultsFoundException(BaseException):
     """При ожидании одного объекта нашлось несколько экземпляров"""
 

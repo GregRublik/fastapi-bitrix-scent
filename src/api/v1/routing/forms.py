@@ -3,8 +3,6 @@ from typing import Annotated
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import RedirectResponse
 from config import logger
-from repositories.form import FormsTestsRepository
-# from db.database import get_bitrix_auth, get_forms, add_test, add_department, del_test
 from schemas.models import FormRequest
 from config import settings, templates
 import datetime
@@ -169,6 +167,6 @@ async def control_forms(
         body['form_id'] = body['url'][26:50:]
         await form_service.add_form_if_not_exists(body)
     elif body['type'] == 'add_access':
-        await add_department(body)
+        await form_service.add_access_to_form_department(body['form_id'], body)
     elif body['type'] == 'test_delete':
-        await del_test(body)
+        await form_service.delete_form(body['form_id'])

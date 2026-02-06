@@ -1,4 +1,4 @@
-from exceptions import ModelNoFoundException
+from exceptions import ModelNoFoundException, FormsTestsNoFoundException
 from models.form import FormsTests
 from repositories.base import SQLAlchemyRepository
 from repositories.form import FormsTestsRepository
@@ -26,3 +26,27 @@ class FormService:
         except ModelNoFoundException:
             async with self.uow:
                 return await self.repository.add_one(self.uow.session, body)
+
+    async def delete_form(self, form_id: int) -> FormsTests:
+        async with self.uow:
+            return await self.repository.delete_by_id(self.uow.session, form_id)
+
+    async def update_form(self, form_id: int, form_data: dict):
+        async with self.uow:
+            return await self.repository.change_one(self.uow.session, form_id, form_data)
+
+    async def add_access_to_form_department(self, form_id: int, form_data: dict):
+        try:
+            form_db = await self.get_form_by_id(form_id)
+
+            if form_db.accesses:
+                list_department = form_db.accesses
+                list_department.append(str(form_data['department']))
+            else:
+                list_department = [str(form_data['department'])]
+
+            async with self.uow:
+                return await self.repository.change_one(self.uow.session, form_id, {"accesses": list_department})
+
+        except ModelNoFoundException:
+            raise FormsTestsNoFoundException
