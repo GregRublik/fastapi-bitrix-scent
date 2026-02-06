@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Request, Form
-from core.config import logger
-from db.database import get_bitrix_auth
+from typing import Annotated
+
+from fastapi import APIRouter, Request, Depends
+from config import logger
 import datetime
-from session_manager import session_manager
-from core.config import settings, check_token
-from fastapi.responses import RedirectResponse
+from services.bitrix import BitrixService
+from depends import get_bitrix_service
 
 contacts = APIRouter()
 
@@ -13,23 +13,21 @@ contacts = APIRouter()
 @logger.catch
 async def activity_update(
     request: Request,
+    bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
 ):
     """
-    Обработчик для дела. Фиксирует последнюю активность с клиентом"
+    Обработчик для дела. Фиксирует последнюю активность с клиентом
     """
     data = await request.form()
     activity_id = data.get('data[FIELDS][ID]')
 
-    access = await get_bitrix_auth()
-    session = await session_manager.get_session()
-    activity = await session.get(
-        url=f"{settings.portal_url}rest/crm.activity.get",
+    activity = await bitrix_service.send_request(
+        'crm.activity.get',
+        'get',
         params={
-            'auth': access[0],
             'ID': activity_id
         }
     )
-    activity = await activity.json()
 
     provider_type_id = activity['result']['PROVIDER_TYPE_ID']
     provider_id = activity['result']['PROVIDER_ID']
@@ -41,61 +39,51 @@ async def activity_update(
     async def update_time_activity():
         # owner_type_id - 2 deal, 3 contact, 4 company
 
-        list_owner = await session.post(
-            url=f"{settings.portal_url}rest/crm.activity.binding.list.json",
-            json={
-                'auth': access[0],
-                'activityId': activity_id,
-            }
+        list_owner = await bitrix_service.send_request(
+            'crm.activity.binding.list.json',
+            json={'activityId': activity_id,}
         )
-        list_owner = await list_owner.json()
+
         for owner in list_owner['result']:
             if owner['entityTypeId'] == 3:
-                list_company = await session.post(
-                    url=f"{settings.portal_url}rest/crm.contact.company.items.get.json",
+                list_company = await bitrix_service.send_request(
+                    'crm.contact.company.items.get.json',
                     json={
-                        'auth': access[0],
                         'id': owner['entityId'],
                     }
                 )
-                list_company = await list_company.json()
                 # обновление "даты последнего контакта" во всех компаниях связанных с контактом
                 for company in list_company['result']:
-                    await session.post(
-                        url=f"{settings.portal_url}rest/crm.company.update.json",
+                    await bitrix_service.send_request(
+                        'crm.company.update.json',
                         json={
-                            'auth': access[0],
                             'id': company['COMPANY_ID'],
                             'fields': {
                                 'UF_CRM_1744886793': datetime.datetime.now().isoformat()
                             }
                         }
                     )
-
-                updated_contact = await session.post(
-                    url=f"{settings.portal_url}rest/crm.contact.update.json",
+                updated_contact = await bitrix_service.send_request(
+                    'crm.contact.update.json',
                     json={
-                        'auth': access[0],
                         'id': owner['entityId'],
                         'fields': {
                             'UF_CRM_1744886984': datetime.datetime.now().isoformat()
                         }
                     }
                 )
-                return await updated_contact.json()
+                return updated_contact
             elif owner['entityTypeId'] == 4:
-                updated_contact = await session.post(
-                    url=f"{settings.portal_url}rest/crm.company.update.json",
+                updated_company = await bitrix_service.send_request(
+                    'crm.company.update.json',
                     json={
-                        'auth': access[0],
                         'id': owner['entityId'],
                         'fields': {
                             'UF_CRM_1744886793': datetime.datetime.now().isoformat()
                         }
                     }
                 )
-                updated_contact = await updated_contact.json()
-                return updated_contact
+                return updated_company
     # звонок
     if provider_type_id == 'CALL':
         # если это пропущенный звонок, то мы ничего не делаем

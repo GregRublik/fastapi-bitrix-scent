@@ -1,64 +1,58 @@
 import json
 
-from fastapi import APIRouter, Request, Form
-from core.config import logger
-from db.database import get_bitrix_auth
-from session_manager import session_manager
-from core.config import templates, settings
+from fastapi import APIRouter, Request, Form, Depends
+from config import templates, settings, logger
+
+from typing import Annotated
+from services.bitrix import BitrixService
+from depends import get_bitrix_service
+
+router = APIRouter()
 
 
-app_concord = APIRouter()
-
-
-@app_concord.post("/task_panel/", tags=['CONCORDING'], summary="Панель согласования для задач")
+@router.post("/task_panel/", tags=['CONCORDING'], summary="Панель согласования для задач")
 @logger.catch
 async def task_panel(
         request: Request,
-        AUTH_ID: str = Form(),
-        PLACEMENT_OPTIONS: str = Form(),
-
+        bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
+        AUTH_ID: str = Form(), # noqa
+        PLACEMENT_OPTIONS: str = Form(), # noqa
 ):
-    # return templates.TemplateResponse(request, name="install.html")
     """Панель для согласования договора в задаче"""
-    session = await session_manager.get_session()
 
     placement_options = json.loads(PLACEMENT_OPTIONS)
 
-    user = await session.post(
-        url=f"{settings.portal_url}rest/user.current",
-        params={
-            'auth': AUTH_ID
-        }
+    user = await bitrix_service.send_request(
+        "user.current",
+        "post",
+        auth=AUTH_ID
     )
-    user_admin = await session.post(
-        url=f"{settings.portal_url}rest/user.admin",
-        params={
-            'auth': AUTH_ID
-        }
+    user_admin = await bitrix_service.send_request(
+        "user.admin",
+        "post",
+        auth=AUTH_ID
     )
 
-    access = await get_bitrix_auth()
     # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
-    task = await session.post(
-        url=f"{settings.portal_url}rest/tasks.task.get.json/",
-        json={
-            'auth': access[0],
+    task = await bitrix_service.send_request(
+        "tasks.task.get.json",
+        json = {
             'taskId': placement_options['taskId'],
             'select': ['ACCOMPLICES', 'RESPONSIBLE_ID', 'UF_CRM_TASK', 'TITLE'],
         }
     )
-    task = await task.json()
+
     if 'ufCrmTask' not in task['result']['task']:
         return "Нет привязки элемента к CRM"
     if not task['result']['task']['ufCrmTask']:
         return "Нет привязки элемента к CRM"
     if task['result']['task']['ufCrmTask'][0][:4] != 'T83_':
         return "Нет привязки к процессу согласования договора"
+
     element_id = task['result']['task']['ufCrmTask'][0][4:]
-    element = await session.post(
-        url=f"{settings.portal_url}rest/crm.item.get.json",
+    element = await bitrix_service.send_request(
+        "crm.item.get.json",
         json={
-            'auth': access[0],
             'entityTypeId': 131,
             'id': element_id,
             'select': [
@@ -71,23 +65,20 @@ async def task_panel(
         }
     )
     accomplices = task['result']['task']['accomplices'][0]
-    accountants = await session.post(
-        url=f"{settings.portal_url}rest/user.search.json",
+    accountants = await bitrix_service.send_request(
+        'user.search.json',
         json={
-            'auth': access[0],
             'UF_DEPARTMENT': 114
         }
     )
-    accountants = await accountants.json()
+
     list_accountants = []
     for i in accountants["result"]:
         list_accountants.append(i["ID"])
     for a in task['result']['task']['accomplices']:
         if a in list_accountants:
             accomplices = a
-    element = await element.json()
-    user = await user.json()
-    user_admin = await user_admin.json()
+
     list_access = {
         '114': 'accountant',
         '94': 'lawyer',
@@ -118,7 +109,6 @@ async def task_panel(
                     'accomplices': accomplices,
                     'responsible': task['result']['task']['responsibleId'],
                     'title_task': task['result']['task']['title'],
-                    'auth': access[0],
                     'comment_accountant':
                         element['result']["item"]['ufCrm12_1708599567866'],
                     'created_by': element['result']["item"]['createdBy'],

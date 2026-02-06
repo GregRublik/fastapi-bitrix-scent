@@ -13,3 +13,4 @@ logs/*.zip
 test.html
 old.env
 redis.env
+.venv

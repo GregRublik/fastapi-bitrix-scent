@@ -1,0 +1,20 @@
+[project]
+name = "fastapi-bitrix-scent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "a2wsgi>=1.10.10",
+    "aiohttp>=3.13.3",
+    "apscheduler>=3.11.2",
+    "asyncmy>=0.2.11",
+    "fastapi[standard]>=0.128.0",
+    "jinja2>=3.1.6",
+    "loguru>=0.7.3",
+    "pydantic-settings>=2.12.0",
+    "pytest>=9.0.2",
+    "sentry-sdk>=2.51.0",
+    "sqlalchemy>=2.0.46",
+    "uvicorn>=0.40.0",
+]

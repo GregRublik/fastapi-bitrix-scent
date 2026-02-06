@@ -1,4 +1,5 @@
 import sys
+sys.path.append('/src')
 
 import os
 
@@ -8,4 +9,4 @@ if sys.executable != INTERP:
 
 sys.path.append(os.getcwd())
 
-from main import application
+from main import application # noqa
