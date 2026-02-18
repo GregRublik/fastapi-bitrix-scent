@@ -5,11 +5,10 @@ from config import logger, templates
 from services.bitrix import BitrixService
 from depends import get_bitrix_service
 
-app_auth = APIRouter()
+router = APIRouter()
 
 
-@app_auth.post("/install/", tags=['AUTHENTICATION'], summary="Установка приложения на портал")
-@logger.catch
+@router.post("/install/", tags=['AUTHENTICATION'], summary="Установка приложения на портал")
 async def app_install(
     request: Request,
     bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],

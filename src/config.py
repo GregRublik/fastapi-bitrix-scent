@@ -34,7 +34,12 @@ class DbSettings(BaseSettings):
 
     @property
     def dsn_asyncmy(self):
-        return f"mysql+asyncmy://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
+        return f"mysql+asyncmy://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
+
+    @property
+    def dsn_asyncpg(self):
+        return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
+
 
 
 class BitrixSettings(BaseSettings):
@@ -51,7 +56,6 @@ class BitrixSettings(BaseSettings):
 
 class Settings(BaseSettings):
     hosting_url: str
-    sentry_url: str
 
     host: str
     port: int

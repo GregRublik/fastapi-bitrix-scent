@@ -1,7 +1,7 @@
 import json
 
 from fastapi import APIRouter, Request, Form, Depends
-from config import templates, settings, logger
+from config import templates, settings
 
 from typing import Annotated
 from services.bitrix import BitrixService
@@ -11,7 +11,6 @@ router = APIRouter()
 
 
 @router.post("/task_panel/", tags=['CONCORDING'], summary="Панель согласования для задач")
-@logger.catch
 async def task_panel(
         request: Request,
         bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],

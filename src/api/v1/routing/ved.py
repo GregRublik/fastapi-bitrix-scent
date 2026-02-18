@@ -1,23 +1,20 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Request, Depends
-from config import logger
-from db.database import get_bitrix_auth
 import datetime
 from config import settings
 from fastapi.responses import RedirectResponse
 
-from depends import verify_api_key
+from depends import verify_api_key, get_bitrix_service
 from services.bitrix import BitrixService
 
-app_ved = APIRouter()
+app_ved = APIRouter(tags=['PURCHASE VED'])
 
 
-@app_ved.post("/activity_update/", tags=['PURCHASE VED'], summary="Записывает дату прихода на наш склад в историю")
-@logger.catch
+@app_ved.post("/activity_update/", summary="Записывает дату прихода на наш склад в историю")
 async def activity_update(
     request: Request,
-    bitrix_service: Annotated[BitrixService, Depends(BitrixService)],
+    bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
     authorized: bool = Depends(verify_api_key),
 ):
     """
@@ -70,15 +67,14 @@ async def activity_update(
     return {'status_code': 400, 'result': 'you invalid'}
 
 
-@app_ved.post("/handler/", tags=['PURCHASE VED'], summary="Отправляет сообщение с кнопкой")
-@logger.catch
+@app_ved.post("/handler/", summary="Отправляет сообщение с кнопкой")
 async def handler(
     id_element: str,
     date_old: str,
     date_new: str,
     link_element: str,
     name_element: str,
-    bitrix_service: Annotated[BitrixService, Depends(BitrixService)],
+    bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
     authorized: bool = Depends(verify_api_key),
 ):
     """
@@ -122,11 +118,10 @@ async def handler(
     return {"status_code": 200, 'result': message}
 
 
-@app_ved.get('/handler_button/', tags=['PURCHASE VED'], summary="Обработчик нажатия на кнопку")
-@logger.catch
+@app_ved.get('/handler_button/', summary="Обработчик нажатия на кнопку")
 async def handler_button(
     item_id: int,
-    bitrix_service: Annotated[BitrixService, Depends(BitrixService)],
+    bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
     authorized: bool = Depends(verify_api_key),
 ):
     """

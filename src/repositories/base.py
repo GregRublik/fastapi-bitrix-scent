@@ -32,6 +32,16 @@ class SQLAlchemyRepository(AbstractRepository):
     """
     model = None
 
+    async def get_first(self, session: AsyncSession):
+        stmt = select(self.model).limit(1)
+        try:
+            result = await session.scalar(stmt)
+            if result is None:
+                raise ModelNoFoundException
+            return result.to_read_model()
+        except NoResultFound:
+            raise ModelNoFoundException
+
     async def add_one(self, session: AsyncSession, data: dict):
         stmt = insert(self.model).values(**data).returning(self.model)
         try:

@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import RedirectResponse
-from config import logger
 from schemas.models import FormRequest
 from config import settings, templates
 import datetime
@@ -12,11 +11,10 @@ from depends import get_bitrix_service, get_form_service
 from services.bitrix import BitrixService
 from services.form import FormService
 
-app_forms = APIRouter()
+router = APIRouter(tags=['FORMS'])
 
 
-@app_forms.post('/form_to_sp/', tags=['FORMS'], summary="Создание элемента СП Тестирования")
-@logger.catch
+@router.post('/form_to_sp/', summary="Создание элемента СП Тестирования")
 async def form_to_sp(
     request: FormRequest,
     bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
@@ -45,8 +43,7 @@ async def form_to_sp(
     )
 
 
-@app_forms.post('/employee_testing/', tags=['FORMS'], summary="Панель разрешенных тестов")
-@logger.catch
+@router.post('/employee_testing/', summary="Панель разрешенных тестов")
 async def employee_testing(
     request: Request,
     bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
@@ -117,8 +114,7 @@ async def employee_testing(
     )
 
 
-@app_forms.post('/create_forms/', tags=['FORMS'], summary="Панель тестов")
-@logger.catch
+@router.post('/create_forms/', summary="Панель тестов")
 async def create_forms(
     request: Request,
     bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
@@ -155,7 +151,7 @@ async def create_forms(
     )
 
 
-@app_forms.post("/control_forms/", tags=['FORMS'], summary="Обработчик доступов к тестам")
+@router.post("/control_forms/", summary="Обработчик доступов к тестам")
 async def control_forms(
         request: Request,
         form_service: Annotated[FormService, Depends(get_form_service)]

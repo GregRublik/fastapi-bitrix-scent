@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Request, Depends
-from config import logger
 import datetime
 from services.bitrix import BitrixService
 from depends import get_bitrix_service
@@ -10,7 +9,6 @@ contacts = APIRouter()
 
 
 @contacts.post("/last_activity/", tags=['CONTACTS'], summary="Фиксация последней активности")
-@logger.catch
 async def activity_update(
     request: Request,
     bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],

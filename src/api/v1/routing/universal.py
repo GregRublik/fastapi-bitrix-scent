@@ -1,28 +1,26 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Request, Depends
-from config import logger
 from config import templates, settings
 from asyncio import sleep
-from depends import verify_api_key
+from depends import verify_api_key, get_bitrix_service
 
 from services.bitrix import BitrixService
 
-app_univers = APIRouter()
+
+router = APIRouter(tags=["UNIVERSAL"])
 
 
-@app_univers.get("/", tags=['UNIVERSAL'], summary="Главная страница")
-@logger.catch
+@router.get("/", summary="Главная страница")
 async def main(
     request: Request
 ):
     return templates.TemplateResponse(request, name="main.html")
 
 
-@app_univers.get("/send_message/", tags=['UNIVERSAL'], summary="Отправить сообщение от лизы")
-@logger.catch
+@router.get("/send_message/", summary="Отправить сообщение от лизы")
 async def send_message(
-    bitrix_service: Annotated[BitrixService, Depends(BitrixService)],
+    bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
     message: str,
     recipient: int,
     authorized: bool = Depends(verify_api_key),
@@ -36,10 +34,9 @@ async def send_message(
     )
 
 
-@app_univers.post('/main_handler/', tags=["UNIVERSAL"], summary="Главный обработчик")
-@logger.catch
+@router.post('/main_handler/', summary="Главный обработчик")
 async def main_handler(
-    bitrix_service: Annotated[BitrixService, Depends(BitrixService)],
+    bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
     method: str,
     params: str | None = None,
     authorized: bool = Depends(verify_api_key),
@@ -56,11 +53,11 @@ async def main_handler(
     return {'result': result, "methods": dir(result)}
 
 
-@app_univers.post('/activity_close/', tags=["UNIVERSAL"], summary="Главный обработчик")
-@logger.catch
+
+@router.post('/activity_close/', summary="Главный обработчик")
 async def main_handler(
     owner_id: int,
-    bitrix_service: Annotated[BitrixService, Depends(BitrixService)],
+    bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
     authorized: bool = Depends(verify_api_key),
 ):
     list_activity = await bitrix_service.send_request(

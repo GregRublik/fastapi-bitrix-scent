@@ -1,20 +1,18 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from config import logger
-from db.database import get_bitrix_auth
 from config import settings
-from depends import verify_api_key
+from depends import verify_api_key, get_bitrix_service
 from services.bitrix import BitrixService
 
-app_user = APIRouter()
+
+router = APIRouter(tags=['USER'])
 
 
-@app_user.post('/invite_an_employee/', tags=['USER'], summary="Приглашение сотрудников")
-@logger.catch
+@router.post('/invite_an_employee/', summary="Приглашение сотрудников")
 async def invite_an_employee(
     email: str,
-    bitrix_service: Annotated[BitrixService, Depends(BitrixService)],
+    bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
     name: str | None = None,
     last_name: str | None = None,
     work_position: str | None = None,
@@ -57,11 +55,10 @@ async def invite_an_employee(
     return new_user
 
 
-@app_user.post("/task_delegate/", tags=['USER'], summary="Делегирование задач на руководителя")
-@logger.catch
+@router.post("/task_delegate/", summary="Делегирование задач на руководителя")
 async def task_delegate(
     user_id: int,
-    bitrix_service: Annotated[BitrixService, Depends(BitrixService)],
+    bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
     authorized: bool = Depends(verify_api_key),
 ):
     """
