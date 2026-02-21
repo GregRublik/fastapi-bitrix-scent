@@ -18,9 +18,9 @@ class BitrixService:
     async def app_install(self, access, refresh):
         async with self.uow:
             try:
-                bitrix_auth = await self.repository.get_first(self.uow.session)
+                auth = await self.repository.get_first(self.uow.session)
             except ModelNoFoundException:
-                bitrix_auth = await self.repository.add_one(
+                auth = await self.repository.add_one(
                     self.uow.session,
                     {
                         "name_app": "main",
@@ -32,8 +32,8 @@ class BitrixService:
                     }
                 )
 
-            bitrix_auth.access_token = access
-            bitrix_auth.refresh_token = refresh
+            auth.access_token = access
+            auth.refresh_token = refresh
 
         return await self.reboot_tokens()
 
@@ -42,15 +42,15 @@ class BitrixService:
         logger.info("reboot tokens")
 
         async with self.uow:
-            bitrix_auth = await self.repository.get_first(self.uow.session)
+            auth = await self.repository.get_first(self.uow.session)
 
             response = await self.http_session.get(
                 url=f"https://oauth.bitrix.info/oauth/token/",
                 params={
                     'grant_type': 'refresh_token',
-                    'client_id': bitrix_auth.client_id,
-                    'client_secret': bitrix_auth.client_secret,
-                    'refresh_token': bitrix_auth.refresh_token,
+                    'client_id': auth.client_id,
+                    'client_secret': auth.client_secret,
+                    'refresh_token': auth.refresh_token,
 
                 }
             )
@@ -58,17 +58,17 @@ class BitrixService:
                 return {'status_code': response.status, 'error': 'Failed to update tokens.'}
             result = await response.json()
 
-            bitrix_auth.access_token = result['access_token']
-            bitrix_auth.refresh_token = result['refresh_token']
+            auth.access_token = result['access_token']
+            auth.refresh_token = result['refresh_token']
 
             return {'status_code': 200, 'result': result}
 
     async def get_tokens(self) -> dict:
-        bitrix_auth = await self.repository.get_first(self.uow.session)
+        auth = await self.repository.get_first(self.uow.session)
 
         return {
-            "access_token": bitrix_auth.access_token,
-            "refresh_token": bitrix_auth.refresh_token
+            "access_token": auth.access_token,
+            "refresh_token": auth.refresh_token
         }
 
     async def send_request(
@@ -105,7 +105,7 @@ class BitrixService:
 
             auth = await self.reboot_tokens()
 
-            params["auth"] = auth.get("result")['access_token']
+            params["auth"] = auth["result"]['access_token']
             response = await _request()
             if response.status != status.HTTP_200_OK:
                 raise ErrorRequestBitrix()
