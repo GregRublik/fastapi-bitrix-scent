@@ -19,7 +19,7 @@ def create_session_maker(db_url: str) -> async_sessionmaker[AsyncSession]:
     )
 
 
-async_session_maker = create_session_maker(settings.db.dsn_asyncpg)
+async_session_maker = create_session_maker(settings.db.dsn_asyncmy)
 
 
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
