@@ -19,7 +19,7 @@ app.include_router(contacts.contacts)
 
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
-if platform.system() == "Windows":
+if platform.system() != "Windows":
     application = ASGIMiddleware(app)
 else:
     application = app
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     try:
         uvicorn.run(
             application,
-            host=settings.host,
+            host=f"{settings.host}",
             log_config="logs/log_config.json",
             use_colors=True,
             log_level="info",

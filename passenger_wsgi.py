@@ -11,4 +11,4 @@ if sys.executable != INTERP:
 
 sys.path.append(os.getcwd())
 
-from main import application # noqa
+from src.main import application
