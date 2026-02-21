@@ -33,7 +33,7 @@ async def invite_an_employee(
 
     if 'error' in new_user:
         await bitrix_service.send_request(
-            'im.message.add.json',
+            'im.message.add',
             json={
                 'DIALOG_ID': 77297,
                 'MESSAGE': (

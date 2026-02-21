@@ -1,4 +1,4 @@
-from loguru import logger
+import logging
 from fastapi.templating import Jinja2Templates
 
 from aiohttp import ClientSession
@@ -66,13 +66,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="APP_", env_file=".env", extra="ignore")
 
 
-logger.add(
-    "logs/debug.log",
-    format="{time} - {level} - {message}",
-    level="INFO",
-    rotation="5 MB",
-    compression="zip"
-)
+logger = logging.getLogger("app")
 
 templates = Jinja2Templates(directory="src/templates")
 settings = Settings(

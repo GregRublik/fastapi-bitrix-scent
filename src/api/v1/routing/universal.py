@@ -17,6 +17,12 @@ async def main(
 ):
     return templates.TemplateResponse(request, name="main.html")
 
+@router.post("/", summary="Главная страница")
+async def main(
+    request: Request
+):
+    return templates.TemplateResponse(request, name="main.html")
+
 
 @router.get("/send_message/", summary="Отправить сообщение от лизы")
 async def send_message(
@@ -26,7 +32,7 @@ async def send_message(
     authorized: bool = Depends(verify_api_key),
 ):
     return await bitrix_service.send_request(
-        f'55810/{settings.bitrix.key_405}/im.message.add.json',
+        f'55810/{settings.bitrix.key_405}/im.message.add',
         params={
             'DIALOG_ID': recipient,
             'MESSAGE': message
@@ -37,8 +43,8 @@ async def send_message(
 @router.post('/main_handler/', summary="Главный обработчик")
 async def main_handler(
     bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
-    method: str,
-    params: str | None = None,
+    endpoint: str,
+    json: dict | None = None,
     authorized: bool = Depends(verify_api_key),
 ):
     """
@@ -46,8 +52,9 @@ async def main_handler(
     """
 
     result = await bitrix_service.send_request(
-        f'{method}?{params}'
-        'get'
+        endpoint,
+        'post',
+        json=json
     )
 
     return {'result': result, "methods": dir(result)}
@@ -61,7 +68,7 @@ async def main_handler(
     authorized: bool = Depends(verify_api_key),
 ):
     list_activity = await bitrix_service.send_request(
-        'crm.activity.list.json'
+        'crm.activity.list'
         'post',
         json={
             'filter': {

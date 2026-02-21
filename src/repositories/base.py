@@ -38,7 +38,7 @@ class SQLAlchemyRepository(AbstractRepository):
             result = await session.scalar(stmt)
             if result is None:
                 raise ModelNoFoundException
-            return result.to_read_model()
+            return result
         except NoResultFound:
             raise ModelNoFoundException
 

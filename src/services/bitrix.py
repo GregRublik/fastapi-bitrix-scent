@@ -2,8 +2,8 @@ from aiohttp import ClientSession
 from fastapi import status
 from typing import Literal, Optional
 
-from config import settings
-from exceptions import ErrorRequestBitrix
+from config import settings, logger
+from exceptions import ErrorRequestBitrix, ModelNoFoundException
 from repositories.bitrix import BitrixRepository
 from services.uow import UnitOfWorkService
 
@@ -17,7 +17,20 @@ class BitrixService:
 
     async def app_install(self, access, refresh):
         async with self.uow:
-            bitrix_auth = await self.repository.get_first(self.uow.session)
+            try:
+                bitrix_auth = await self.repository.get_first(self.uow.session)
+            except ModelNoFoundException:
+                bitrix_auth = await self.repository.add_one(
+                    self.uow.session,
+                    {
+                        "name_app": "main",
+                        "owner": 77297,
+                        "client_secret": settings.bitrix.client_secret,
+                        'client_id': settings.bitrix.client_id,
+                        'access_token': settings.bitrix.access_token,
+                        'refresh_token': settings.bitrix.refresh_token,
+                    }
+                )
 
             bitrix_auth.access_token = access
             bitrix_auth.refresh_token = refresh
@@ -26,6 +39,7 @@ class BitrixService:
 
     async def reboot_tokens(self) -> dict:
         """С помощью client_secret приложения можно обновить токены для дальнейшей работы приложения"""
+        logger.info("reboot tokens")
 
         async with self.uow:
             bitrix_auth = await self.repository.get_first(self.uow.session)
@@ -61,15 +75,19 @@ class BitrixService:
         self,
         endpoint: str,
         method: Literal['get', 'post'] = 'post',
-        auth: str = settings.bitrix.access_token,
+        auth_token: Optional[str] = None,
         params: Optional[dict] = None,
         json: Optional[dict] = None,
     ) -> dict:
         url = f"{settings.bitrix.portal_url}rest/{endpoint}.json"
 
+        if auth_token is None:
+            auth =  await self.repository.get_first(self.uow.session)
+            auth_token = auth.access_token
+
         params = {
             **(params or {}),
-            "auth": auth,
+            "auth": auth_token,
         }
 
         async def _request():
@@ -82,9 +100,12 @@ class BitrixService:
 
         response = await _request()
 
-        if response.status == status.HTTP_401_UNAUTHORIZED:
-            await self.reboot_tokens()
-            params["auth"] = settings.bitrix.access_token
+        if response.status != status.HTTP_200_OK:
+
+
+            auth = await self.reboot_tokens()
+
+            params["auth"] = auth.get("result")['access_token']
             response = await _request()
             if response.status != status.HTTP_200_OK:
                 raise ErrorRequestBitrix()

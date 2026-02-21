@@ -24,17 +24,17 @@ async def task_panel(
     user = await bitrix_service.send_request(
         "user.current",
         "post",
-        auth=AUTH_ID
+        auth_token=AUTH_ID
     )
     user_admin = await bitrix_service.send_request(
         "user.admin",
         "post",
-        auth=AUTH_ID
+        auth_token=AUTH_ID
     )
 
     # получить привязанные элементы tasks.task.get | taskId=441215&select[0]=UF_CRM_TASK
     task = await bitrix_service.send_request(
-        "tasks.task.get.json",
+        "tasks.task.get",
         json = {
             'taskId': placement_options['taskId'],
             'select': ['ACCOMPLICES', 'RESPONSIBLE_ID', 'UF_CRM_TASK', 'TITLE'],
@@ -50,7 +50,7 @@ async def task_panel(
 
     element_id = task['result']['task']['ufCrmTask'][0][4:]
     element = await bitrix_service.send_request(
-        "crm.item.get.json",
+        "crm.item.get",
         json={
             'entityTypeId': 131,
             'id': element_id,
@@ -65,7 +65,7 @@ async def task_panel(
     )
     accomplices = task['result']['task']['accomplices'][0]
     accountants = await bitrix_service.send_request(
-        'user.search.json',
+        'user.search',
         json={
             'UF_DEPARTMENT': 114
         }
@@ -111,7 +111,7 @@ async def task_panel(
                     'comment_accountant':
                         element['result']["item"]['ufCrm12_1708599567866'],
                     'created_by': element['result']["item"]['createdBy'],
-                    'portal_url': settings.portal_url,
+                    'portal_url': settings.bitrix.portal_url,
                     'hosting_url': settings.hosting_url
                 }
             )

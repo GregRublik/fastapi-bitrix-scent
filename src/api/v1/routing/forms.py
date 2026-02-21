@@ -26,7 +26,7 @@ async def form_to_sp(
         answers += f"{name_answer}: {answer}\n"
 
     result = await bitrix_service.send_request(
-        'crm.item.add.json',
+        'crm.item.add',
         json = {
             'entityTypeId': 1098,
             'fields': {
@@ -57,7 +57,7 @@ async def employee_testing(
 
     user = await bitrix_service.send_request(
         'user.current',
-        auth=AUTH_ID
+        auth_token=AUTH_ID
     )
 
     if 'test_id' in params:

@@ -38,14 +38,14 @@ async def activity_update(
         # owner_type_id - 2 deal, 3 contact, 4 company
 
         list_owner = await bitrix_service.send_request(
-            'crm.activity.binding.list.json',
+            'crm.activity.binding.list',
             json={'activityId': activity_id,}
         )
 
         for owner in list_owner['result']:
             if owner['entityTypeId'] == 3:
                 list_company = await bitrix_service.send_request(
-                    'crm.contact.company.items.get.json',
+                    'crm.contact.company.items.get',
                     json={
                         'id': owner['entityId'],
                     }
@@ -53,7 +53,7 @@ async def activity_update(
                 # обновление "даты последнего контакта" во всех компаниях связанных с контактом
                 for company in list_company['result']:
                     await bitrix_service.send_request(
-                        'crm.company.update.json',
+                        'crm.company.update',
                         json={
                             'id': company['COMPANY_ID'],
                             'fields': {
@@ -62,7 +62,7 @@ async def activity_update(
                         }
                     )
                 updated_contact = await bitrix_service.send_request(
-                    'crm.contact.update.json',
+                    'crm.contact.update',
                     json={
                         'id': owner['entityId'],
                         'fields': {
@@ -73,7 +73,7 @@ async def activity_update(
                 return updated_contact
             elif owner['entityTypeId'] == 4:
                 updated_company = await bitrix_service.send_request(
-                    'crm.company.update.json',
+                    'crm.company.update',
                     json={
                         'id': owner['entityId'],
                         'fields': {
