@@ -1,11 +1,10 @@
 import json
-
-from fastapi import APIRouter, Request, Form, Depends
-from config import templates, settings
-
 from typing import Annotated
-from services.bitrix import BitrixService
-from depends import get_bitrix_service
+from fastapi import APIRouter, Request, Form, Depends
+
+from src.config import templates, settings
+from src.services.bitrix import BitrixService
+from src.depends import get_bitrix_service
 
 router = APIRouter()
 

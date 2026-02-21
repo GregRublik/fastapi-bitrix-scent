@@ -1,9 +1,9 @@
 from typing import Annotated
-
 from fastapi import APIRouter, Depends
-from config import settings
-from depends import verify_api_key, get_bitrix_service
-from services.bitrix import BitrixService
+
+from src.config import settings
+from src.depends import verify_api_key, get_bitrix_service
+from src.services.bitrix import BitrixService
 
 
 router = APIRouter(tags=['USER'])

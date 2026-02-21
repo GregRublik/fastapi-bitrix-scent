@@ -1,11 +1,10 @@
 from typing import Annotated
-
-from fastapi import APIRouter, Request, Depends
-from config import templates, settings
 from asyncio import sleep
-from depends import verify_api_key, get_bitrix_service
+from fastapi import APIRouter, Request, Depends
 
-from services.bitrix import BitrixService
+from src.config import templates, settings
+from src.depends import verify_api_key, get_bitrix_service
+from src.services.bitrix import BitrixService
 
 
 router = APIRouter(tags=["UNIVERSAL"])

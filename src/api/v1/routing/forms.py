@@ -1,15 +1,16 @@
 from typing import Annotated
-
-from fastapi import APIRouter, Request, Form, Depends
-from fastapi.responses import RedirectResponse
-from schemas.models import FormRequest
-from config import settings, templates
 import datetime
 import json
-from depends import get_bitrix_service, get_form_service
+from fastapi import APIRouter, Request, Form, Depends
+from fastapi.responses import RedirectResponse
 
-from services.bitrix import BitrixService
-from services.form import FormService
+from src.schemas.models import FormRequest
+from src.config import settings, templates
+
+from src.depends import get_bitrix_service, get_form_service
+
+from src.services.bitrix import BitrixService
+from src.services.form import FormService
 
 router = APIRouter(tags=['FORMS'])
 
