@@ -8,26 +8,26 @@
 {% block body %}
 {% for form in forms %}
     {{ form }}
-    <div class="test-block" id="test-block-{{form.id}}">
-        <a href="{{ form.url }}?user_id={{ user_id }}">{{ form.name }}</a>
-        {% if list_end_test[form.id] %}
-        <p>Последний результат: {{ list_end_test[form.id]['points'] }} / {{ list_end_test[form.id]['max_points'] }}</p>
-        <p>Кол-во попыток: {{ list_end_test[form.id]['count'] }}</p>
-        <p>Последняя попытка: {{ list_end_test[form.id]['date']}}</p>
+    <div class="test-block" id="test-block-{{form.form_id}}">
+        <a href="{{ form.url }}?user_id={{ user_id }}">{{ form.title }}</a>
+        {% if list_end_test[form.form_id] %}
+        <p>Последний результат: {{ list_end_test[form.form_id]['points'] }} / {{ list_end_test[form.form_id]['max_points'] }}</p>
+        <p>Кол-во попыток: {{ list_end_test[form.form_id]['count'] }}</p>
+        <p>Последняя попытка: {{ list_end_test[form.form_id]['date']}}</p>
         <style type="text/css">
-            {% if list_end_test[form.id]['result'] == "Тест провален" %}
-            #test-block-{{form.id}} {
+            {% if list_end_test[form.form_id]['result'] == "Тест провален" %}
+            #test-block-{{form.form_id}} {
                 background-color: #FF8284;
             }
-            {% elif list_end_test[form.id]['result'] == "Тест пройден" %}
-            #test-block-{{form.id}} {
+            {% elif list_end_test[form.form_id]['result'] == "Тест пройден" %}
+            #test-block-{{form.form_id}} {
                 background-color: #96E38D;
             }
             {% endif %}
         </style>
         {% else%}
         <style type="text/css">
-        #test-block-{{form.id}} {
+        #test-block-{{form.form_id}} {
                 background-color: #D3D3D3;
             }
 
