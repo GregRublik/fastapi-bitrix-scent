@@ -15,7 +15,7 @@ class FormService:
     async def get_form_by_id(self, form_id: int) -> FormsTests:
         return await self.repository.get_by_id(self.uow.session, form_id)
 
-    async def get_forms(self) -> List[FormsTestsRepository]:
+    async def get_forms(self) -> List[FormsTests]:
         return await self.repository.get_all(self.uow.session)
 
     async def add_form_if_not_exists(self, body: dict) -> FormsTests:

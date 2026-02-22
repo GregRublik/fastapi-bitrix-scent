@@ -102,7 +102,11 @@ async def employee_testing(
                 'count': 1}
     forms_access = []
     for department_id in user['result']['UF_DEPARTMENT']:
-        forms_access = [form for form in forms if form[3] and str(department_id) in form[3]]
+        forms_access = [
+            form
+            for form in forms
+            if form.accesses and str(department_id) in form.accesses
+        ]
     return templates.TemplateResponse(
         request,
         name="employee_testing.html",
