@@ -1,11 +1,12 @@
+import logging
 import logging.config
 import json
 import os
 
 
 def setup_logging():
-    PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-    PROJECT_ROOT = os.path.dirname(PROJECT_ROOT)
+    PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__)) # noqa
+    PROJECT_ROOT = os.path.dirname(PROJECT_ROOT) # noqa
 
     logs_dir = os.path.join(PROJECT_ROOT, "logs")
     os.makedirs(logs_dir, exist_ok=True)
@@ -17,4 +18,10 @@ def setup_logging():
 
     config["handlers"]["file"]["filename"] = os.path.join(logs_dir, "app.log")
 
+    # 🔥 ВАЖНО
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
     logging.config.dictConfig(config)
+
+    print("LOGGING INITIALIZED")
