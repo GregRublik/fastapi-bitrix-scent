@@ -22,17 +22,17 @@
         <button class="button" id="open-modal">Добавить тест</button>
     </div>
     <div class="panel">
-        {% for i in list_forms %}
+        {% for form in list_forms %}
         <div class="test-header">
             {{ error }}
-            <h2>{{ i[1] }}</h2>
+            <h2>{{ form.title }}</h2>
             <div>
-                <button value="{{ i[0] }}" title="Добавить доступ" class="button add-department" onclick="showDepartmentSelect(event)">✛</button>
-                <button value="{{ i[0] }}" title="Удалить тест" class="button delete-button" onclick="deleteTest(event)">✕</button>
+                <button value="{{ form.form_id }}" title="Добавить доступ" class="button add-department" onclick="showDepartmentSelect(event)">✛</button>
+                <button value="{{ form.form_id }}" title="Удалить тест" class="button delete-button" onclick="deleteTest(event)">✕</button>
             </div>
         </div>
-        {% if i[3] %}
-            {% for j in i[3] %}
+        {% if form.accesses %}
+            {% for j in from.accesses %}
             <div class="test-row">
                 <div class="item">{{ dict_department[j] }}</div>
             </div>
