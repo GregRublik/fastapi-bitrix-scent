@@ -154,7 +154,7 @@ class SQLAlchemyRepository(AbstractRepository):
         stmt = select(self.model)
         try:
             res = await session.execute(stmt)
-            return [row[0].to_read_model() for row in res.all()]
+            return [row[0] for row in res.all()]  # Просто возвращаем объекты
         except NoResultFound:
             raise ModelNoFoundException
 
