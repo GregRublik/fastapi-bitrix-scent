@@ -4,6 +4,9 @@ from fastapi.staticfiles import StaticFiles
 
 from src.api.v1.routing import auth, concord, forms, universal, user, contacts
 from src.exception_handlers import exception_handlers
+from src.logging_config import setup_logging
+
+setup_logging()
 
 app = FastAPI(exception_handlers=exception_handlers)
 app.include_router(universal.router)
