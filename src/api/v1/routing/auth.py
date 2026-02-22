@@ -1,11 +1,15 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Request, Form
+import logging
 
 from src.config import templates
 from src.services.bitrix import BitrixService
 from src.depends import get_bitrix_service
 
 router = APIRouter()
+
+logger = logging.getLogger("app")
+logger.info("TEST LOG FROM ROUTE")
 
 
 @router.post("/install/", tags=['AUTHENTICATION'], summary="Установка приложения на портал")
