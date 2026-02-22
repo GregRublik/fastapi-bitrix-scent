@@ -11,7 +11,7 @@ logger.info("Application starting...")
 
 from src.api.v1.routing import auth, concord, forms, universal, user, contacts
 from src.exception_handlers import exception_handlers
-from src.middleware.logging_middleware import setup_logging_middleware
+from src.middleware.logging import setup_logging_middleware
 
 
 app = FastAPI(exception_handlers=exception_handlers)
