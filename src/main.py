@@ -1,7 +1,3 @@
-import os
-import sys
-sys.path.append('/src')
-
 from a2wsgi import ASGIMiddleware
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
