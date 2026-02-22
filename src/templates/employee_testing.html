@@ -7,6 +7,7 @@
 
 {% block body %}
 {% for form in forms %}
+    {{ form }}
     <div class="test-block" id="test-block-{{form.id}}">
         <a href="{{ form.url }}?user_id={{ user_id }}">{{ form.name }}</a>
         {% if list_end_test[form.id] %}
