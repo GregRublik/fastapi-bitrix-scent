@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Text, JSON, VARCHAR
 
 
-from db.database import Base
+from src.db.database import Base
 
 class FormsTests(Base):
     __tablename__ = 'forms'

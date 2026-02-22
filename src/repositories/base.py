@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, select, update, delete, inspect
 from sqlalchemy.exc import IntegrityError, NoResultFound, MultipleResultsFound
 
-from exceptions import ModelAlreadyExistsException, ModelNoFoundException, ModelMultipleResultsFoundException
+from src.exceptions import ModelAlreadyExistsException, ModelNoFoundException, ModelMultipleResultsFoundException
 
 class AbstractRepository(ABC):
     """

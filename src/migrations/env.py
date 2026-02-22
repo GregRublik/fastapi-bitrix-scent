@@ -3,16 +3,15 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from src.config import settings
 from alembic import context
 
 sys.path.append("src/")
 
-from models.form import FormsTests # noqa
-from models.bitrix import BitrixAuth # noqa
+from src.models.form import FormsTests # noqa
+from src.models.bitrix import BitrixAuth # noqa
+from src.config import settings
 
-
-from db.database import Base
+from src.db.database import Base
 
 config = context.config
 

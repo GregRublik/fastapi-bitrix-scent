@@ -4,13 +4,13 @@ import json
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import RedirectResponse
 
-from schemas.models import FormRequest
-from config import settings, templates
+from src.schemas.models import FormRequest
+from src.config import settings, templates
 
-from depends import get_bitrix_service, get_form_service
+from src.depends import get_bitrix_service, get_form_service
 
-from services.bitrix import BitrixService
-from services.form import FormService
+from src.services.bitrix import BitrixService
+from src.services.form import FormService
 
 router = APIRouter(tags=['FORMS'])
 

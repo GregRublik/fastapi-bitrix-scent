@@ -2,10 +2,10 @@ from aiohttp import ClientSession
 from fastapi import status
 from typing import Literal, Optional
 
-from config import settings, logger
-from exceptions import ErrorRequestBitrix, ModelNoFoundException
-from repositories.bitrix import BitrixRepository
-from services.uow import UnitOfWorkService
+from src.config import settings, logger
+from src.exceptions import ErrorRequestBitrix, ModelNoFoundException
+from src.repositories.bitrix import BitrixRepository
+from src.services.uow import UnitOfWorkService
 
 
 class BitrixService:

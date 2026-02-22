@@ -1,5 +1,5 @@
-from repositories.base import SQLAlchemyRepository
-from models.bitrix import BitrixAuth
+from src.repositories.base import SQLAlchemyRepository
+from src.models.bitrix import BitrixAuth
 
 class BitrixRepository(SQLAlchemyRepository):
     model = BitrixAuth

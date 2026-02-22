@@ -1,7 +1,9 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
-from exceptions import ErrorRequestBitrix
 from typing import Dict, Any
+
+from src.exceptions import ErrorRequestBitrix
+
 
 # Определяем обработчики как обычные функции
 async def error_request_bitrix_handler(request: Request, exc: ErrorRequestBitrix) -> JSONResponse:

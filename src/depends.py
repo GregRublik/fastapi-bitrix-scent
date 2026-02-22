@@ -1,13 +1,12 @@
 from fastapi import HTTPException, status, security, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from config import settings, SessionManager
 from aiohttp import ClientSession
 
-from repositories.bitrix import BitrixRepository
-from repositories.form import FormsTestsRepository
-
-from services import bitrix, form, uow
-from db.database import get_db_session
+from src.repositories.bitrix import BitrixRepository
+from src.repositories.form import FormsTestsRepository
+from src.services import bitrix, form, uow
+from src.db.database import get_db_session
+from src.config import settings, SessionManager
 
 
 def verify_api_key(credentials: security.HTTPAuthorizationCredentials = Depends(security.HTTPBearer())) -> bool:
