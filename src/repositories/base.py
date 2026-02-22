@@ -43,51 +43,112 @@ class SQLAlchemyRepository(AbstractRepository):
             raise ModelNoFoundException
 
     async def add_one(self, session: AsyncSession, data: dict):
-        stmt = insert(self.model).values(**data).returning(self.model)
-        try:
-            res = await session.execute(stmt)
-            return res.scalar_one()
-        except IntegrityError:
-            raise ModelAlreadyExistsException
+        dialect = session.get_bind().dialect.name
+
+        if dialect == 'postgresql':
+            # PostgreSQL поддерживает RETURNING
+            stmt = insert(self.model).values(**data).returning(self.model)
+            try:
+                res = await session.execute(stmt)
+                return res.scalar_one()
+            except IntegrityError:
+                raise ModelAlreadyExistsException
+
+        elif dialect == 'mysql':
+            # MySQL не поддерживает RETURNING
+            stmt = insert(self.model).values(**data)
+            try:
+                await session.execute(stmt)
+                await session.flush()
+
+                # Получаем созданную запись (если есть ID)
+                if hasattr(self.model, 'id'):
+                    result = await session.execute(
+                        select(self.model).order_by(self.model.id.desc()).limit(1)
+                    )
+                    return result.scalar_one()
+                else:
+                    # Если нет ID, возвращаем None или ищем по другим полям
+                    return None
+
+            except IntegrityError:
+                raise ModelNoFoundException
 
     async def change_one(self, session: AsyncSession, object_id: int | UUID4, data: dict):
-
         pk = inspect(self.model).primary_key[0]
+        dialect = session.get_bind().dialect.name
 
-        stmt = (
-            update(self.model)
-            .where(pk == object_id)
-            .values(**data)
-            .returning(self.model)
-        )
+        if dialect == 'postgresql':
+            # PostgreSQL поддерживает RETURNING
+            stmt = (
+                update(self.model)
+                .where(pk == object_id)
+                .values(**data)
+                .returning(self.model)
+            )
+            try:
+                res = await session.execute(stmt)
+                return res.scalar_one()
+            except NoResultFound:
+                raise ModelNoFoundException
 
-        try:
+        else:  # MySQL и другие
+            # Выполняем UPDATE
+            stmt = (
+                update(self.model)
+                .where(pk == object_id)
+                .values(**data)
+            )
+
+            result = await session.execute(stmt)
+
+            if result.rowcount == 0:
+                raise ModelNoFoundException
+
+            # Получаем обновленную запись
+            select_stmt = select(self.model).where(pk == object_id)
+            res = await session.execute(select_stmt)
+            updated_obj = res.scalar_one_or_none()
+
+            if updated_obj is None:
+                raise ModelNoFoundException
+
+            return updated_obj
+
+    async def delete_by_id(self, session: AsyncSession, object_id: int | UUID4):
+        pk = inspect(self.model).primary_key[0]
+        dialect = session.get_bind().dialect.name
+
+        if dialect == 'postgresql':
+            # PostgreSQL поддерживает RETURNING
+            stmt = (
+                delete(self.model)
+                .where(pk == object_id)
+                .returning(self.model)
+            )
+
             res = await session.execute(stmt)
-            return res.scalar_one()
-        except NoResultFound:
-            raise ModelNoFoundException
+            obj = res.scalar_one_or_none()
 
-    async def delete_by_id(
-        self,
-        session: AsyncSession,
-        object_id: int | UUID4
-    ):
-        pk = inspect(self.model).primary_key[0]
+            if obj is None:
+                raise ModelNoFoundException
 
-        stmt = (
-            delete(self.model)
-            .where(pk == object_id)
-            .returning(self.model)
-        )
+            return obj
 
-        res = await session.execute(stmt)
+        else:  # MySQL и другие
+            # Сначала получаем объект
+            select_stmt = select(self.model).where(pk == object_id)
+            res = await session.execute(select_stmt)
+            obj = res.scalar_one_or_none()
 
-        obj = res.scalar_one_or_none()
+            if obj is None:
+                raise ModelNoFoundException
 
-        if obj is None:
-            raise ModelNoFoundException
+            # Затем удаляем
+            delete_stmt = delete(self.model).where(pk == object_id)
+            await session.execute(delete_stmt)
 
-        return obj
+            return obj
 
     async def get_all(self, session: AsyncSession):
         stmt = select(self.model)
