@@ -1,9 +1,6 @@
 import os
 import sys
-
-sys.path.append(os.path.dirname(__file__))
-
-import os
+sys.path.append('/src')
 
 INTERP = os.path.expanduser("/var/www/u2842936/data/venv/bin/python")
 # INTERP = os.path.expanduser("/var/www/u2842936/data/www/sporbita-developers.ru/.venv/bin/python")

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from src.db.database import Base
+from db.database import Base
 
 
 class BitrixAuth(Base):

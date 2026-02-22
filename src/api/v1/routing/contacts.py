@@ -2,8 +2,8 @@ from typing import Annotated
 import datetime
 from fastapi import APIRouter, Request, Depends
 
-from src.services.bitrix import BitrixService
-from src.depends import get_bitrix_service
+from services.bitrix import BitrixService
+from depends import get_bitrix_service
 
 contacts = APIRouter()
 
