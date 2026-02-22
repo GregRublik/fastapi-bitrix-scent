@@ -68,7 +68,7 @@ async def employee_testing(
         )
 
     list_tests = await bitrix_service.send_request(
-        'crm.item.list.json',
+        'crm.item.list',
         json={
             'entityTypeId': 1098,
             'filter': {
@@ -125,7 +125,7 @@ async def create_forms(
     list_all_department = []
     while True:
         list_department = await bitrix_service.send_request(
-            'department.get.json',
+            'department.get',
             json={
                 'sort': 'ID',
                 'start': count
