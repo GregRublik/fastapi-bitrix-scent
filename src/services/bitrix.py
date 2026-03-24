@@ -108,6 +108,6 @@ class BitrixService:
             params["auth"] = auth["result"]['access_token']
             response = await _request()
             if response.status != status.HTTP_200_OK:
-                raise ErrorRequestBitrix()
+                raise ErrorRequestBitrix(f"status:{response.status} error: {response.text}")
 
         return await response.json()
