@@ -1,4 +1,5 @@
 from typing import Annotated
+from loguru import logger
 import datetime
 from fastapi import APIRouter, Request, Depends
 
@@ -61,7 +62,9 @@ async def activity_update(
                             }
                         }
                     )
-                    print(result_company_update)
+                    logger.info(
+                        f"{request.method} {request.url.path} - {result_company_update}"
+                    )
                 updated_contact = await bitrix_service.send_request(
                     'crm.contact.update',
                     json={
@@ -71,7 +74,9 @@ async def activity_update(
                         }
                     }
                 )
-                print(updated_contact)
+                logger.info(
+                    f"{request.method} {request.url.path} - {updated_contact}"
+                )
                 return updated_contact
             elif owner['entityTypeId'] == 4:
                 updated_company = await bitrix_service.send_request(
@@ -83,7 +88,9 @@ async def activity_update(
                         }
                     }
                 )
-                print(updated_company)
+                logger.info(
+                    f"{request.method} {request.url.path} - {updated_company}"
+                )
                 return updated_company
     # звонок
     if provider_type_id == 'CALL':
