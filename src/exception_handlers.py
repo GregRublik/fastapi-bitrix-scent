@@ -6,11 +6,11 @@ from src.exceptions import ErrorRequestBitrix
 
 
 # Определяем обработчики как обычные функции
-# async def error_request_bitrix_handler(request: Request, exc: ErrorRequestBitrix) -> JSONResponse:
-#     return JSONResponse(
-#         status_code=500,
-#         content={"detail": str(exc), "error": "Bitrix request failed"}
-#     )
+async def error_request_bitrix_handler(request: Request, exc: ErrorRequestBitrix) -> JSONResponse:
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc), "error": "Bitrix request failed"}
+    )
 
 async def validation_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(
@@ -20,6 +20,6 @@ async def validation_exception_handler(request: Request, exc: Exception) -> JSON
 
 # Создаем словарь для удобного импорта
 exception_handlers: Dict[Any, Any] = {
-    # ErrorRequestBitrix: error_request_bitrix_handler,
+    ErrorRequestBitrix: error_request_bitrix_handler,
     # добавьте другие обработчики здесь
 }
