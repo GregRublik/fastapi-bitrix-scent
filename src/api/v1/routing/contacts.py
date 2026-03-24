@@ -84,9 +84,6 @@ async def activity_update(
                         }
                     }
                 )
-                logger.info(
-                    f"{request.method} {request.url.path} - {updated_company}"
-                )
                 return updated_company
     # звонок
     updated_owner = None
@@ -115,5 +112,5 @@ async def activity_update(
         else:
             updated_owner = await update_time_activity()
 
-    logger.debug(f"updated_owner: {updated_owner}")
+    logger.info(f"updated_owner: {updated_owner}")
     return {'status_code': 200, "updated_owner": updated_owner}
