@@ -31,9 +31,10 @@ async def activity_update(
     provider_type_id = activity['result']['PROVIDER_TYPE_ID']
     provider_id = activity['result']['PROVIDER_ID']
 
+    logger.info(f"case is not call, email, message provider_type_id: {provider_type_id}, provider_id: {provider_id}")
+
     # если это ненужное нам дело, то мы ничего не далаем
-    if provider_type_id not in ['CALL', 'EMAIL'] and provider_id != 'IMOPENLINES_SESSION':
-        logger.info(f"case is not call, email, message provider_type_id: {provider_type_id}, provider_id: {provider_id}")
+    if provider_type_id not in ['CALL', 'EMAIL', "EMAIL_COMPRESSED"] and provider_id != 'IMOPENLINES_SESSION':
         return {'status_code': 200, 'detail': 'case is not call, email, message'}
 
     async def update_time_activity():
@@ -97,10 +98,10 @@ async def activity_update(
             pass
         # если это входящий или исходящий не пропущенный, то надо заполнить дату
         else:
-            updated_owner = await update_time_activity( )
+            updated_owner = await update_time_activity()
 
     # почта
-    elif provider_type_id == 'EMAIL':
+    elif provider_type_id in ['EMAIL', 'EMAIL_COMPRESSED']:
         # только если это новое письмо (вход, исход)
         if data.get('event') == 'ONCRMACTIVITYADD':
             updated_owner = await update_time_activity()
@@ -114,4 +115,4 @@ async def activity_update(
             updated_owner = await update_time_activity()
 
     logger.info(f"updated_owner: {updated_owner}")
-    return {'status_code': 200, "updated_owner": updated_owner}
+    return {'status_code': 200}
