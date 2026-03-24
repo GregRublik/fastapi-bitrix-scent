@@ -52,7 +52,7 @@ async def activity_update(
                 )
                 # обновление "даты последнего контакта" во всех компаниях связанных с контактом
                 for company in list_company['result']:
-                    await bitrix_service.send_request(
+                    result_company_update = await bitrix_service.send_request(
                         'crm.company.update',
                         json={
                             'id': company['COMPANY_ID'],
@@ -61,6 +61,7 @@ async def activity_update(
                             }
                         }
                     )
+                    print(result_company_update)
                 updated_contact = await bitrix_service.send_request(
                     'crm.contact.update',
                     json={
@@ -70,6 +71,7 @@ async def activity_update(
                         }
                     }
                 )
+                print(updated_contact)
                 return updated_contact
             elif owner['entityTypeId'] == 4:
                 updated_company = await bitrix_service.send_request(
@@ -81,6 +83,7 @@ async def activity_update(
                         }
                     }
                 )
+                print(updated_company)
                 return updated_company
     # звонок
     if provider_type_id == 'CALL':
