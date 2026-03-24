@@ -52,6 +52,7 @@ async def activity_update(
                     }
                 )
                 # обновление "даты последнего контакта" во всех компаниях связанных с контактом
+                updated_companies = {}
                 for company in list_company['result']:
                     result_company_update = await bitrix_service.send_request(
                         'crm.company.update',
@@ -62,9 +63,7 @@ async def activity_update(
                             }
                         }
                     )
-                    logger.info(
-                        f"{request.method} {request.url.path} - {result_company_update}"
-                    )
+                    updated_companies[company['COMPANY_ID']] = result_company_update
                 updated_contact = await bitrix_service.send_request(
                     'crm.contact.update',
                     json={
@@ -74,10 +73,7 @@ async def activity_update(
                         }
                     }
                 )
-                logger.info(
-                    f"{request.method} {request.url.path} - {updated_contact}"
-                )
-                return updated_contact
+                return {"updated_contact": updated_contact, "updated_owner": updated_companies}
             elif owner['entityTypeId'] == 4:
                 updated_company = await bitrix_service.send_request(
                     'crm.company.update',
@@ -93,6 +89,7 @@ async def activity_update(
                 )
                 return updated_company
     # звонок
+    updated_owner = None
     if provider_type_id == 'CALL':
         # если это пропущенный звонок, то мы ничего не делаем
         if activity['result']['SETTINGS'].get('MISSED_CALL', False):
@@ -117,4 +114,6 @@ async def activity_update(
             pass
         else:
             updated_owner = await update_time_activity()
-    return {'status_code': 200}
+
+    logger.debug(f"updated_owner: {updated_owner}")
+    return {'status_code': 200, "updated_owner": updated_owner}
