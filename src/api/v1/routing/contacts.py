@@ -31,7 +31,7 @@ async def activity_update(
     provider_type_id = activity['result']['PROVIDER_TYPE_ID']
     provider_id = activity['result']['PROVIDER_ID']
 
-    logger.info(f"case is not call, email, message provider_type_id: {provider_type_id}, provider_id: {provider_id}")
+    logger.info(f"id: {activity_id} provider_type_id: {provider_type_id}, provider_id: {provider_id}")
 
     # если это ненужное нам дело, то мы ничего не далаем
     if provider_type_id not in ['CALL', 'EMAIL', "EMAIL_COMPRESSED"] and provider_id != 'IMOPENLINES_SESSION':
@@ -114,5 +114,4 @@ async def activity_update(
         else:
             updated_owner = await update_time_activity()
 
-    logger.info(f"updated_owner: {updated_owner}")
     return {'status_code': 200}
