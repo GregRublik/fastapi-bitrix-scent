@@ -10,8 +10,8 @@ from sqlalchemy.exc import NoResultFound, MultipleResultsFound
 class FormsTestsRepository(SQLAlchemyRepository):
     model = FormsTests
 
-
     async def get_by_id(self, session: AsyncSession, object_id: int | UUID4):
+        pk = inspect(self.model).primary_key[0]
 
         stmt = (
             select(self.model)
