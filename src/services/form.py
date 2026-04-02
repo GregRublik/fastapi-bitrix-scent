@@ -20,6 +20,7 @@ class FormService:
 
     async def add_form_if_not_exists(self, body: dict) -> FormsTests:
         try:
+            body.pop("type")
             return await self.get_form_by_id(body.get('form_id'))
         except ModelNoFoundException:
             async with self.uow:
