@@ -119,7 +119,7 @@ async def employee_testing(
     )
 
 
-@router.get('/create_forms/', summary="Панель тестов")
+@router.post('/create_forms/', summary="Панель тестов")
 async def create_forms(
     request: Request,
     bitrix_service: Annotated[BitrixService, Depends(get_bitrix_service)],
