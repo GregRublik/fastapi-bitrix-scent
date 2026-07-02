@@ -5,7 +5,7 @@ from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import RedirectResponse
 
 from src.schemas.models import FormRequest
-from src.config import settings, templates
+from src.config import settings, templates, logger
 
 from src.depends import get_bitrix_service, get_form_service
 
@@ -107,6 +107,7 @@ async def employee_testing(
             for form in forms
             if form.accesses and str(department_id) in form.accesses
         ]
+    logger.info(f"forms - {forms_access}")
     return templates.TemplateResponse(
         request,
         name="employee_testing.html",
