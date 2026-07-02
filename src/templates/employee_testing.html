@@ -6,6 +6,8 @@
 {% endblock %}
 
 {% block body %}
+    <b>hi</b>
+
 {% for form in forms %}
     <div class="test-block" id="test-block-{{form.form_id}}">
         <a href="{{ form.url }}?user_id={{ user_id }}">{{ form.title }}</a>
