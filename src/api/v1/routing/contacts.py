@@ -6,8 +6,6 @@ from fastapi import APIRouter, Request, Depends
 from src.services.bitrix import BitrixService
 from src.depends import get_bitrix_service
 
-from src.config import logger
-
 contacts = APIRouter()
 
 
