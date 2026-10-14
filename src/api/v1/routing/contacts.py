@@ -6,7 +6,7 @@ from fastapi import APIRouter, Request, Depends
 from src.services.bitrix import BitrixService
 from src.depends import get_bitrix_service
 
-# from config import logger
+from src.config import logger
 
 contacts = APIRouter()
 
@@ -22,8 +22,7 @@ async def activity_update(
     data = await request.form()
     activity_id = data.get('data[FIELDS][ID]')
 
-
-    # logger.info(f"activity_id: {activity_id}, data: {data}")
+    logger.info(f"activity_id: {activity_id}, data: {data}")
 
     activity = await bitrix_service.send_request(
         'crm.activity.get',
