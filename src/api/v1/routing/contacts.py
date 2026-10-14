@@ -34,6 +34,12 @@ async def activity_update(
     provider_id = activity['result']['PROVIDER_ID']
 
     logger.info(f"id: {activity_id} provider_type_id: {provider_type_id}, provider_id: {provider_id}")
+    logger.info(
+        f"event={data.get('event')} completed={activity['result'].get('COMPLETED')} "
+        f"direction={activity['result'].get('DIRECTION')} "
+        f"settings={activity['result'].get('SETTINGS')} "
+        f"bindings={await bitrix_service.send_request('crm.activity.binding.list', json={'activityId': activity_id})}"
+    )
 
     # если это ненужное нам дело, то мы ничего не далаем
     if provider_type_id not in ['CALL', 'EMAIL', "EMAIL_COMPRESSED"] and provider_id != 'IMOPENLINES_SESSION':
