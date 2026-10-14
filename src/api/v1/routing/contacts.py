@@ -122,4 +122,6 @@ async def activity_update(
         else:
             updated_owner = await update_time_activity()
 
+    logger.info(f"updated_owner: {updated_owner}")
+
     return {'status_code': 200}
