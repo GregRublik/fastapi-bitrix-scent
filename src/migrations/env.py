@@ -20,6 +20,7 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 config.set_main_option("sqlalchemy.url", settings.db.dsn_asyncmy + "?async_fallback=True")
+# config.set_main_option("sqlalchemy.url", settings.db.dsn_asyncpg + "?async_fallback=True")
 
 
 def run_migrations_offline() -> None:
